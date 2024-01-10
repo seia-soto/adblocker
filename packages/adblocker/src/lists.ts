@@ -9,12 +9,14 @@
 import Config from './config';
 import CosmeticFilter from './filters/cosmetic';
 import NetworkFilter from './filters/network';
+import Preprocessor from './preprocessor';
 import { fastStartsWith, fastStartsWithFrom } from './utils';
 
 export const enum FilterType {
   NOT_SUPPORTED = 0,
   NETWORK = 1,
   COSMETIC = 2,
+  PREPROCESSOR = 3,
 }
 
 /**
@@ -32,8 +34,16 @@ export function detectFilterType(line: string): FilterType {
   // Ignore comments
   const firstCharCode: number = line.charCodeAt(0);
   const secondCharCode: number = line.charCodeAt(1);
+  if (firstCharCode === 33 /* '!' */) {
+    if (secondCharCode !== 35 /* '#' */) {
+      return FilterType.NOT_SUPPORTED;
+    }
+
+    // Handle pre-processor rules
+    return FilterType.PREPROCESSOR;
+  }
+
   if (
-    firstCharCode === 33 /* '!' */ ||
     (firstCharCode === 35 /* '#' */ && secondCharCode <= 32) ||
     (firstCharCode === 91 /* '[' */ && fastStartsWith(line, '[Adblock'))
   ) {
@@ -143,6 +153,8 @@ export function parseFilters(
   const cosmeticFilters: CosmeticFilter[] = [];
   const lines = list.split('\n');
 
+  let preprocessor: Preprocessor | undefined;
+
   for (let i = 0; i < lines.length; i += 1) {
     let line = lines[i];
 
@@ -185,16 +197,26 @@ export function parseFilters(
     // Detect if filter is supported, network or cosmetic
     const filterType = detectFilterType(line);
 
-    if (filterType === FilterType.NETWORK && config.loadNetworkFilters === true) {
-      const filter = NetworkFilter.parse(line, config.debug);
-      if (filter !== null) {
-        networkFilters.push(filter);
+    if (filterType === FilterType.PREPROCESSOR) {
+      if (!preprocessor) {
+        preprocessor = Preprocessor.parse(line, config);
+      } else if (preprocessor.update(line)) {
+        preprocessor = undefined;
       }
-    } else if (filterType === FilterType.COSMETIC && config.loadCosmeticFilters === true) {
-      const filter = CosmeticFilter.parse(line, config.debug);
-      if (filter !== null) {
-        if (config.loadGenericCosmeticsFilters === true || filter.isGenericHide() === false) {
-          cosmeticFilters.push(filter);
+    }
+
+    if (!preprocessor?.negative) {
+      if (filterType === FilterType.NETWORK && config.loadNetworkFilters === true) {
+        const filter = NetworkFilter.parse(line, config.debug);
+        if (filter !== null) {
+          networkFilters.push(filter);
+        }
+      } else if (filterType === FilterType.COSMETIC && config.loadCosmeticFilters === true) {
+        const filter = CosmeticFilter.parse(line, config.debug);
+        if (filter !== null) {
+          if (config.loadGenericCosmeticsFilters === true || filter.isGenericHide() === false) {
+            cosmeticFilters.push(filter);
+          }
         }
       }
     }

@@ -1337,6 +1337,23 @@ foo.com###selector
       },
     );
   });
+
+  it('disables unsupported filters by preprocessor', () => {
+    const request = Request.fromRawDetails({ url: 'http://foo.com' });
+    let engine = Engine.parse(`!#if ext_ghostery
+||foo.com^
+!#endif`);
+
+    expect(engine.match(request).match).to.be.true;
+
+    engine = Engine.parse(`!#if !ext_ghostery
+||foo.com^
+!#else
+||bar.com^
+!#endif`);
+
+    expect(engine.match(request).match).to.be.false;
+  });
 });
 
 describe('diff updates', () => {

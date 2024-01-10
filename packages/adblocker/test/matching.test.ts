@@ -25,6 +25,9 @@ import Request, {
 
 import requests from './data/requests';
 
+import Preprocessor from '../src/preprocessor';
+import { Config } from '../adblocker';
+
 use((chai, utils) => {
   utils.addMethod(
     chai.Assertion.prototype,
@@ -555,5 +558,45 @@ describe('#getHashesFromLabelsBackward', () => {
     expect(getHashesFromLabelsBackward('foo.bar.baz.com', 11, 8)).to.eql(
       new Uint32Array(['baz', 'bar.baz', 'foo.bar.baz'].map(hashHostnameBackward)),
     );
+  });
+});
+
+describe('Preprocessor', () => {
+  const checkUsingTokenAndConfig = (
+    token: string,
+    config: Partial<Config>,
+    isSupported: boolean,
+  ) => {
+    it(`returns valid condition on ${token}`, () => {
+      const preprocessor = Preprocessor.parse(`#!if ${token}`, config)!;
+
+      expect(preprocessor).not.to.eql(undefined);
+      expect(preprocessor.negative).to.eql(!isSupported);
+
+      let shouldEndHere = preprocessor.update('#!else');
+
+      expect(shouldEndHere).to.eql(false);
+      expect(preprocessor.negative).to.eql(isSupported);
+
+      shouldEndHere = preprocessor.update('#!endif');
+
+      expect(shouldEndHere).to.eql(true);
+    });
+  };
+
+  checkUsingTokenAndConfig('ext_ghostery', {}, true);
+
+  [
+    'ext_ublock',
+    'ext_abp',
+    'adguard',
+    'adguard_app_android',
+    'adguard_app_ios',
+    'adguard_app_mac',
+    'adguard_app_windows',
+    'adguard_ext_android_cb',
+    'false',
+  ].forEach((token) => {
+    checkUsingTokenAndConfig(token, {}, false);
   });
 });

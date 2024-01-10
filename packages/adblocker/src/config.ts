@@ -26,6 +26,10 @@ export default class Config {
       loadExtendedSelectors: buffer.getBool(),
       loadGenericCosmeticsFilters: buffer.getBool(),
       loadNetworkFilters: buffer.getBool(),
+      loadManifestV3OnlyFilters: buffer.getBool(),
+      loadMobileOnlyFilters: buffer.getBool(),
+      loadChromiumOnlyFilters: buffer.getBool(),
+      loadFirefoxOnlyFilters: buffer.getBool(),
     });
   }
 
@@ -44,6 +48,11 @@ export default class Config {
   public readonly loadExtendedSelectors: boolean;
   public readonly loadGenericCosmeticsFilters: boolean;
   public readonly loadNetworkFilters: boolean;
+  public readonly loadManifestV3OnlyFilters: boolean;
+  public readonly loadMobileOnlyFilters: boolean;
+  public readonly loadChromiumOnlyFilters: boolean;
+  public readonly loadFirefoxOnlyFilters: boolean;
+  public readonly loadSafariOnlyFilters: boolean;
 
   constructor({
     debug = false,
@@ -61,6 +70,11 @@ export default class Config {
     loadExtendedSelectors = false,
     loadGenericCosmeticsFilters = true,
     loadNetworkFilters = true,
+    loadManifestV3OnlyFilters = true,
+    loadMobileOnlyFilters = true,
+    loadChromiumOnlyFilters = true,
+    loadFirefoxOnlyFilters = true,
+    loadSafariOnlyFilters = true,
   }: Partial<Config> = {}) {
     this.debug = debug;
     this.enableCompression = enableCompression;
@@ -77,12 +91,17 @@ export default class Config {
     this.loadExtendedSelectors = loadExtendedSelectors;
     this.loadGenericCosmeticsFilters = loadGenericCosmeticsFilters;
     this.loadNetworkFilters = loadNetworkFilters;
+    this.loadManifestV3OnlyFilters = loadManifestV3OnlyFilters;
+    this.loadMobileOnlyFilters = loadMobileOnlyFilters;
+    this.loadChromiumOnlyFilters = loadChromiumOnlyFilters;
+    this.loadFirefoxOnlyFilters = loadFirefoxOnlyFilters;
+    this.loadSafariOnlyFilters = loadSafariOnlyFilters;
   }
 
   public getSerializedSize(): number {
     // NOTE: this should always be the number of attributes and needs to be
     // updated when `Config` changes.
-    return 15 * sizeOfBool();
+    return 20 * sizeOfBool();
   }
 
   public serialize(buffer: StaticDataView): void {
@@ -101,5 +120,10 @@ export default class Config {
     buffer.pushBool(this.loadExtendedSelectors);
     buffer.pushBool(this.loadGenericCosmeticsFilters);
     buffer.pushBool(this.loadNetworkFilters);
+    buffer.pushBool(this.loadManifestV3OnlyFilters);
+    buffer.pushBool(this.loadMobileOnlyFilters);
+    buffer.pushBool(this.loadChromiumOnlyFilters);
+    buffer.pushBool(this.loadFirefoxOnlyFilters);
+    buffer.pushBool(this.loadSafariOnlyFilters);
   }
 }
