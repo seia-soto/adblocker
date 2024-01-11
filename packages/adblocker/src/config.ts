@@ -18,6 +18,7 @@ export default class Config {
       enableMutationObserver: buffer.getBool(),
       enableOptimizations: buffer.getBool(),
       enablePushInjectionsOnNavigationEvents: buffer.getBool(),
+      enablePreprocessors: buffer.getBool(),
       guessRequestTypeFromUrl: buffer.getBool(),
       integrityCheck: buffer.getBool(),
       loadCSPFilters: buffer.getBool(),
@@ -26,10 +27,6 @@ export default class Config {
       loadExtendedSelectors: buffer.getBool(),
       loadGenericCosmeticsFilters: buffer.getBool(),
       loadNetworkFilters: buffer.getBool(),
-      loadManifestV3OnlyFilters: buffer.getBool(),
-      loadMobileOnlyFilters: buffer.getBool(),
-      loadChromiumOnlyFilters: buffer.getBool(),
-      loadFirefoxOnlyFilters: buffer.getBool(),
     });
   }
 
@@ -40,6 +37,7 @@ export default class Config {
   public readonly enableMutationObserver: boolean;
   public readonly enableOptimizations: boolean;
   public readonly enablePushInjectionsOnNavigationEvents: boolean;
+  public readonly enablePreprocessors: boolean;
   public readonly guessRequestTypeFromUrl: boolean;
   public readonly integrityCheck: boolean;
   public readonly loadCSPFilters: boolean;
@@ -48,11 +46,6 @@ export default class Config {
   public readonly loadExtendedSelectors: boolean;
   public readonly loadGenericCosmeticsFilters: boolean;
   public readonly loadNetworkFilters: boolean;
-  public readonly loadManifestV3OnlyFilters: boolean;
-  public readonly loadMobileOnlyFilters: boolean;
-  public readonly loadChromiumOnlyFilters: boolean;
-  public readonly loadFirefoxOnlyFilters: boolean;
-  public readonly loadSafariOnlyFilters: boolean;
 
   constructor({
     debug = false,
@@ -62,6 +55,7 @@ export default class Config {
     enableMutationObserver = true,
     enableOptimizations = true,
     enablePushInjectionsOnNavigationEvents = true,
+    enablePreprocessors = false,
     guessRequestTypeFromUrl = false,
     integrityCheck = true,
     loadCSPFilters = true,
@@ -70,11 +64,6 @@ export default class Config {
     loadExtendedSelectors = false,
     loadGenericCosmeticsFilters = true,
     loadNetworkFilters = true,
-    loadManifestV3OnlyFilters = true,
-    loadMobileOnlyFilters = true,
-    loadChromiumOnlyFilters = true,
-    loadFirefoxOnlyFilters = true,
-    loadSafariOnlyFilters = true,
   }: Partial<Config> = {}) {
     this.debug = debug;
     this.enableCompression = enableCompression;
@@ -83,6 +72,7 @@ export default class Config {
     this.enableMutationObserver = enableMutationObserver;
     this.enableOptimizations = enableOptimizations;
     this.enablePushInjectionsOnNavigationEvents = enablePushInjectionsOnNavigationEvents;
+    this.enablePreprocessors = enablePreprocessors;
     this.guessRequestTypeFromUrl = guessRequestTypeFromUrl;
     this.integrityCheck = integrityCheck;
     this.loadCSPFilters = loadCSPFilters;
@@ -91,17 +81,12 @@ export default class Config {
     this.loadExtendedSelectors = loadExtendedSelectors;
     this.loadGenericCosmeticsFilters = loadGenericCosmeticsFilters;
     this.loadNetworkFilters = loadNetworkFilters;
-    this.loadManifestV3OnlyFilters = loadManifestV3OnlyFilters;
-    this.loadMobileOnlyFilters = loadMobileOnlyFilters;
-    this.loadChromiumOnlyFilters = loadChromiumOnlyFilters;
-    this.loadFirefoxOnlyFilters = loadFirefoxOnlyFilters;
-    this.loadSafariOnlyFilters = loadSafariOnlyFilters;
   }
 
   public getSerializedSize(): number {
     // NOTE: this should always be the number of attributes and needs to be
     // updated when `Config` changes.
-    return 20 * sizeOfBool();
+    return 16 * sizeOfBool();
   }
 
   public serialize(buffer: StaticDataView): void {
@@ -112,6 +97,7 @@ export default class Config {
     buffer.pushBool(this.enableMutationObserver);
     buffer.pushBool(this.enableOptimizations);
     buffer.pushBool(this.enablePushInjectionsOnNavigationEvents);
+    buffer.pushBool(this.enablePreprocessors);
     buffer.pushBool(this.guessRequestTypeFromUrl);
     buffer.pushBool(this.integrityCheck);
     buffer.pushBool(this.loadCSPFilters);
@@ -120,10 +106,5 @@ export default class Config {
     buffer.pushBool(this.loadExtendedSelectors);
     buffer.pushBool(this.loadGenericCosmeticsFilters);
     buffer.pushBool(this.loadNetworkFilters);
-    buffer.pushBool(this.loadManifestV3OnlyFilters);
-    buffer.pushBool(this.loadMobileOnlyFilters);
-    buffer.pushBool(this.loadChromiumOnlyFilters);
-    buffer.pushBool(this.loadFirefoxOnlyFilters);
-    buffer.pushBool(this.loadSafariOnlyFilters);
   }
 }

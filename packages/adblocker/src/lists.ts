@@ -146,14 +146,19 @@ export function f(strings: TemplateStringsArray): NetworkFilter | CosmeticFilter
 export function parseFilters(
   list: string,
   config: Partial<Config> = new Config(),
-): { networkFilters: NetworkFilter[]; cosmeticFilters: CosmeticFilter[] } {
+): {
+  preprocessors: Preprocessor[];
+  networkFilters: NetworkFilter[];
+  cosmeticFilters: CosmeticFilter[];
+} {
   config = new Config(config);
 
+  const preprocessors: Preprocessor[] = [];
   const networkFilters: NetworkFilter[] = [];
   const cosmeticFilters: CosmeticFilter[] = [];
   const lines = list.split('\n');
 
-  let preprocessor: Preprocessor | undefined;
+  let preprocessorRef = 0;
 
   for (let i = 0; i < lines.length; i += 1) {
     let line = lines[i];
@@ -197,32 +202,38 @@ export function parseFilters(
     // Detect if filter is supported, network or cosmetic
     const filterType = detectFilterType(line);
 
-    if (filterType === FilterType.PREPROCESSOR) {
-      if (!preprocessor) {
-        preprocessor = Preprocessor.parse(line, config);
-      } else if (preprocessor.update(line)) {
-        preprocessor = undefined;
+    if (filterType === FilterType.NETWORK && config.loadNetworkFilters === true) {
+      const filter = NetworkFilter.parse(line, config.debug);
+      if (filter !== null) {
+        networkFilters.push(filter);
       }
-    }
-
-    if (!preprocessor?.negative) {
-      if (filterType === FilterType.NETWORK && config.loadNetworkFilters === true) {
-        const filter = NetworkFilter.parse(line, config.debug);
-        if (filter !== null) {
-          networkFilters.push(filter);
+    } else if (filterType === FilterType.COSMETIC && config.loadCosmeticFilters === true) {
+      const filter = CosmeticFilter.parse(line, config.debug);
+      if (filter !== null) {
+        if (config.loadGenericCosmeticsFilters === true || filter.isGenericHide() === false) {
+          cosmeticFilters.push(filter);
         }
-      } else if (filterType === FilterType.COSMETIC && config.loadCosmeticFilters === true) {
-        const filter = CosmeticFilter.parse(line, config.debug);
-        if (filter !== null) {
-          if (config.loadGenericCosmeticsFilters === true || filter.isGenericHide() === false) {
-            cosmeticFilters.push(filter);
-          }
+      }
+    } else if (filterType === FilterType.PREPROCESSOR && config.enablePreprocessors === true) {
+      if (preprocessors[preprocessorRef]) {
+        const next = preprocessors[preprocessorRef].create(line);
+
+        if (next instanceof Preprocessor) {
+          preprocessors[++preprocessorRef] = next;
+        } else if (next === false) {
+          preprocessorRef++;
+        }
+      } else {
+        const next = Preprocessor.parse(line, config.debug);
+
+        if (next) {
+          preprocessors[preprocessorRef] = next;
         }
       }
     }
   }
 
-  return { networkFilters, cosmeticFilters };
+  return { preprocessors, networkFilters, cosmeticFilters };
 }
 
 function getFilters(list: string, config?: Partial<Config>): (NetworkFilter | CosmeticFilter)[] {
