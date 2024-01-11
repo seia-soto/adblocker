@@ -142,6 +142,9 @@ const enum COSMETICS_MASK {
   isHrefSelector = 1 << 5,
   remove = 1 << 6,
   extended = 1 << 7,
+
+  // Internals
+  hasPreprocessorData = 1 << 30,
 }
 
 function computeFilterId(
