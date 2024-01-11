@@ -142,9 +142,6 @@ const enum COSMETICS_MASK {
   isHrefSelector = 1 << 5,
   remove = 1 << 6,
   extended = 1 << 7,
-
-  // Internals
-  hasPreprocessorData = 1 << 30,
 }
 
 function computeFilterId(
@@ -184,7 +181,11 @@ export default class CosmeticFilter implements IFilter {
    * instance out of it. This function should be *very* efficient, as it will be
    * used to parse tens of thousands of lines.
    */
-  public static parse(line: string, debug: boolean = false): CosmeticFilter | null {
+  public static parse(
+    line: string,
+    preprocessor?: number,
+    debug: boolean = false,
+  ): CosmeticFilter | null {
     const rawLine = line;
 
     // Mask to store attributes. Each flag (unhide, scriptInject, etc.) takes
@@ -363,6 +364,7 @@ export default class CosmeticFilter implements IFilter {
       rawLine: debug === true ? rawLine : undefined,
       selector,
       style,
+      preprocessor,
       domains,
     });
   }
@@ -387,6 +389,7 @@ export default class CosmeticFilter implements IFilter {
       domains: (optionalParts & 1) === 1 ? Domains.deserialize(buffer) : undefined,
       rawLine: (optionalParts & 2) === 2 ? buffer.getRawCosmetic() : undefined,
       style: (optionalParts & 4) === 4 ? buffer.getASCII() : undefined,
+      preprocessor: (optionalParts & 8) === 8 ? buffer.getByte() : undefined,
     });
   }
 
@@ -398,6 +401,7 @@ export default class CosmeticFilter implements IFilter {
 
   public readonly style: string | undefined;
   public readonly rawLine: string | undefined;
+  public readonly preprocessor: number | undefined;
 
   private id: number | undefined;
 
@@ -407,17 +411,20 @@ export default class CosmeticFilter implements IFilter {
     domains,
     rawLine,
     style,
+    preprocessor,
   }: {
     mask: number;
     domains: Domains | undefined;
     rawLine: string | undefined;
     selector: string;
     style: string | undefined;
+    preprocessor: number | undefined;
   }) {
     this.mask = mask;
     this.selector = selector;
     this.domains = domains;
     this.style = style;
+    this.preprocessor = preprocessor;
 
     this.id = undefined;
     this.rawLine = rawLine;

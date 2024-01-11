@@ -10,7 +10,7 @@ import { StaticDataView } from '../data-view';
 
 export default interface IFilter {
   mask: number;
-  preprocessor?: number;
+  preprocessor: number | undefined;
   getId: () => number;
   getTokens: () => Uint32Array[];
   serialize: (buffer: StaticDataView) => void;

@@ -146,9 +146,6 @@ export const enum NETWORK_FILTER_MASK {
   isException = 1 << 27,
   isHostnameAnchor = 1 << 28,
   isRedirectRule = 1 << 29,
-
-  // Internals
-  hasPreprocessor = 1 << 30,
 }
 
 /**
@@ -404,7 +401,11 @@ function compileRegex(
 const MATCH_ALL = new RegExp('');
 
 export default class NetworkFilter implements IFilter {
-  public static parse(line: string, debug: boolean = false): NetworkFilter | null {
+  public static parse(
+    line: string,
+    preprocessor?: number,
+    debug: boolean = false,
+  ): NetworkFilter | null {
     // Represent options as a bitmask
     let mask: number =
       NETWORK_FILTER_MASK.thirdParty |
@@ -858,6 +859,7 @@ export default class NetworkFilter implements IFilter {
       denyallow,
       rawLine: debug === true ? line : undefined,
       redirect,
+      preprocessor,
       regex: undefined,
     });
   }
@@ -892,6 +894,7 @@ export default class NetworkFilter implements IFilter {
       rawLine: (optionalParts & 16) === 16 ? buffer.getRawNetwork() : undefined,
       redirect: (optionalParts & 32) === 32 ? buffer.getNetworkRedirect() : undefined,
       denyallow: (optionalParts & 64) === 64 ? Domains.deserialize(buffer) : undefined,
+      preprocessor: (optionalParts & 128) === 128 ? buffer.getByte() : undefined,
       regex: undefined,
     });
   }
@@ -902,6 +905,7 @@ export default class NetworkFilter implements IFilter {
   public readonly mask: number;
   public readonly domains: Domains | undefined;
   public readonly denyallow: Domains | undefined;
+  public readonly preprocessor: number | undefined;
   public readonly redirect: string | undefined;
 
   // Set only in debug mode
@@ -920,6 +924,7 @@ export default class NetworkFilter implements IFilter {
     denyallow,
     rawLine,
     redirect,
+    preprocessor,
     regex,
   }: {
     csp: string | undefined;
@@ -930,6 +935,7 @@ export default class NetworkFilter implements IFilter {
     denyallow: Domains | undefined;
     rawLine: string | undefined;
     redirect: string | undefined;
+    preprocessor: number | undefined;
     regex: RegExp | undefined;
   }) {
     this.csp = csp;
@@ -939,6 +945,7 @@ export default class NetworkFilter implements IFilter {
     this.domains = domains;
     this.denyallow = denyallow;
     this.redirect = redirect;
+    this.preprocessor = preprocessor;
 
     this.rawLine = rawLine;
 
@@ -1041,6 +1048,11 @@ export default class NetworkFilter implements IFilter {
       this.denyallow.serialize(buffer);
     }
 
+    if (this.preprocessor !== undefined) {
+      optionalParts |= 128;
+      buffer.pushByte(this.preprocessor);
+    }
+
     buffer.setByte(index, optionalParts);
   }
 
@@ -1077,6 +1089,10 @@ export default class NetworkFilter implements IFilter {
 
     if (this.denyallow !== undefined) {
       estimate += this.denyallow.getSerializedSize();
+    }
+
+    if (this.preprocessor !== undefined) {
+      estimate += 4;
     }
 
     return estimate;

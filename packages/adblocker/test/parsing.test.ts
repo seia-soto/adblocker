@@ -118,7 +118,7 @@ const DEFAULT_NETWORK_FILTER = {
 describe('Network filters', () => {
   describe('toString', () => {
     const checkToString = (line: string, expected: string, debug: boolean = false) => {
-      const parsed = NetworkFilter.parse(line, debug);
+      const parsed = NetworkFilter.parse(line, undefined, debug);
       expect(parsed).not.to.be.null;
       if (parsed !== null) {
         expect(parsed.toString()).to.equal(expected);
@@ -1367,7 +1367,7 @@ describe('Network filters', () => {
       ['@@/wp-content/themes/$script', [hashStrings(['content'])]],
     ]) {
       it(`get tokens for ${filter}`, () => {
-        const parsed = NetworkFilter.parse(filter as string, true);
+        const parsed = NetworkFilter.parse(filter as string, undefined, true);
         expect(parsed).not.to.be.null;
         if (parsed !== null) {
           expect(parsed.getTokens()).to.eql(regexTokens);
@@ -1423,7 +1423,7 @@ const DEFAULT_COSMETIC_FILTER = {
 describe('Cosmetic filters', () => {
   describe('#toString', () => {
     const checkToString = (line: string, expected: string, debug: boolean = false) => {
-      const parsed = CosmeticFilter.parse(line, debug);
+      const parsed = CosmeticFilter.parse(line, undefined, debug);
       expect(parsed).not.to.be.null;
       if (parsed !== null) {
         expect(parsed.toString()).to.equal(expected);

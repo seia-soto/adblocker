@@ -15,7 +15,7 @@ import NetworkFilter from '../src/filters/network';
 function f(lines: string[]): NetworkFilter[] {
   const filters: NetworkFilter[] = [];
   for (const line of lines) {
-    const filter = NetworkFilter.parse(line, true);
+    const filter = NetworkFilter.parse(line, undefined, true);
     expect(filter).not.to.be.null;
     if (filter !== null) {
       filters.push(filter);

@@ -131,9 +131,9 @@ export function parseFilter(filter: string): NetworkFilter | CosmeticFilter | nu
   const filterType = detectFilterType(filter);
 
   if (filterType === FilterType.NETWORK) {
-    return NetworkFilter.parse(filter, true);
+    return NetworkFilter.parse(filter, undefined, true);
   } else if (filterType === FilterType.COSMETIC) {
-    return CosmeticFilter.parse(filter, true);
+    return CosmeticFilter.parse(filter, undefined, true);
   }
 
   return null;
@@ -158,7 +158,8 @@ export function parseFilters(
   const cosmeticFilters: CosmeticFilter[] = [];
   const lines = list.split('\n');
 
-  let preprocessorRef = 0;
+  let preprocessorIndex = 0;
+  let preprocessorRef = undefined;
 
   for (let i = 0; i < lines.length; i += 1) {
     let line = lines[i];
@@ -203,31 +204,34 @@ export function parseFilters(
     const filterType = detectFilterType(line);
 
     if (filterType === FilterType.NETWORK && config.loadNetworkFilters === true) {
-      const filter = NetworkFilter.parse(line, config.debug);
+      const filter = NetworkFilter.parse(line, preprocessorRef, config.debug);
       if (filter !== null) {
         networkFilters.push(filter);
       }
     } else if (filterType === FilterType.COSMETIC && config.loadCosmeticFilters === true) {
-      const filter = CosmeticFilter.parse(line, config.debug);
+      const filter = CosmeticFilter.parse(line, preprocessorRef, config.debug);
       if (filter !== null) {
         if (config.loadGenericCosmeticsFilters === true || filter.isGenericHide() === false) {
           cosmeticFilters.push(filter);
         }
       }
     } else if (filterType === FilterType.PREPROCESSOR && config.enablePreprocessors === true) {
-      if (preprocessors[preprocessorRef]) {
-        const next = preprocessors[preprocessorRef].create(line);
+      if (preprocessors[preprocessorIndex]) {
+        const next = preprocessors[preprocessorIndex].create(line);
 
         if (next instanceof Preprocessor) {
-          preprocessors[++preprocessorRef] = next;
+          preprocessors[++preprocessorIndex] = next;
+          preprocessorRef = preprocessorIndex;
         } else if (next === false) {
-          preprocessorRef++;
+          preprocessorIndex++;
+          preprocessorRef = undefined;
         }
       } else {
         const next = Preprocessor.parse(line, config.debug);
 
         if (next) {
-          preprocessors[preprocessorRef] = next;
+          preprocessors[preprocessorIndex] = next;
+          preprocessorRef = preprocessorIndex;
         }
       }
     }

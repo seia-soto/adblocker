@@ -25,9 +25,9 @@ describe('#FiltersContainer', () => {
       describe('#update', () => {
         let container: FiltersContainer<NetworkFilter>;
         const filters = [
-          NetworkFilter.parse('||foo.com', true) as NetworkFilter,
-          NetworkFilter.parse('||bar.com', true) as NetworkFilter,
-          NetworkFilter.parse('||baz.com', true) as NetworkFilter,
+          NetworkFilter.parse('||foo.com', undefined, true) as NetworkFilter,
+          NetworkFilter.parse('||bar.com', undefined, true) as NetworkFilter,
+          NetworkFilter.parse('||baz.com', undefined, true) as NetworkFilter,
         ];
 
         beforeEach(() => {
