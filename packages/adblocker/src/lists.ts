@@ -146,6 +146,7 @@ export function f(strings: TemplateStringsArray): NetworkFilter | CosmeticFilter
 export function parseFilters(
   list: string,
   config: Partial<Config> = new Config(),
+  env: number = Preprocessor.getFullEnv(),
 ): {
   preprocessors: Preprocessor[];
   networkFilters: NetworkFilter[];
@@ -153,10 +154,17 @@ export function parseFilters(
 } {
   config = new Config(config);
 
-  const preprocessors: Preprocessor[] = [];
   const networkFilters: NetworkFilter[] = [];
   const cosmeticFilters: CosmeticFilter[] = [];
   const lines = list.split('\n');
+
+  // TODO: We need to apply offsets to parsed Preprocessors.
+  // The `preprocessorIndex` needs to be synced with the Engine
+  // by making new data structure.
+  // Otherwise, we can directly have a reference to Preprocessor,
+  // and assign ids on the serialization. However, this will
+  // require another loop on filters.
+  const preprocessors: Preprocessor[] = [];
 
   let preprocessorIndex = 0;
   let preprocessorRef = undefined;
@@ -227,7 +235,7 @@ export function parseFilters(
           preprocessorRef = undefined;
         }
       } else {
-        const next = Preprocessor.parse(line, config.debug);
+        const next = Preprocessor.parse(line, env, config.debug);
 
         if (next) {
           preprocessors[preprocessorIndex] = next;

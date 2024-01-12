@@ -29,6 +29,7 @@ import Resources from '../resources';
 import CosmeticFilterBucket from './bucket/cosmetic';
 import NetworkFilterBucket from './bucket/network';
 import { Metadata, IPatternLookupResult } from './metadata';
+import Preprocessor from '../preprocessor';
 
 export const ENGINE_VERSION = 626;
 
@@ -208,10 +209,11 @@ export default class FilterEngine extends EventEmitter<
     this: new (...args: any[]) => T,
     filters: string,
     options: Partial<Config> = {},
+    env: number = Preprocessor.getFullEnv(),
   ): T {
     const config = new Config(options);
     return new this({
-      ...parseFilters(filters, config),
+      ...parseFilters(filters, config, env),
       config,
     });
   }
@@ -304,20 +306,26 @@ export default class FilterEngine extends EventEmitter<
 
   public metadata: Metadata | undefined;
   public resources: Resources;
+  public readonly preprocessors: Preprocessor[];
+  public readonly env: number;
   public readonly config: Config;
 
   constructor({
     // Optionally initialize the engine with filters
     cosmeticFilters = [],
     networkFilters = [],
+    preprocessors = [],
 
     config = new Config(),
     lists = new Map(),
+    env = Preprocessor.getFullEnv(),
   }: {
     cosmeticFilters?: CosmeticFilter[];
     networkFilters?: NetworkFilter[];
+    preprocessors?: Preprocessor[];
     lists?: Map<string, string>;
     config?: Partial<Config>;
+    env?: number;
   } = {}) {
     super(); // init super-class EventEmitter
 
@@ -345,6 +353,10 @@ export default class FilterEngine extends EventEmitter<
 
     // Injections
     this.resources = new Resources();
+
+    // #!if
+    this.preprocessors = preprocessors;
+    this.env = env;
 
     if (networkFilters.length !== 0 || cosmeticFilters.length !== 0) {
       this.update({
@@ -569,13 +581,21 @@ export default class FilterEngine extends EventEmitter<
     const removedNetworkFilters: NetworkFilter[] = [];
 
     if (removed !== undefined && removed.length !== 0) {
-      const { networkFilters, cosmeticFilters } = parseFilters(removed.join('\n'), this.config);
+      const { networkFilters, cosmeticFilters } = parseFilters(
+        removed.join('\n'),
+        this.config,
+        this.env,
+      );
       Array.prototype.push.apply(removedCosmeticFilters, cosmeticFilters);
       Array.prototype.push.apply(removedNetworkFilters, networkFilters);
     }
 
     if (added !== undefined && added.length !== 0) {
-      const { networkFilters, cosmeticFilters } = parseFilters(added.join('\n'), this.config);
+      const { networkFilters, cosmeticFilters } = parseFilters(
+        added.join('\n'),
+        this.config,
+        this.env,
+      );
       Array.prototype.push.apply(newCosmeticFilters, cosmeticFilters);
       Array.prototype.push.apply(newNetworkFilters, networkFilters);
     }
