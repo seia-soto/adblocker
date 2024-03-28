@@ -10,6 +10,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { f, generateDiff, getLinesWithFilters, mergeDiffs } from '../src/lists';
+import Config from '../src/config';
 
 describe('#getLinesWithFilters', () => {
   it('get not lines if empty', () => {
@@ -115,12 +116,30 @@ bar.baz
   });
 
   it('handle preprocessors', () => {
+    const config = new Config({
+      loadPreprocessors: true,
+    });
+
+    expect(
+      generateDiff(
+        '',
+        `!#if true
+!#endif`,
+        config,
+      ),
+    ).to.eql({
+      added: [],
+      removed: [],
+      preprocessors: {},
+    });
+
     expect(
       generateDiff(
         '',
         `!#if true
 ||foo.com
 !#endif`,
+        config,
       ),
     ).to.eql({
       added: [],
@@ -139,6 +158,7 @@ bar.baz
 ||foo.com
 !#endif`,
         '',
+        config,
       ),
     ).to.eql({
       added: [],
@@ -161,6 +181,7 @@ bar.baz
 !#if true
 ||bar.com
 !#endif`,
+        config,
       ),
     ).to.eql({
       // We prioritize the filter with a condition over a filter in the global scope

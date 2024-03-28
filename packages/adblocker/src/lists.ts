@@ -370,17 +370,23 @@ export function generateDiff(
 
   const index: Map<number, string> = new Map();
 
+  for (const filter of newRevisionData.filters) {
+    index.set(filter.getId(), filter.rawLine as string);
+  }
+
+  for (const filter of prevRevisionData.filters) {
+    index.set(filter.getId(), filter.rawLine as string);
+  }
+
   for (const filter of added) {
-    if (!newPreprocessorFilterIds.has(filter.getId())) {
+    if (newPreprocessorFilterIds.has(filter.getId())) {
       added.delete(filter);
-      index.set(filter.getId(), filter.rawLine as string);
     }
   }
 
   for (const filter of removed) {
-    if (!prevPreprocessorFilterIds.has(filter.getId())) {
+    if (prevPreprocessorFilterIds.has(filter.getId())) {
       removed.delete(filter);
-      index.set(filter.getId(), filter.rawLine as string);
     }
   }
 
@@ -451,6 +457,12 @@ export function generateDiff(
         added: Array.from(addedInScope),
         removed: [],
       };
+    }
+  }
+
+  for (const [condition, { added, removed }] of Object.entries(preprocessors)) {
+    if (added.length === 0 && removed.length === 0) {
+      delete preprocessors[condition];
     }
   }
 
