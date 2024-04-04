@@ -95,6 +95,9 @@ export default class FilterEngine extends EventEmitter<
   | 'request-whitelisted'
   | 'script-injected'
   | 'style-injected'
+  | 'script-rule-matched'
+  | 'style-rule-matched'
+  | 'extended-rule-matched'
 > {
   private static fromCached<T extends typeof FilterEngine>(
     this: T,
@@ -832,6 +835,7 @@ export default class FilterEngine extends EventEmitter<
       getRulesFromHostname,
 
       isFilterExcluded: this.isFilterExcluded.bind(this),
+      emitOnFiltersEngine: this.emit.bind(this),
     });
 
     // Perform interpolation for injected scripts

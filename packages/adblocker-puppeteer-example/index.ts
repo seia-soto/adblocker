@@ -1,4 +1,4 @@
-import { fullLists, PuppeteerBlocker, Request } from '@cliqz/adblocker-puppeteer';
+import { CosmeticFilter, fullLists, PuppeteerBlocker, Request } from '@cliqz/adblocker-puppeteer';
 import fetch from 'node-fetch';
 import * as puppeteer from 'puppeteer';
 import { promises as fs } from 'fs';
@@ -11,6 +11,13 @@ function getUrlToLoad(): string {
 
   return url;
 }
+
+type CosmeticFilterContext = {
+  domain: string;
+  classes: string[];
+  hrefs: string[];
+  ids: string[];
+};
 
 (async () => {
   const blocker = await PuppeteerBlocker.fromLists(
@@ -57,6 +64,18 @@ function getUrlToLoad(): string {
 
   blocker.on('style-injected', (style: string, url: string) => {
     console.log('style', style.length, url);
+  });
+
+  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('script-matched', rule, context);
+  });
+
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('extended-rule-matched', rule, context);
+  });
+
+  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('style-matched', rule, context);
   });
 
   await page.goto(getUrlToLoad());

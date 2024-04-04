@@ -10,11 +10,19 @@ import { browser } from 'webextension-polyfill-ts';
 
 import {
   BlockingResponse,
+  CosmeticFilter,
   fullLists,
   HTMLSelector,
   Request,
   WebExtensionBlocker,
 } from '@cliqz/adblocker-webextension';
+
+type CosmeticFilterContext = {
+  domain: string;
+  classes: string[];
+  hrefs: string[];
+  ids: string[];
+};
 
 /**
  * Keep track of number of network requests altered for each tab
@@ -86,6 +94,18 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
 
   blocker.on('html-filtered', (htmlSelectors: HTMLSelector[]) => {
     console.log('html selectors', htmlSelectors);
+  });
+
+  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('script-matched', rule, context);
+  });
+
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('extended-rule-matched', rule, context);
+  });
+
+  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('style-matched', rule, context);
   });
 
   console.log('Ready to roll!');

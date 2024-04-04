@@ -2,7 +2,7 @@ import { app, BrowserWindow } from 'electron';
 import fetch from 'cross-fetch';
 import { readFileSync, writeFileSync } from 'fs';
 
-import { ElectronBlocker, fullLists, Request } from '@cliqz/adblocker-electron';
+import { CosmeticFilter, ElectronBlocker, fullLists, Request } from '@cliqz/adblocker-electron';
 
 function getUrlToLoad(): string {
   let url = 'https://google.com';
@@ -14,6 +14,13 @@ function getUrlToLoad(): string {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+type CosmeticFilterContext = {
+  domain: string;
+  classes: string[];
+  hrefs: string[];
+  ids: string[];
+};
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
@@ -63,6 +70,18 @@ async function createWindow() {
 
   blocker.on('style-injected', (style: string, url: string) => {
     console.log('style', style.length, url);
+  });
+
+  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('script-matched', rule, context);
+  });
+
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('extended-rule-matched', rule, context);
+  });
+
+  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+    console.log('style-matched', rule, context);
   });
 
   mainWindow.loadURL(getUrlToLoad());

@@ -21,6 +21,7 @@ import { hashStrings, tokenizeNoSkip } from '../../utils';
 import { noopOptimizeCosmetic } from '../optimizer';
 import ReverseIndex from '../reverse-index';
 import FiltersContainer from './filters';
+import { FiltersEngine } from '../../../adblocker';
 
 /**
  * Given a list of CSS selectors, create a valid stylesheet ready to be
@@ -403,6 +404,7 @@ export default class CosmeticFilterBucket {
     getRulesFromHostname = true,
 
     isFilterExcluded,
+    emitOnFiltersEngine,
   }: {
     domain: string;
     hostname: string;
@@ -421,6 +423,7 @@ export default class CosmeticFilterBucket {
     getRulesFromHostname?: boolean;
 
     isFilterExcluded?: (filter: CosmeticFilter) => boolean;
+    emitOnFiltersEngine?: FiltersEngine['emit'];
   }): {
     injections: CosmeticFilter[];
     extended: IMessageFromBackground['extended'];
@@ -547,13 +550,37 @@ export default class CosmeticFilterBucket {
         // Dispatch rules in `injections` or `styles` depending on type
         if (rule.isScriptInject() === true) {
           if (getInjectionRules === true && injectionsDisabled === false) {
+            if (emitOnFiltersEngine !== undefined) {
+              emitOnFiltersEngine('script-rule-matched', rule, {
+                domain,
+                classes,
+                hrefs,
+                ids,
+              });
+            }
             injections.push(rule);
           }
         } else if (rule.isExtended()) {
           if (getExtendedRules === true) {
+            if (emitOnFiltersEngine !== undefined) {
+              emitOnFiltersEngine('extended-rule-matched', rule, {
+                domain,
+                classes,
+                hrefs,
+                ids,
+              });
+            }
             extended.push(rule);
           }
         } else {
+          if (emitOnFiltersEngine !== undefined) {
+            emitOnFiltersEngine('style-rule-matched', rule, {
+              domain,
+              classes,
+              hrefs,
+              ids,
+            });
+          }
           styles.push(rule);
         }
       }
