@@ -1,4 +1,9 @@
-import { CosmeticFilter, fullLists, PlaywrightBlocker, Request } from '@cliqz/adblocker-playwright';
+import {
+  CosmeticFilter,
+  fullLists,
+  PlaywrightBlocker,
+  Request,
+} from '@cliqz/adblocker-playwright';
 import fetch from 'node-fetch';
 
 import * as pw from 'playwright';
