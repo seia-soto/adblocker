@@ -10,19 +10,11 @@ import { browser } from 'webextension-polyfill-ts';
 
 import {
   BlockingResponse,
-  CosmeticFilter,
   fullLists,
   HTMLSelector,
   Request,
   WebExtensionBlocker,
 } from '@cliqz/adblocker-webextension';
-
-type CosmeticFilterContext = {
-  domain: string;
-  classes: string[];
-  hrefs: string[];
-  ids: string[];
-};
 
 /**
  * Keep track of number of network requests altered for each tab
@@ -70,17 +62,17 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
 }).then((blocker: WebExtensionBlocker) => {
   blocker.enableBlockingInBrowser(browser);
 
-  blocker.on('request-blocked', (request: Request, result: BlockingResponse) => {
+  blocker.on('request-blocked', (request, result) => {
     incrementBlockedCounter(request, result);
     console.log('block', request.url);
   });
 
-  blocker.on('request-redirected', (request: Request, result: BlockingResponse) => {
+  blocker.on('request-redirected', (request, result) => {
     incrementBlockedCounter(request, result);
     console.log('redirect', request.url, result);
   });
 
-  blocker.on('csp-injected', (request: Request) => {
+  blocker.on('csp-injected', (request) => {
     console.log('csp', request.url);
   });
 
@@ -96,15 +88,15 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
     console.log('html selectors', htmlSelectors);
   });
 
-  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('script-rule-matched', (rule, context) => {
     console.log('script-matched', rule, context);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('extended-rule-matched', (rule, context) => {
     console.log('extended-rule-matched', rule, context);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('style-rule-matched', (rule, context) => {
     console.log('style-matched', rule, context);
   });
 

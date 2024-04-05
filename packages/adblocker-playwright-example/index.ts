@@ -8,13 +8,6 @@ import fetch from 'node-fetch';
 
 import * as pw from 'playwright';
 
-type CosmeticFilterContext = {
-  domain: string;
-  classes: string[];
-  hrefs: string[];
-  ids: string[];
-};
-
 (async () => {
   const blocker = await PlaywrightBlocker.fromLists(fetch, fullLists, {
     enableCompression: true,
@@ -29,39 +22,39 @@ type CosmeticFilterContext = {
 
   await blocker.enableBlockingInPage(page);
 
-  blocker.on('request-blocked', (request: Request) => {
+  blocker.on('request-blocked', (request) => {
     console.log('blocked', request.url);
   });
 
-  blocker.on('request-redirected', (request: Request) => {
+  blocker.on('request-redirected', (request) => {
     console.log('redirected', request.url);
   });
 
-  blocker.on('request-whitelisted', (request: Request) => {
+  blocker.on('request-whitelisted', (request) => {
     console.log('whitelisted', request.url);
   });
 
-  blocker.on('csp-injected', (request: Request) => {
+  blocker.on('csp-injected', (request) => {
     console.log('csp', request.url);
   });
 
-  blocker.on('script-injected', (script: string, url: string) => {
+  blocker.on('script-injected', (script, url) => {
     console.log('script', script.length, url);
   });
 
-  blocker.on('style-injected', (style: string, url: string) => {
+  blocker.on('style-injected', (style, url) => {
     console.log('style', style.length, url);
   });
 
-  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('script-rule-matched', (rule, context) => {
     console.log('script-matched', rule, context);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('extended-rule-matched', (rule, context) => {
     console.log('extended-rule-matched', rule, context);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('style-rule-matched', (rule, context) => {
     console.log('style-matched', rule, context);
   });
 

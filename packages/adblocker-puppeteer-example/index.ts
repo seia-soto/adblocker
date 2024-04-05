@@ -1,7 +1,7 @@
-import { CosmeticFilter, fullLists, PuppeteerBlocker, Request } from '@cliqz/adblocker-puppeteer';
+import { fullLists, PuppeteerBlocker } from '@cliqz/adblocker-puppeteer';
+import { promises as fs } from 'fs';
 import fetch from 'node-fetch';
 import * as puppeteer from 'puppeteer';
-import { promises as fs } from 'fs';
 
 function getUrlToLoad(): string {
   let url = 'https://www.mangareader.net/';
@@ -11,13 +11,6 @@ function getUrlToLoad(): string {
 
   return url;
 }
-
-type CosmeticFilterContext = {
-  domain: string;
-  classes: string[];
-  hrefs: string[];
-  ids: string[];
-};
 
 (async () => {
   const blocker = await PuppeteerBlocker.fromLists(
@@ -42,19 +35,19 @@ type CosmeticFilterContext = {
   const page = await browser.newPage();
   await blocker.enableBlockingInPage(page);
 
-  blocker.on('request-blocked', (request: Request) => {
+  blocker.on('request-blocked', (request) => {
     console.log('blocked', request.url);
   });
 
-  blocker.on('request-redirected', (request: Request) => {
+  blocker.on('request-redirected', (request) => {
     console.log('redirected', request.url);
   });
 
-  blocker.on('request-whitelisted', (request: Request) => {
+  blocker.on('request-whitelisted', (request) => {
     console.log('whitelisted', request.url);
   });
 
-  blocker.on('csp-injected', (request: Request) => {
+  blocker.on('csp-injected', (request) => {
     console.log('csp', request.url);
   });
 
@@ -66,15 +59,15 @@ type CosmeticFilterContext = {
     console.log('style', style.length, url);
   });
 
-  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('script-rule-matched', (rule, context) => {
     console.log('script-matched', rule, context);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('extended-rule-matched', (rule, context) => {
     console.log('extended-rule-matched', rule, context);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: CosmeticFilterContext) => {
+  blocker.on('style-rule-matched', (rule, context) => {
     console.log('style-matched', rule, context);
   });
 
