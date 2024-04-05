@@ -385,7 +385,7 @@ export default class CosmeticFilterBucket {
   /**
    * Request cosmetics and scripts to inject in a page.
    */
-  public getCosmeticsFilters({
+  public getCosmeticsFilters<T>({
     domain,
     hostname,
 
@@ -405,6 +405,8 @@ export default class CosmeticFilterBucket {
 
     isFilterExcluded,
     emitOnFiltersEngine,
+
+    context,
   }: {
     domain: string;
     hostname: string;
@@ -424,6 +426,8 @@ export default class CosmeticFilterBucket {
 
     isFilterExcluded?: (filter: CosmeticFilter) => boolean;
     emitOnFiltersEngine?: FiltersEngine['emit'];
+
+    context?: T | undefined;
   }): {
     injections: CosmeticFilter[];
     extended: IMessageFromBackground['extended'];
@@ -552,10 +556,11 @@ export default class CosmeticFilterBucket {
           if (getInjectionRules === true && injectionsDisabled === false) {
             if (emitOnFiltersEngine !== undefined) {
               emitOnFiltersEngine('script-rule-matched', rule, {
-                domain,
+                hostname,
                 classes,
                 hrefs,
                 ids,
+                context,
               });
             }
             injections.push(rule);
@@ -564,10 +569,11 @@ export default class CosmeticFilterBucket {
           if (getExtendedRules === true) {
             if (emitOnFiltersEngine !== undefined) {
               emitOnFiltersEngine('extended-rule-matched', rule, {
-                domain,
+                hostname,
                 classes,
                 hrefs,
                 ids,
+                context,
               });
             }
             extended.push(rule);
@@ -575,10 +581,11 @@ export default class CosmeticFilterBucket {
         } else {
           if (emitOnFiltersEngine !== undefined) {
             emitOnFiltersEngine('style-rule-matched', rule, {
-              domain,
+              hostname,
               classes,
               hrefs,
               ids,
+              context,
             });
           }
           styles.push(rule);

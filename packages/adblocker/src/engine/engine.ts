@@ -86,19 +86,29 @@ export interface Caching {
   write: (path: string, buffer: Uint8Array) => Promise<void>;
 }
 
-export default class FilterEngine extends EventEmitter<
-  | 'csp-injected'
-  | 'html-filtered'
-  | 'request-allowed'
-  | 'request-blocked'
-  | 'request-redirected'
-  | 'request-whitelisted'
-  | 'script-injected'
-  | 'style-injected'
-  | 'script-rule-matched'
-  | 'style-rule-matched'
-  | 'extended-rule-matched'
-> {
+export type EngineEventContext<T> = {
+  hostname: string;
+  classes: string[] | undefined;
+  hrefs: string[] | undefined;
+  ids: string[] | undefined;
+  context?: T;
+};
+
+export type EngineEventHandlers = {
+  'request-allowed': (request: Request, result: BlockingResponse) => any;
+  'request-blocked': (request: Request, result: BlockingResponse) => any;
+  'request-redirected': (request: Request, result: BlockingResponse) => any;
+  'request-whitelisted': (request: Request, result: BlockingResponse) => any;
+  'html-filtered': (htmlSelectors: HTMLSelector[], url: string) => any;
+  'csp-injected': (csps: string, request: Request) => any;
+  'script-injected': <T>(script: string, url: string, context: EngineEventContext<T>) => any;
+  'style-injected': <T>(script: string, url: string, context: EngineEventContext<T>) => any;
+  'script-rule-matched': <T>(rule: CosmeticFilter, context: EngineEventContext<T>) => any;
+  'extended-rule-matched': <T>(rule: CosmeticFilter, context: EngineEventContext<T>) => any;
+  'style-rule-matched': <T>(rule: CosmeticFilter, context: EngineEventContext<T>) => any;
+};
+
+export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
   private static fromCached<T extends typeof FilterEngine>(
     this: T,
     init: () => Promise<InstanceType<T>>,
@@ -735,7 +745,7 @@ export default class FilterEngine extends EventEmitter<
    * Given `hostname` and `domain` of a page (or frame), return the list of
    * styles and scripts to inject in the page.
    */
-  public getCosmeticsFilters({
+  public getCosmeticsFilters<T>({
     // Page information
     url,
     hostname,
@@ -752,6 +762,8 @@ export default class FilterEngine extends EventEmitter<
     getExtendedRules = true,
     getRulesFromDOM = true,
     getRulesFromHostname = true,
+
+    context,
   }: {
     url: string;
     hostname: string;
@@ -766,6 +778,8 @@ export default class FilterEngine extends EventEmitter<
     getExtendedRules?: boolean;
     getRulesFromDOM?: boolean;
     getRulesFromHostname?: boolean;
+
+    context?: T | undefined;
   }): IMessageFromBackground {
     if (this.config.loadCosmeticFilters === false) {
       return {
@@ -817,7 +831,7 @@ export default class FilterEngine extends EventEmitter<
     }
 
     // Lookup injections as well as stylesheets
-    const { injections, stylesheet, extended } = this.cosmetics.getCosmeticsFilters({
+    const { injections, stylesheet, extended } = this.cosmetics.getCosmeticsFilters<T>({
       domain: domain || '',
       hostname,
 
@@ -836,6 +850,8 @@ export default class FilterEngine extends EventEmitter<
 
       isFilterExcluded: this.isFilterExcluded.bind(this),
       emitOnFiltersEngine: this.emit.bind(this),
+
+      context,
     });
 
     // Perform interpolation for injected scripts
@@ -843,14 +859,26 @@ export default class FilterEngine extends EventEmitter<
     for (const injection of injections) {
       const script = injection.getScript(this.resources.js);
       if (script !== undefined) {
-        this.emit('script-injected', script, url);
+        this.emit('script-injected', script, url, {
+          hostname,
+          classes,
+          hrefs,
+          ids,
+          context,
+        });
         scripts.push(script);
       }
     }
 
     // Emit events
     if (stylesheet.length !== 0) {
-      this.emit('style-injected', stylesheet, url);
+      this.emit('style-injected', stylesheet, url, {
+        hostname,
+        classes,
+        hrefs,
+        ids,
+        context,
+      });
     }
 
     return {
