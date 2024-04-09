@@ -400,7 +400,7 @@ function compileRegex(
   return new RegExp(filter);
 }
 
-export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
+function findLastIndexOfUnescapedCharacter(text: string, character: string) {
   let lastIndex = text.lastIndexOf(character);
 
   if (lastIndex === -1) {
@@ -412,6 +412,71 @@ export function findLastIndexOfUnescapedCharacter(text: string, character: strin
   }
 
   return lastIndex;
+}
+
+function findIndexOfUnescapedCharacter(text: string, character: string, position: number = 0) {
+  const end = text.length;
+  let nextIndex = text.indexOf(character, position);
+
+  if (nextIndex === -1) {
+    return -1;
+  }
+
+  while (nextIndex < end && text.charCodeAt(nextIndex - 1) === 92 /* '\\' */) {
+    nextIndex = text.indexOf(character, nextIndex + 1);
+  }
+
+  return nextIndex;
+}
+
+function splitUnescaped(text: string, character: string) {
+  const parts: string[] = [];
+
+  let lastOccurrence = -1;
+  let nextOccurrence = -1;
+
+  while (
+    (nextOccurrence = findIndexOfUnescapedCharacter(text, character, lastOccurrence)) !== -1
+  ) {
+    parts.push(text.slice(lastOccurrence, nextOccurrence));
+    lastOccurrence = nextOccurrence + 1;
+  }
+
+  parts.push(text.slice(lastOccurrence));
+
+  return parts;
+}
+
+function serializeUtf8ObjectEntries(view: StaticDataView, entries: [string, string][]) {
+  const l = entries.length;
+
+  view.pushUint32(l);
+
+  for (let i = 0; i < l; i++) {
+    view.pushUTF8(entries[i][0]);
+    view.pushUTF8(entries[i][1]);
+  }
+}
+
+function estimateSerializedSizeOfUtf8ObjectEntries(entries: [string, string][]) {
+  const l = entries.length;
+  let estimatedSize = l;
+
+  for (let i = 0; i < l; i++) {
+    estimatedSize += sizeOfUTF8(entries[i][0]) + sizeOfUTF8(entries[i][1]);
+  }
+
+  return estimatedSize;
+}
+
+export function deserializeUtf8ObjectEntries(view: StaticDataView) {
+  const entries: [string, string][] = [];
+
+  for (let i = 0, l = view.getUint32(); i < l; i++) {
+    entries.push([view.getUTF8(), view.getUTF8()] as const);
+  }
+
+  return entries;
 }
 
 const MATCH_ALL = new RegExp('');
@@ -435,6 +500,7 @@ export default class NetworkFilter implements IFilter {
     let denyallow: Domains | undefined;
     let redirect: string | undefined;
     let csp: string | undefined;
+    let rawOptions: Map<string, string> | undefined;
 
     // Start parsing
     let filterIndexStart: number = 0;
@@ -598,6 +664,18 @@ export default class NetworkFilter implements IFilter {
             mask = setBit(mask, NETWORK_FILTER_MASK.isCSP);
             csp =
               "font-src 'self' 'unsafe-eval' http: https: data: blob: mediastream: filesystem:";
+            break;
+          case 'replace':
+            if (negation || splitUnescaped(optionValue, '/').length !== 4) {
+              return null;
+            }
+
+            if (!rawOptions) {
+              rawOptions = new Map();
+            }
+
+            rawOptions.set(option, optionValue);
+
             break;
           default: {
             // Handle content type options separatly
@@ -871,6 +949,7 @@ export default class NetworkFilter implements IFilter {
       denyallow,
       rawLine: debug === true ? line : undefined,
       redirect,
+      rawOptions,
       regex: undefined,
     });
   }
@@ -905,6 +984,8 @@ export default class NetworkFilter implements IFilter {
       rawLine: (optionalParts & 16) === 16 ? buffer.getRawNetwork() : undefined,
       redirect: (optionalParts & 32) === 32 ? buffer.getNetworkRedirect() : undefined,
       denyallow: (optionalParts & 64) === 64 ? Domains.deserialize(buffer) : undefined,
+      rawOptions:
+        (optionalParts & 128) === 128 ? new Map(deserializeUtf8ObjectEntries(buffer)) : undefined,
       regex: undefined,
     });
   }
@@ -916,6 +997,7 @@ export default class NetworkFilter implements IFilter {
   public readonly domains: Domains | undefined;
   public readonly denyallow: Domains | undefined;
   public readonly redirect: string | undefined;
+  public readonly rawOptions: Map<string, string> | undefined;
 
   // Set only in debug mode
   public readonly rawLine: string | undefined;
@@ -934,6 +1016,7 @@ export default class NetworkFilter implements IFilter {
     rawLine,
     redirect,
     regex,
+    rawOptions,
   }: {
     csp: string | undefined;
     filter: string | undefined;
@@ -944,6 +1027,7 @@ export default class NetworkFilter implements IFilter {
     rawLine: string | undefined;
     redirect: string | undefined;
     regex: RegExp | undefined;
+    rawOptions: Map<string, string> | undefined;
   }) {
     this.csp = csp;
     this.filter = filter;
@@ -952,6 +1036,7 @@ export default class NetworkFilter implements IFilter {
     this.domains = domains;
     this.denyallow = denyallow;
     this.redirect = redirect;
+    this.rawOptions = rawOptions;
 
     this.rawLine = rawLine;
 
@@ -1054,6 +1139,11 @@ export default class NetworkFilter implements IFilter {
       this.denyallow.serialize(buffer);
     }
 
+    if (this.rawOptions !== undefined) {
+      optionalParts |= 128;
+      serializeUtf8ObjectEntries(buffer, Array.from(this.rawOptions.entries()));
+    }
+
     buffer.setByte(index, optionalParts);
   }
 
@@ -1090,6 +1180,10 @@ export default class NetworkFilter implements IFilter {
 
     if (this.denyallow !== undefined) {
       estimate += this.denyallow.getSerializedSize();
+    }
+
+    if (this.rawOptions !== undefined) {
+      estimate += estimateSerializedSizeOfUtf8ObjectEntries(Array.from(this.rawOptions.entries()));
     }
 
     return estimate;
@@ -1212,6 +1306,12 @@ export default class NetworkFilter implements IFilter {
       }
     }
 
+    if (this.rawOptions !== undefined) {
+      for (const [key, value] of this.rawOptions) {
+        options.push(`${key}=${value}`);
+      }
+    }
+
     if (this.isBadFilter()) {
       options.push('badfilter');
     }
@@ -1285,6 +1385,26 @@ export default class NetworkFilter implements IFilter {
 
   public getRedirect(): string {
     return this.redirect || '';
+  }
+
+  public hasRawOptions(): boolean {
+    return this.rawOptions !== undefined;
+  }
+
+  public isHtmlFilteringRule(): boolean {
+    return this.hasRawOptions() && this.rawOptions!.has('replace');
+  }
+
+  public getHtmlFilteringRegex(): [RegExp, string] | null {
+    if (!this.isHtmlFilteringRule()) {
+      return null;
+    }
+
+    const optionValue = this.rawOptions!.get('replace')!;
+    const [, rawRegexp, replacement, modifiers] = splitUnescaped(optionValue, '/');
+    const regexp = new RegExp(rawRegexp, modifiers);
+
+    return [regexp, replacement];
   }
 
   public hasHostname(): boolean {
