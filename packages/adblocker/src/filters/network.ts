@@ -1352,14 +1352,18 @@ export default class NetworkFilter implements IFilter {
     return getBit(this.getMask(), NETWORK_FILTER_MASK.isReplace);
   }
 
-  public getReplace(): [RegExp, string] | null {
-    const [, rawRegexp, replacement, modifiers] = splitUnescaped(
-      this.getModifierOptionValue(),
-      '/',
-    );
-    const regexp = new RegExp(rawRegexp, modifiers);
+  public getHtmlModifier(): [RegExp, string] | null {
+    if (this.isReplace()) {
+      const [, rawRegexp, replacement, modifiers] = splitUnescaped(
+        this.getModifierOptionValue(),
+        '/',
+      );
+      const regexp = new RegExp(rawRegexp, modifiers);
 
-    return [regexp, replacement];
+      return [regexp, replacement];
+    }
+
+    return null;
   }
 
   public isHtmlFilteringRule(): boolean {
