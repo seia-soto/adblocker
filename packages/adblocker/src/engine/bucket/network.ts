@@ -162,4 +162,25 @@ export default class NetworkFilterBucket {
 
     return this.badFiltersIds.has(filter.getId());
   }
+
+  public getHtmlModifiers(
+    request: Request,
+    isFilterExcluded?: (filter: NetworkFilter) => boolean,
+  ): NetworkFilter[] {
+    const filters: NetworkFilter[] = [];
+
+    this.index.iterMatchingFilters(request.getTokens(), (filter: NetworkFilter) => {
+      if (
+        filter.isHtmlFilteringRule() &&
+        filter.match(request) &&
+        this.isFilterDisabled(filter) === false &&
+        !isFilterExcluded?.(filter)
+      ) {
+        filters.push(filter);
+      }
+      return true;
+    });
+
+    return filters;
+  }
 }
