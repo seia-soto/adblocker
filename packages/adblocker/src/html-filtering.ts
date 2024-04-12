@@ -220,13 +220,17 @@ export function removeTagsFromHtml(html: string, toRemove: [number, string][]): 
   return filteredHtml;
 }
 
+export type HTMLModifier = readonly [RegExp, string];
+
 export default class StreamingHtmlFilter {
   private buffer: string;
   private readonly patterns: Patterns;
+  private readonly modifiers: HTMLModifier[];
 
-  constructor(selectors: HTMLSelector[]) {
+  constructor(selectors: HTMLSelector[], modifiers: HTMLModifier[]) {
     this.buffer = '';
     this.patterns = extractSelectorsFromRules(selectors);
+    this.modifiers = modifiers;
   }
 
   public flush(): string {
@@ -257,6 +261,12 @@ export default class StreamingHtmlFilter {
     }
 
     // Perform tags filtering using `this.patterns` and `this.regexps`.
-    return removeTagsFromHtml(parsed, selectTagsToRemove(this.patterns, tags));
+    let text = removeTagsFromHtml(parsed, selectTagsToRemove(this.patterns, tags));
+
+    for (const [regexp, replacement] of this.modifiers) {
+      text = text.replace(regexp, replacement);
+    }
+
+    return text;
   }
 }
