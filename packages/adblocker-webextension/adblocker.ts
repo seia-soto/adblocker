@@ -17,6 +17,7 @@ import {
   StreamingHtmlFilter,
 } from '@cliqz/adblocker';
 import { IBackgroundCallback, IMessageFromBackground } from '@cliqz/adblocker-content';
+import { HTMLModifier } from '@cliqz/adblocker/src/html-filtering';
 
 export type OnBeforeRequestDetailsType = Pick<
   WebRequest.OnBeforeRequestDetailsType,
@@ -135,12 +136,13 @@ export function filterRequestHTML(
   filterResponseData: Browser['webRequest']['filterResponseData'],
   { id }: { id: string },
   rules: HTMLSelector[],
+  modifiers: HTMLModifier[],
 ): void {
   // Create filter to observe loading of resource
   const filter = filterResponseData(id) as StreamFilter;
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
-  const htmlFilter = new StreamingHtmlFilter(rules);
+  const htmlFilter = new StreamingHtmlFilter(rules, modifiers);
 
   const teardown = (event: { data?: ArrayBuffer }) => {
     // Before disconnecting our streaming filter, we need to be extra careful
@@ -401,8 +403,14 @@ export class WebExtensionBlocker extends FiltersEngine {
       typeof TextEncoder !== 'undefined'
     ) {
       const htmlFilters = this.getHtmlFilters(request);
+      const htmlModifiers = this.getHtmlModifiers(request);
       if (htmlFilters.length !== 0) {
-        filterRequestHTML(browser.webRequest.filterResponseData, request, htmlFilters);
+        filterRequestHTML(
+          browser.webRequest.filterResponseData,
+          request,
+          htmlFilters,
+          htmlModifiers,
+        );
       }
     }
   }
