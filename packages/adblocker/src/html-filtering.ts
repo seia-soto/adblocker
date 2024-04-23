@@ -222,51 +222,87 @@ export function removeTagsFromHtml(html: string, toRemove: [number, string][]): 
 
 export type HTMLModifier = readonly [RegExp, string];
 
+function applyModifiersToHtml(html: string, modifiers: HTMLModifier[]): string {
+  if (modifiers.length === 0) {
+    return html;
+  }
+
+  for (const [regexp, replacement] of modifiers) {
+    html = html.replace(regexp, replacement);
+  }
+
+  return html;
+}
+
 export default class StreamingHtmlFilter {
   private buffer: string;
   private readonly patterns: Patterns;
   private readonly modifiers: HTMLModifier[];
 
-  constructor(selectors: HTMLSelector[], modifiers: HTMLModifier[]) {
+  constructor(selectors: HTMLSelector[], modifiers: HTMLModifier[] = []) {
     this.buffer = '';
     this.patterns = extractSelectorsFromRules(selectors);
     this.modifiers = modifiers;
   }
 
   public flush(): string {
-    return this.buffer;
+    const out = applyModifiersToHtml(this.buffer, this.modifiers);
+
+    this.buffer = '';
+
+    return out;
   }
 
   public write(chunk: string): string {
-    // If there are no valid selectors, abort.
-    if (this.patterns.length === 0) {
-      return chunk;
-    }
-
     // If given an empty string, abort.
     if (chunk.length === 0) {
       return chunk;
     }
 
-    // Accumulate buffer + new data
-    this.buffer += chunk;
+    // If there are no valid selectors, abort.
+    if (this.patterns.length === 0) {
+      // If there is a modifier, buffer.
+      if (this.modifiers.length !== 0) {
+        this.buffer += chunk;
 
-    // Parse tags from `this.buffer`
-    const [tags, parsed, rest] = extractTagsFromHtml(this.buffer, 'script');
-    this.buffer = rest;
+        return '';
+      }
 
-    // If no tags were found, just return the parsed version
+      return chunk;
+    }
+
+    // If we don't need to buffer, do the same.
+    if (this.modifiers.length === 0) {
+      // Accumulate buffer + new data
+      this.buffer += chunk;
+
+      // Parse tags from `this.buffer`
+      const [tags, parsed, rest] = extractTagsFromHtml(this.buffer, 'script');
+
+      this.buffer = rest;
+
+      // If no tags were found, just return the parsed version
+      if (tags.length === 0) {
+        return parsed;
+      }
+
+      // Perform tags filtering using `this.patterns` and `this.regexps`.
+      return removeTagsFromHtml(parsed, selectTagsToRemove(this.patterns, tags));
+    }
+
+    const [tags, parsed, rest] = extractTagsFromHtml(this.buffer + chunk, 'script');
+
+    console.log(tags, parsed, rest);
+
     if (tags.length === 0) {
-      return parsed;
+      this.buffer = parsed;
+
+      return '';
     }
 
-    // Perform tags filtering using `this.patterns` and `this.regexps`.
-    let text = removeTagsFromHtml(parsed, selectTagsToRemove(this.patterns, tags));
+    this.buffer += rest;
+    this.buffer += removeTagsFromHtml(parsed, selectTagsToRemove(this.patterns, tags));
 
-    for (const [regexp, replacement] of this.modifiers) {
-      text = text.replace(regexp, replacement);
-    }
-
-    return text;
+    return '';
   }
 }
