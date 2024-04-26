@@ -10,7 +10,11 @@ import { expect } from 'chai';
 import 'mocha';
 
 import CosmeticFilter, { DEFAULT_HIDDING_STYLE } from '../src/filters/cosmetic';
-import NetworkFilter, { findLastIndexOfUnescapedCharacter } from '../src/filters/network';
+import NetworkFilter, {
+  findIndexOfUnescapedCharacter,
+  findLastIndexOfUnescapedCharacter,
+  splitUnescaped,
+} from '../src/filters/network';
 import { parseFilters } from '../src/lists';
 import { hashStrings, tokenize } from '../src/utils';
 import { HTMLSelector } from '../src/html-filtering';
@@ -2458,9 +2462,15 @@ describe('scriptlets arguments parsing', () => {
 
   it('parses replace modifier', () => {
     const filterString = String.raw`||www.youtube.com/playlist?list=$xhr,1p,replace=/("trackingParam":"kx_fmPxhoPZR)[-_0-9A-Za-z]{150}[-_0-9A-Za-z]+?([-_0-9A-Za-z]{55}lLKPQ-SS"\})/\$1\$2/`;
+
+    it('respects escaped characters', () => {
+      expect(findLastIndexOfUnescapedCharacter(filterString, '$')).to.be.eql(32);
+      expect(findIndexOfUnescapedCharacter(filterString, '$')).to.be.eql(32);
+      expect(splitUnescaped(filterString, '$').length).to.be.eql(2);
+    });
+
     const filter = NetworkFilter.parse(filterString);
 
-    expect(findLastIndexOfUnescapedCharacter(filterString, '$')).to.be.eql(32);
     expect(filter).not.to.be.null;
     expect(filter!.isReplace()).to.be.true;
   });
