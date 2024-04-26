@@ -395,7 +395,7 @@ function compileRegex(
   return new RegExp(filter);
 }
 
-function findLastIndexOfUnescapedCharacter(text: string, character: string) {
+export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
   let lastIndex = text.lastIndexOf(character);
 
   if (lastIndex === -1) {
@@ -409,7 +409,11 @@ function findLastIndexOfUnescapedCharacter(text: string, character: string) {
   return lastIndex;
 }
 
-function findIndexOfUnescapedCharacter(text: string, character: string, position: number = 0) {
+export function findIndexOfUnescapedCharacter(
+  text: string,
+  character: string,
+  position: number = 0,
+) {
   const end = text.length;
   let nextIndex = text.indexOf(character, position);
 
@@ -424,7 +428,7 @@ function findIndexOfUnescapedCharacter(text: string, character: string, position
   return nextIndex;
 }
 
-function splitUnescaped(text: string, character: string) {
+export function splitUnescaped(text: string, character: string) {
   const parts: string[] = [];
 
   let lastOccurrence = -1;
