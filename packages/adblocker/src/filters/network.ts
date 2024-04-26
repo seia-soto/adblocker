@@ -409,7 +409,11 @@ export function findLastIndexOfUnescapedCharacter(text: string, character: strin
   return lastIndex;
 }
 
-function findIndexOfUnescapedCharacter(text: string, character: string, position: number = 0) {
+export function findIndexOfUnescapedCharacter(
+  text: string,
+  character: string,
+  position: number = 0,
+) {
   const end = text.length;
   let nextIndex = text.indexOf(character, position);
 
@@ -424,7 +428,7 @@ function findIndexOfUnescapedCharacter(text: string, character: string, position
   return nextIndex;
 }
 
-function splitUnescaped(text: string, character: string) {
+export function splitUnescaped(text: string, character: string) {
   const parts: string[] = [];
 
   let lastOccurrence = -1;
