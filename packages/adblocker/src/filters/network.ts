@@ -395,33 +395,18 @@ function compileRegex(
   return new RegExp(filter);
 }
 
-function findLastIndexOfUnescapedCharacter(text: string, character: string) {
+export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
   let lastIndex = text.lastIndexOf(character);
 
   if (lastIndex === -1) {
     return -1;
   }
 
-  while (lastIndex >= 0 && text.charCodeAt(lastIndex - 1) === 92 /* '\\' */) {
+  while (lastIndex > 0 && text.charCodeAt(lastIndex - 1) === 92 /* '\\' */) {
     lastIndex = text.lastIndexOf(character, lastIndex - 1);
   }
 
   return lastIndex;
-}
-
-function findIndexOfUnescapedCharacter(text: string, character: string, position: number = 0) {
-  const end = text.length;
-  let nextIndex = text.indexOf(character, position);
-
-  if (nextIndex === -1) {
-    return -1;
-  }
-
-  while (nextIndex < end && text.charCodeAt(nextIndex - 1) === 92 /* '\\' */) {
-    nextIndex = text.indexOf(character, nextIndex + 1);
-  }
-
-  return nextIndex;
 }
 
 function splitUnescaped(text: string, character: string) {

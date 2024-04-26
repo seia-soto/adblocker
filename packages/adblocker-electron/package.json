@@ -1,6 +1,6 @@
 {
   "name": "@cliqz/adblocker-electron",
-  "version": "1.27.0",
+  "version": "1.27.2",
   "description": "Cliqz adblocker Electron wrapper",
   "author": {
     "name": "Cliqz"
@@ -37,15 +37,15 @@
     "electron": ">11"
   },
   "dependencies": {
-    "@cliqz/adblocker": "^1.27.0",
-    "@cliqz/adblocker-electron-preload": "^1.27.0",
+    "@cliqz/adblocker": "^1.27.2",
+    "@cliqz/adblocker-electron-preload": "^1.27.2",
     "tldts-experimental": "^6.0.14"
   },
   "devDependencies": {
     "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.1",
     "chai": "^4.3.8",
-    "electron": "^29.1.0",
+    "electron": "^30.0.0",
     "eslint": "^8.49.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",

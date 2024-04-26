@@ -1,6 +1,6 @@
 {
   "name": "@cliqz/adblocker-puppeteer",
-  "version": "1.27.0",
+  "version": "1.27.2",
   "description": "Cliqz adblocker Puppeteer wrapper",
   "author": {
     "name": "Cliqz"
@@ -37,8 +37,8 @@
     "puppeteer": ">5"
   },
   "dependencies": {
-    "@cliqz/adblocker": "^1.27.0",
-    "@cliqz/adblocker-content": "^1.27.0",
+    "@cliqz/adblocker": "^1.27.2",
+    "@cliqz/adblocker-content": "^1.27.2",
     "tldts-experimental": "^6.0.14"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "eslint": "^8.49.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "puppeteer": "22.5.0",
+    "puppeteer": "22.7.0",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"

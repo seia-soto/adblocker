@@ -1,6 +1,6 @@
 {
   "name": "@cliqz/adblocker-electron-preload",
-  "version": "1.27.0",
+  "version": "1.27.2",
   "description": "Cliqz adblocker Electron wrapper preload script",
   "author": {
     "name": "Cliqz"
@@ -36,14 +36,14 @@
     "electron": ">11"
   },
   "dependencies": {
-    "@cliqz/adblocker-content": "^1.27.0"
+    "@cliqz/adblocker-content": "^1.27.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.2.1",
     "@rollup/plugin-typescript": "^11.1.3",
-    "@types/chrome": "^0.0.263",
-    "electron": "^29.1.0",
+    "@types/chrome": "^0.0.266",
+    "electron": "^30.0.0",
     "eslint": "^8.49.0",
     "rimraf": "^5.0.1",
     "rollup": "^4.0.2",
