@@ -100,7 +100,7 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
     console.log('style', url, style.length, context);
   });
 
-  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
+  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
     console.log('script-matched', rule, context);
   });
 

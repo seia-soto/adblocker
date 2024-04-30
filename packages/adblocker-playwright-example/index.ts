@@ -4,6 +4,7 @@ import {
   PlaywrightBlocker,
   Request,
 } from '@cliqz/adblocker-playwright';
+import { EngineEventContext } from '@cliqz/adblocker/src/engine/engine';
 import fetch from 'node-fetch';
 
 import * as pw from 'playwright';
@@ -22,39 +23,43 @@ import * as pw from 'playwright';
 
   await blocker.enableBlockingInPage(page);
 
-  blocker.on('request-blocked', (request) => {
+  blocker.on('request-allowed', (request: Request) => {
+    console.log('allow', request.url);
+  });
+
+  blocker.on('request-blocked', (request: Request) => {
     console.log('blocked', request.url);
   });
 
-  blocker.on('request-redirected', (request) => {
+  blocker.on('request-redirected', (request: Request) => {
     console.log('redirected', request.url);
   });
 
-  blocker.on('request-whitelisted', (request) => {
+  blocker.on('request-whitelisted', (request: Request) => {
     console.log('whitelisted', request.url);
   });
 
-  blocker.on('csp-injected', (request) => {
-    console.log('csp', request.url);
+  blocker.on('csp-injected', (csps: string, request: Request) => {
+    console.log('csp', request.url, csps);
   });
 
-  blocker.on('script-injected', (script, url) => {
-    console.log('script', script.length, url);
+  blocker.on('script-injected', (script: string, url: string) => {
+    console.log('script', url, script.length);
   });
 
-  blocker.on('style-injected', (style, url) => {
-    console.log('style', style.length, url);
+  blocker.on('style-injected', (style: string, url: string) => {
+    console.log('style', url, style.length);
   });
 
-  blocker.on('script-rule-matched', (rule, context) => {
+  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
     console.log('script-matched', rule, context);
   });
 
-  blocker.on('extended-rule-matched', (rule, context) => {
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
     console.log('extended-rule-matched', rule, context);
   });
 
-  blocker.on('style-rule-matched', (rule, context) => {
+  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
     console.log('style-matched', rule, context);
   });
 

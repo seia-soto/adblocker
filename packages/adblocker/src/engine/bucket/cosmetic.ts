@@ -555,7 +555,7 @@ export default class CosmeticFilterBucket {
         if (rule.isScriptInject() === true) {
           if (getInjectionRules === true && injectionsDisabled === false) {
             if (emitOnFiltersEngine !== undefined) {
-              emitOnFiltersEngine('script-rule-matched', rule, {
+              emitOnFiltersEngine('scriptlet-matched', rule, {
                 hostname,
                 classes,
                 hrefs,

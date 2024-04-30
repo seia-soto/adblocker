@@ -103,7 +103,7 @@ export type EngineEventHandlers = {
   'csp-injected': (csps: string, request: Request) => any;
   'script-injected': (script: string, url: string, context: EngineEventContext) => any;
   'style-injected': (script: string, url: string, context: EngineEventContext) => any;
-  'script-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
+  'scriptlet-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
   'extended-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
   'style-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
 };
