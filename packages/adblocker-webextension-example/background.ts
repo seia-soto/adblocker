@@ -10,11 +10,13 @@ import { browser } from 'webextension-polyfill-ts';
 
 import {
   BlockingResponse,
+  CosmeticFilter,
   fullLists,
   HTMLSelector,
   Request,
   WebExtensionBlocker,
 } from '@cliqz/adblocker-webextension';
+import { EngineEventContext } from '@cliqz/adblocker/src/engine/engine';
 
 /**
  * Keep track of number of network requests altered for each tab
@@ -62,41 +64,51 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
 }).then((blocker: WebExtensionBlocker) => {
   blocker.enableBlockingInBrowser(browser);
 
-  blocker.on('request-blocked', (request, result) => {
+  blocker.on('request-allowed', (request: Request, result: BlockingResponse) => {
+    incrementBlockedCounter(request, result);
+    console.log('allow', request.url);
+  });
+
+  blocker.on('request-blocked', (request: Request, result: BlockingResponse) => {
     incrementBlockedCounter(request, result);
     console.log('block', request.url);
   });
 
-  blocker.on('request-redirected', (request, result) => {
+  blocker.on('request-redirected', (request: Request, result: BlockingResponse) => {
     incrementBlockedCounter(request, result);
     console.log('redirect', request.url, result);
   });
 
-  blocker.on('csp-injected', (request) => {
-    console.log('csp', request.url);
+  blocker.on('request-whitelisted', (request: Request, result: BlockingResponse) => {
+    incrementBlockedCounter(request, result);
+    console.log('whitelist', request.url, result);
   });
 
-  blocker.on('script-injected', (script: string, url: string) => {
-    console.log('script', script.length, url);
+  blocker.on('html-filtered', (htmlSelectors: HTMLSelector[], url: string) => {
+    console.log('html selectors', url, htmlSelectors);
   });
 
-  blocker.on('style-injected', (style: string, url: string) => {
-    console.log('style', url, style.length);
+  blocker.on('csp-injected', (csps: string, request: Request) => {
+    console.log('csp', request.url, csps.length);
   });
 
-  blocker.on('html-filtered', (htmlSelectors: HTMLSelector[]) => {
-    console.log('html selectors', htmlSelectors);
+  blocker.on('script-injected', (script: string, url: string, context: EngineEventContext) => {
+    console.log('script', url, script.length, context);
   });
 
-  blocker.on('script-rule-matched', (rule, context) => {
+  blocker.on('style-injected', (style: string, url: string, context: EngineEventContext) => {
+    console.log('style', url, style.length, context);
+  });
+
+  blocker.on('script-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
     console.log('script-matched', rule, context);
   });
 
-  blocker.on('extended-rule-matched', (rule, context) => {
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
     console.log('extended-rule-matched', rule, context);
   });
 
-  blocker.on('style-rule-matched', (rule, context) => {
+  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
     console.log('style-matched', rule, context);
   });
 

@@ -86,12 +86,12 @@ export interface Caching {
   write: (path: string, buffer: Uint8Array) => Promise<void>;
 }
 
-export type EngineEventContext<T> = {
+export type EngineEventContext = {
   hostname: string;
   classes: string[] | undefined;
   hrefs: string[] | undefined;
   ids: string[] | undefined;
-  context?: T;
+  context?: any;
 };
 
 export type EngineEventHandlers = {
@@ -101,11 +101,11 @@ export type EngineEventHandlers = {
   'request-whitelisted': (request: Request, result: BlockingResponse) => any;
   'html-filtered': (htmlSelectors: HTMLSelector[], url: string) => any;
   'csp-injected': (csps: string, request: Request) => any;
-  'script-injected': <T>(script: string, url: string, context: EngineEventContext<T>) => any;
-  'style-injected': <T>(script: string, url: string, context: EngineEventContext<T>) => any;
-  'script-rule-matched': <T>(rule: CosmeticFilter, context: EngineEventContext<T>) => any;
-  'extended-rule-matched': <T>(rule: CosmeticFilter, context: EngineEventContext<T>) => any;
-  'style-rule-matched': <T>(rule: CosmeticFilter, context: EngineEventContext<T>) => any;
+  'script-injected': (script: string, url: string, context: EngineEventContext) => any;
+  'style-injected': (script: string, url: string, context: EngineEventContext) => any;
+  'script-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
+  'extended-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
+  'style-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
 };
 
 export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
