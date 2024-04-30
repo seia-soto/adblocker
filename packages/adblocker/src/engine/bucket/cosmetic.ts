@@ -21,7 +21,7 @@ import { hashStrings, tokenizeNoSkip } from '../../utils';
 import { noopOptimizeCosmetic } from '../optimizer';
 import ReverseIndex from '../reverse-index';
 import FiltersContainer from './filters';
-import { FiltersEngine } from '../../../adblocker';
+import { type FiltersEngine } from '../../../adblocker';
 
 /**
  * Given a list of CSS selectors, create a valid stylesheet ready to be
