@@ -106,6 +106,8 @@ export type EngineEventHandlers = {
   'scriptlet-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
   'extended-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
   'style-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
+  'cosmetic-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
+  'cosmetic-rule-excluded': (rule: CosmeticFilter, context: EngineEventContext) => any;
 };
 
 export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
@@ -831,7 +833,13 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     }
 
     // Lookup injections as well as stylesheets
-    const { injections, stylesheet, extended } = this.cosmetics.getCosmeticsFilters<T>({
+    const {
+      injections,
+      stylesheet,
+      extended,
+      matches,
+      exceptions: exceptionMatches,
+    } = this.cosmetics.getCosmeticsFilters({
       domain: domain || '',
       hostname,
 
@@ -849,10 +857,32 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       getRulesFromHostname,
 
       isFilterExcluded: this.isFilterExcluded.bind(this),
-      emitOnFiltersEngine: this.emit.bind(this),
-
-      context,
     });
+
+    for (const match of matches) {
+      const engineContext = {
+        hostname,
+        classes,
+        hrefs,
+        ids,
+        context,
+      };
+
+      this.emit('cosmetic-rule-matched', match, engineContext);
+
+      // These are for backward-compatibility
+      if (match.isScriptInject()) {
+        this.emit('scriptlet-matched', match, engineContext);
+      } else if (match.isCSS()) {
+        this.emit('style-rule-matched', match, engineContext);
+      } else if (match.isExtended()) {
+        this.emit('extended-rule-matched', match, engineContext);
+      }
+
+      if (exceptionMatches.has(match)) {
+        this.emit('cosmetic-rule-excluded', exceptionMatches.get(match)!, engineContext);
+      }
+    }
 
     // Perform interpolation for injected scripts
     const scripts: string[] = [];

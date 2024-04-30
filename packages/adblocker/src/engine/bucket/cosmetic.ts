@@ -21,7 +21,6 @@ import { hashStrings, tokenizeNoSkip } from '../../utils';
 import { noopOptimizeCosmetic } from '../optimizer';
 import ReverseIndex from '../reverse-index';
 import FiltersContainer from './filters';
-import { type FiltersEngine } from '../../../adblocker';
 
 /**
  * Given a list of CSS selectors, create a valid stylesheet ready to be
@@ -385,7 +384,7 @@ export default class CosmeticFilterBucket {
   /**
    * Request cosmetics and scripts to inject in a page.
    */
-  public getCosmeticsFilters<T>({
+  public getCosmeticsFilters({
     domain,
     hostname,
 
@@ -404,9 +403,6 @@ export default class CosmeticFilterBucket {
     getRulesFromHostname = true,
 
     isFilterExcluded,
-    emitOnFiltersEngine,
-
-    context,
   }: {
     domain: string;
     hostname: string;
@@ -425,13 +421,12 @@ export default class CosmeticFilterBucket {
     getRulesFromHostname?: boolean;
 
     isFilterExcluded?: (filter: CosmeticFilter) => boolean;
-    emitOnFiltersEngine?: FiltersEngine['emit'];
-
-    context?: T | undefined;
   }): {
     injections: CosmeticFilter[];
     extended: IMessageFromBackground['extended'];
     stylesheet: string;
+    matches: CosmeticFilter[];
+    exceptions: Map<CosmeticFilter, CosmeticFilter>;
   } {
     // Tokens from `hostname` and `domain` which will be used to lookup filters
     // from the reverse index. The same tokens are re-used for multiple indices.
@@ -512,6 +507,10 @@ export default class CosmeticFilterBucket {
       );
     }
 
+    // Additional data for engine events
+    const matches: CosmeticFilter[] = [...rules];
+    const exceptions: Map<CosmeticFilter, CosmeticFilter> = new Map();
+
     const extended: CosmeticFilter[] = [];
     const injections: CosmeticFilter[] = [];
     const styles: CosmeticFilter[] = [];
@@ -526,10 +525,12 @@ export default class CosmeticFilterBucket {
       // Collect unhidden selectors. They will be used to filter-out canceled
       // rules from other indices.
       let injectionsDisabled = false;
-      const disabledRules: Set<string> = new Set();
+      // Create a binding from here to provide a map of rules with exception rules
+      // with minimal performance impact
+      const disabledRules: Map<string, CosmeticFilter> = new Map();
       this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
         if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
-          disabledRules.add(rule.getSelector());
+          disabledRules.set(rule.getSelector(), rule);
 
           // Detect special +js() rules to disable scriptlet injections
           if (
@@ -548,46 +549,21 @@ export default class CosmeticFilterBucket {
       for (const rule of rules) {
         // Make sure `rule` is not un-hidden by a #@# filter
         if (disabledRules.size !== 0 && disabledRules.has(rule.getSelector())) {
+          exceptions.set(rule, disabledRules.get(rule.getSelector())!);
+
           continue;
         }
 
         // Dispatch rules in `injections` or `styles` depending on type
         if (rule.isScriptInject() === true) {
           if (getInjectionRules === true && injectionsDisabled === false) {
-            if (emitOnFiltersEngine !== undefined) {
-              emitOnFiltersEngine('scriptlet-matched', rule, {
-                hostname,
-                classes,
-                hrefs,
-                ids,
-                context,
-              });
-            }
             injections.push(rule);
           }
         } else if (rule.isExtended()) {
           if (getExtendedRules === true) {
-            if (emitOnFiltersEngine !== undefined) {
-              emitOnFiltersEngine('extended-rule-matched', rule, {
-                hostname,
-                classes,
-                hrefs,
-                ids,
-                context,
-              });
-            }
             extended.push(rule);
           }
         } else {
-          if (emitOnFiltersEngine !== undefined) {
-            emitOnFiltersEngine('style-rule-matched', rule, {
-              hostname,
-              classes,
-              hrefs,
-              ids,
-              context,
-            });
-          }
           styles.push(rule);
         }
       }
@@ -640,6 +616,8 @@ export default class CosmeticFilterBucket {
       extended: extendedProcessed,
       injections,
       stylesheet,
+      matches,
+      exceptions,
     };
   }
 
