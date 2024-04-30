@@ -3,7 +3,7 @@ import { app, BrowserWindow } from 'electron';
 import { readFileSync, writeFileSync } from 'fs';
 
 import { CosmeticFilter, ElectronBlocker, fullLists, Request } from '@cliqz/adblocker-electron';
-import { EngineEventContext } from '@cliqz/adblocker/src/engine/engine';
+import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
 
 function getUrlToLoad(): string {
   let url = 'https://google.com';
@@ -62,23 +62,23 @@ async function createWindow() {
     console.log('csp', csps, request.url);
   });
 
-  blocker.on('script-injected', (script: string, url: string, context: EngineEventContext) => {
+  blocker.on('script-injected', (script: string, url: string, context: MatchingContext) => {
     console.log('script', script.length, url, context);
   });
 
-  blocker.on('style-injected', (style: string, url: string, context: EngineEventContext) => {
+  blocker.on('style-injected', (style: string, url: string, context: MatchingContext) => {
     console.log('style', style.length, url, context);
   });
 
-  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
+  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: MatchingContext) => {
     console.log('script-matched', rule, context);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
     console.log('extended-rule-matched', rule, context);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
+  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
     console.log('style-matched', rule, context);
   });
 

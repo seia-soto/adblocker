@@ -4,7 +4,7 @@ import {
   PlaywrightBlocker,
   Request,
 } from '@cliqz/adblocker-playwright';
-import { EngineEventContext } from '@cliqz/adblocker/src/engine/engine';
+import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
 import fetch from 'node-fetch';
 
 import * as pw from 'playwright';
@@ -51,15 +51,15 @@ import * as pw from 'playwright';
     console.log('style', url, style.length);
   });
 
-  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
+  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: MatchingContext) => {
     console.log('script-matched', rule, context);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
     console.log('extended-rule-matched', rule, context);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: EngineEventContext) => {
+  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
     console.log('style-matched', rule, context);
   });
 

@@ -86,13 +86,60 @@ export interface Caching {
   write: (path: string, buffer: Uint8Array) => Promise<void>;
 }
 
-export type EngineEventContext = {
-  hostname: string;
+// Cosmetic rule is commonly used word in the project,
+// but cosmetic filter is used for better documentation.
+export enum MatchingContextType {
+  NetworkFilter = 0,
+  CosmeticFilter = 1,
+  HtmlFilter = 2,
+}
+
+export type NetworkFilterMatchingContext = Request & {
+  // `type` will cause a conflict in the variable name of `Request`.
+  matchType: MatchingContextType.NetworkFilter;
+  reference: any;
+};
+
+// We do have a full context in case of the network filter matching.
+// It's because network filter matching does rely on an argument of the request.
+type CosmeticFilterMatchingContextBase = {
+  url: string;
+  domain: string | null | undefined;
+  hostname: string | undefined;
+
+  isFilterExcluded: (filter: IFilter) => boolean;
+
+  // Additional context given from user
+  reference: any;
+};
+
+export type HtmlFilterMatchingContext = CosmeticFilterMatchingContextBase & {
+  // Additional context given from user
+  matchType: MatchingContextType.HtmlFilter;
+};
+
+export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase & {
   classes: string[] | undefined;
   hrefs: string[] | undefined;
   ids: string[] | undefined;
-  context?: any;
+
+  allowGenericHides: boolean;
+  allowSpecificHides: boolean;
+
+  getBaseRules: boolean;
+  getInjectionRules: boolean;
+  getExtendedRules: boolean;
+  getRulesFromDOM: boolean;
+  getRulesFromHostname: boolean;
+
+  // Additional context given from user
+  matchType: MatchingContextType.CosmeticFilter;
 };
+
+export type MatchingContext =
+  | HtmlFilterMatchingContext
+  | CosmeticFilterMatchingContext
+  | NetworkFilterMatchingContext;
 
 export type EngineEventHandlers = {
   'request-allowed': (request: Request, result: BlockingResponse) => any;
@@ -101,13 +148,20 @@ export type EngineEventHandlers = {
   'request-whitelisted': (request: Request, result: BlockingResponse) => any;
   'html-filtered': (htmlSelectors: HTMLSelector[], url: string) => any;
   'csp-injected': (csps: string, request: Request) => any;
-  'script-injected': (script: string, url: string, context: EngineEventContext) => any;
-  'style-injected': (script: string, url: string, context: EngineEventContext) => any;
-  'scriptlet-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
-  'extended-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
-  'style-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
-  'cosmetic-rule-matched': (rule: CosmeticFilter, context: EngineEventContext) => any;
-  'cosmetic-rule-excluded': (rule: CosmeticFilter, context: EngineEventContext) => any;
+  'script-injected': (script: string, url: string, context: CosmeticFilterMatchingContext) => any;
+  'style-injected': (script: string, url: string, context: CosmeticFilterMatchingContext) => any;
+  'scriptlet-matched': (rule: CosmeticFilter, context: CosmeticFilterMatchingContext) => any;
+  'extended-rule-matched': (rule: CosmeticFilter, context: CosmeticFilterMatchingContext) => any;
+  'style-rule-matched': (rule: CosmeticFilter, context: CosmeticFilterMatchingContext) => any;
+
+  // The below event kinds describe the internal process that was blackboxed before.
+  // In favor of backward-compatibility and the notification of the final action, above event kinds will be kept.
+  // We would match all *supported* filter by the engine.
+  // The result of *matched* filter can be differed by the end-user capability.
+  // However, we should rely on the given capability information and try to be accurate on our end as well.
+  // The unsupported filter won't be fired via the following events.
+  'filter-matched': (rule: CosmeticFilter, context: MatchingContext) => any;
+  'filter-excluded': (rule: CosmeticFilter, context: MatchingContext) => any;
 };
 
 export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
@@ -712,10 +766,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     url,
     hostname,
     domain,
+
+    reference,
   }: {
     url: string;
     hostname: string;
     domain: string | null | undefined;
+
+    reference?: any | undefined;
   }): HTMLSelector[] {
     const htmlSelectors: HTMLSelector[] = [];
 
@@ -723,11 +781,30 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       return htmlSelectors;
     }
 
-    const rules = this.cosmetics.getHtmlRules({
+    const { rules, matches, exceptions } = this.cosmetics.getHtmlRules({
       domain: domain || '',
       hostname,
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
+
+    const context: HtmlFilterMatchingContext = {
+      url,
+      hostname,
+      domain,
+
+      isFilterExcluded: this.isFilterExcluded.bind(this),
+
+      matchType: MatchingContextType.HtmlFilter,
+      reference,
+    };
+
+    for (const match of matches) {
+      this.emit('filter-matched', match, context);
+
+      if (exceptions.has(match)) {
+        this.emit('filter-excluded', exceptions.get(match)!, context);
+      }
+    }
 
     for (const rule of rules) {
       const extended = rule.getExtendedSelector();
@@ -747,7 +824,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
    * Given `hostname` and `domain` of a page (or frame), return the list of
    * styles and scripts to inject in the page.
    */
-  public getCosmeticsFilters<T>({
+  public getCosmeticsFilters({
     // Page information
     url,
     hostname,
@@ -765,7 +842,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     getRulesFromDOM = true,
     getRulesFromHostname = true,
 
-    context,
+    reference,
   }: {
     url: string;
     hostname: string;
@@ -781,7 +858,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     getRulesFromDOM?: boolean;
     getRulesFromHostname?: boolean;
 
-    context?: T | undefined;
+    reference?: any | undefined;
   }): IMessageFromBackground {
     if (this.config.loadCosmeticFilters === false) {
       return {
@@ -859,28 +936,44 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    for (const match of matches) {
-      const engineContext = {
-        hostname,
-        classes,
-        hrefs,
-        ids,
-        context,
-      };
+    const context: CosmeticFilterMatchingContext = {
+      url,
+      domain,
+      hostname,
 
-      this.emit('cosmetic-rule-matched', match, engineContext);
+      classes,
+      hrefs,
+      ids,
+
+      allowGenericHides,
+      allowSpecificHides,
+
+      getBaseRules,
+      getInjectionRules,
+      getExtendedRules,
+      getRulesFromDOM,
+      getRulesFromHostname,
+
+      isFilterExcluded: this.isFilterExcluded.bind(this),
+
+      matchType: MatchingContextType.CosmeticFilter,
+      reference,
+    };
+
+    for (const match of matches) {
+      this.emit('filter-matched', match, context);
 
       // These are for backward-compatibility
       if (match.isScriptInject()) {
-        this.emit('scriptlet-matched', match, engineContext);
+        this.emit('scriptlet-matched', match, context);
       } else if (match.isCSS()) {
-        this.emit('style-rule-matched', match, engineContext);
+        this.emit('style-rule-matched', match, context);
       } else if (match.isExtended()) {
-        this.emit('extended-rule-matched', match, engineContext);
+        this.emit('extended-rule-matched', match, context);
       }
 
       if (exceptionMatches.has(match)) {
-        this.emit('cosmetic-rule-excluded', exceptionMatches.get(match)!, engineContext);
+        this.emit('filter-excluded', exceptionMatches.get(match)!, context);
       }
     }
 
@@ -889,26 +982,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     for (const injection of injections) {
       const script = injection.getScript(this.resources.js);
       if (script !== undefined) {
-        this.emit('script-injected', script, url, {
-          hostname,
-          classes,
-          hrefs,
-          ids,
-          context,
-        });
+        this.emit('script-injected', script, url, context);
         scripts.push(script);
       }
     }
 
     // Emit events
     if (stylesheet.length !== 0) {
-      this.emit('style-injected', stylesheet, url, {
-        hostname,
-        classes,
-        hrefs,
-        ids,
-        context,
-      });
+      this.emit('style-injected', stylesheet, url, context);
     }
 
     return {

@@ -352,7 +352,11 @@ export default class CosmeticFilterBucket {
     hostname: string;
 
     isFilterExcluded?: (filter: CosmeticFilter) => boolean;
-  }): CosmeticFilter[] {
+  }): {
+    rules: CosmeticFilter[];
+    matches: CosmeticFilter[];
+    exceptions: Map<CosmeticFilter, CosmeticFilter>;
+  } {
     // Tokens from `hostname` and `domain` which will be used to lookup filters
     // from the reverse index. The same tokens are re-used for multiple indices.
     const hostnameTokens = createLookupTokens(hostname, domain);
@@ -364,21 +368,36 @@ export default class CosmeticFilterBucket {
       return true;
     });
 
+    // Additional data for engine events
+    const matches: CosmeticFilter[] = [...rules];
+    const exceptions: Map<CosmeticFilter, CosmeticFilter> = new Map();
+
     // If we found at least one candidate, check if we have unhidden rules.
-    const disabledRules: Set<string> = new Set();
+    const disabledRules: Map<string, CosmeticFilter> = new Map();
     if (rules.length !== 0) {
       this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
         if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
-          disabledRules.add(rule.getSelector());
+          disabledRules.set(rule.getSelector(), rule);
         }
 
         return true;
       });
     }
 
-    return rules.filter(
-      (rule) => disabledRules.size === 0 || disabledRules.has(rule.getSelector()) === false,
-    );
+    const modifications: CosmeticFilter[] = [];
+    for (const rule of rules) {
+      if (disabledRules.size !== 0 && disabledRules.has(rule.getSelector())) {
+        exceptions.set(rule, disabledRules.get(rule.getSelector())!);
+      } else {
+        modifications.push(rule);
+      }
+    }
+
+    return {
+      rules: modifications,
+      matches,
+      exceptions,
+    };
   }
 
   /**
