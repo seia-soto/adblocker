@@ -23,7 +23,7 @@ import { HTMLSelector } from '../html-filtering';
 import CosmeticFilter from '../filters/cosmetic';
 import NetworkFilter from '../filters/network';
 import { block } from '../filters/dsl';
-import { IListDiff, IPartialRawDiff, parseFilters } from '../lists';
+import { FilterType, IListDiff, IPartialRawDiff, parseFilters } from '../lists';
 import Request from '../request';
 import Resources from '../resources';
 import CosmeticFilterBucket from './bucket/cosmetic';
@@ -88,16 +88,11 @@ export interface Caching {
 
 // Cosmetic rule is commonly used word in the project,
 // but cosmetic filter is used for better documentation.
-export enum MatchingContextType {
-  NetworkFilter = 0,
-  CosmeticFilter = 1,
-  HtmlFilter = 2,
-}
+export type NetworkFilterMatchingContext = {
+  request: Request;
 
-export type NetworkFilterMatchingContext = Request & {
   // `type` will cause a conflict in the variable name of `Request`.
-  matchType: MatchingContextType.NetworkFilter;
-  reference: any;
+  matchType: FilterType.NETWORK;
 };
 
 // We do have a full context in case of the network filter matching.
@@ -110,49 +105,44 @@ type CosmeticFilterMatchingContextBase = {
   isFilterExcluded: (filter: IFilter) => boolean;
 
   // Additional context given from user
+  matchType: FilterType.COSMETIC;
   reference: any;
 };
 
-export type HtmlFilterMatchingContext = CosmeticFilterMatchingContextBase & {
-  // Additional context given from user
-  matchType: MatchingContextType.HtmlFilter;
-};
+export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
+  Partial<{
+    classes: string[] | undefined;
+    hrefs: string[] | undefined;
+    ids: string[] | undefined;
 
-export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase & {
-  classes: string[] | undefined;
-  hrefs: string[] | undefined;
-  ids: string[] | undefined;
+    allowGenericHides: boolean;
+    allowSpecificHides: boolean;
 
-  allowGenericHides: boolean;
-  allowSpecificHides: boolean;
+    getBaseRules: boolean;
+    getInjectionRules: boolean;
+    getExtendedRules: boolean;
+    getRulesFromDOM: boolean;
+    getRulesFromHostname: boolean;
+  }>;
 
-  getBaseRules: boolean;
-  getInjectionRules: boolean;
-  getExtendedRules: boolean;
-  getRulesFromDOM: boolean;
-  getRulesFromHostname: boolean;
-
-  // Additional context given from user
-  matchType: MatchingContextType.CosmeticFilter;
-};
-
-export type MatchingContext =
-  | HtmlFilterMatchingContext
-  | CosmeticFilterMatchingContext
-  | NetworkFilterMatchingContext;
+export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
 
 export type EngineEventHandlers = {
   'request-allowed': (request: Request, result: BlockingResponse) => any;
   'request-blocked': (request: Request, result: BlockingResponse) => any;
   'request-redirected': (request: Request, result: BlockingResponse) => any;
   'request-whitelisted': (request: Request, result: BlockingResponse) => any;
-  'html-filtered': (htmlSelectors: HTMLSelector[], url: string) => any;
+  'html-filtered': (
+    htmlSelectors: HTMLSelector[],
+    url: string,
+    context: CosmeticFilterMatchingContext,
+  ) => any;
   'csp-injected': (csps: string, request: Request) => any;
   'script-injected': (script: string, url: string, context: CosmeticFilterMatchingContext) => any;
   'style-injected': (script: string, url: string, context: CosmeticFilterMatchingContext) => any;
-  'scriptlet-matched': (rule: CosmeticFilter, context: CosmeticFilterMatchingContext) => any;
-  'extended-rule-matched': (rule: CosmeticFilter, context: CosmeticFilterMatchingContext) => any;
-  'style-rule-matched': (rule: CosmeticFilter, context: CosmeticFilterMatchingContext) => any;
+  'scriptlet-matched': (rule: CosmeticFilter) => any;
+  'extended-rule-matched': (rule: CosmeticFilter) => any;
+  'style-rule-matched': (rule: CosmeticFilter) => any;
 
   // The below event kinds describe the internal process that was blackboxed before.
   // In favor of backward-compatibility and the notification of the final action, above event kinds will be kept.
@@ -160,8 +150,7 @@ export type EngineEventHandlers = {
   // The result of *matched* filter can be differed by the end-user capability.
   // However, we should rely on the given capability information and try to be accurate on our end as well.
   // The unsupported filter won't be fired via the following events.
-  'filter-matched': (rule: CosmeticFilter, context: MatchingContext) => any;
-  'filter-excluded': (rule: CosmeticFilter, context: MatchingContext) => any;
+  'filter-matched': (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => any;
 };
 
 export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
@@ -787,14 +776,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    const context: HtmlFilterMatchingContext = {
+    const context: CosmeticFilterMatchingContext = {
       url,
       hostname,
       domain,
 
       isFilterExcluded: this.isFilterExcluded.bind(this),
 
-      matchType: MatchingContextType.HtmlFilter,
+      matchType: FilterType.COSMETIC,
       reference,
     };
 
@@ -802,7 +791,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       this.emit('filter-matched', match, context);
 
       if (exceptions.has(match)) {
-        this.emit('filter-excluded', exceptions.get(match)!, context);
+        this.emit('filter-matched', exceptions.get(match)!, context);
       }
     }
 
@@ -814,7 +803,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     }
 
     if (htmlSelectors.length !== 0) {
-      this.emit('html-filtered', htmlSelectors, url);
+      this.emit('html-filtered', htmlSelectors, url, context);
     }
 
     return htmlSelectors;
@@ -956,7 +945,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
       isFilterExcluded: this.isFilterExcluded.bind(this),
 
-      matchType: MatchingContextType.CosmeticFilter,
+      matchType: FilterType.COSMETIC,
       reference,
     };
 
@@ -965,15 +954,15 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
       // These are for backward-compatibility
       if (match.isScriptInject()) {
-        this.emit('scriptlet-matched', match, context);
+        this.emit('scriptlet-matched', match);
       } else if (match.isCSS()) {
-        this.emit('style-rule-matched', match, context);
+        this.emit('style-rule-matched', match);
       } else if (match.isExtended()) {
-        this.emit('extended-rule-matched', match, context);
+        this.emit('extended-rule-matched', match);
       }
 
       if (exceptionMatches.has(match)) {
-        this.emit('filter-excluded', exceptionMatches.get(match)!, context);
+        this.emit('filter-matched', exceptionMatches.get(match)!, context);
       }
     }
 
@@ -1033,7 +1022,18 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       );
     }
 
-    return new Set(filters);
+    const matches: Set<NetworkFilter> = new Set(filters);
+    const context: NetworkFilterMatchingContext = {
+      request,
+
+      matchType: FilterType.NETWORK,
+    };
+
+    for (const match of matches) {
+      this.emit('filter-matched', match, context);
+    }
+
+    return matches;
   }
 
   /**
@@ -1059,7 +1059,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     // Collect all CSP directives and keep track of exceptions
     const disabledCsp = new Set();
     const enabledCsp = new Set();
+    const context: NetworkFilterMatchingContext = {
+      request,
+
+      matchType: FilterType.NETWORK,
+    };
     for (const filter of matches) {
+      this.emit('filter-matched', filter, context);
+
       if (filter.isException()) {
         if (filter.csp === undefined) {
           // All CSP directives are disabled for this site
@@ -1101,6 +1108,12 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     if (!this.config.loadNetworkFilters) {
       return result;
     }
+
+    const context: NetworkFilterMatchingContext = {
+      request,
+
+      matchType: FilterType.NETWORK,
+    };
 
     if (request.isSupported) {
       // Check the filters in the following order:
@@ -1152,8 +1165,12 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         // If we found either a redirection rule or a normal match, then check
         // for exceptions which could apply on the request and un-block it.
         if (result.filter !== undefined) {
+          this.emit('filter-matched', result.filter, context);
+
           result.exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
         }
+      } else {
+        this.emit('filter-matched', result.filter, context);
       }
 
       // If there was a redirect match and no exception was found, then we
@@ -1178,6 +1195,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     // Emit events if we found a match
     if (result.exception !== undefined) {
+      this.emit('filter-matched', result.exception, context);
+
       this.emit('request-whitelisted', request, result);
     } else if (result.redirect !== undefined) {
       this.emit('request-redirected', request, result);
