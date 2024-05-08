@@ -1,4 +1,10 @@
-import { CosmeticFilter, fullLists, PuppeteerBlocker, Request } from '@cliqz/adblocker-puppeteer';
+import {
+  CosmeticFilter,
+  fullLists,
+  NetworkFilter,
+  PuppeteerBlocker,
+  Request,
+} from '@cliqz/adblocker-puppeteer';
 import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
 import { promises as fs } from 'fs';
 import fetch from 'node-fetch';
@@ -64,17 +70,24 @@ function getUrlToLoad(): string {
     console.log('style', url, style.length, context);
   });
 
-  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('script-matched', rule, context);
+  blocker.on('scriptlet-matched', (rule: CosmeticFilter) => {
+    console.log('script-matched', rule);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('extended-rule-matched', rule, context);
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter) => {
+    console.log('extended-rule-matched', rule);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('style-matched', rule, context);
+  blocker.on('style-rule-matched', (rule: CosmeticFilter) => {
+    console.log('style-matched', rule);
   });
+
+  blocker.on(
+    'filter-matched',
+    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
+      console.log('filter-matched', filter, context);
+    },
+  );
 
   await page.goto(getUrlToLoad());
 })();

@@ -2,7 +2,13 @@ import fetch from 'cross-fetch';
 import { app, BrowserWindow } from 'electron';
 import { readFileSync, writeFileSync } from 'fs';
 
-import { CosmeticFilter, ElectronBlocker, fullLists, Request } from '@cliqz/adblocker-electron';
+import {
+  CosmeticFilter,
+  ElectronBlocker,
+  fullLists,
+  NetworkFilter,
+  Request,
+} from '@cliqz/adblocker-electron';
 import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
 
 function getUrlToLoad(): string {
@@ -70,17 +76,24 @@ async function createWindow() {
     console.log('style', style.length, url, context);
   });
 
-  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('script-matched', rule, context);
+  blocker.on('scriptlet-matched', (rule: CosmeticFilter) => {
+    console.log('script-matched', rule);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('extended-rule-matched', rule, context);
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter) => {
+    console.log('extended-rule-matched', rule);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('style-matched', rule, context);
+  blocker.on('style-rule-matched', (rule: CosmeticFilter) => {
+    console.log('style-matched', rule);
   });
+
+  blocker.on(
+    'filter-matched',
+    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
+      console.log('filter-matched', filter, context);
+    },
+  );
 
   mainWindow.loadURL(getUrlToLoad());
   mainWindow.webContents.openDevTools();

@@ -1,6 +1,7 @@
 import {
   CosmeticFilter,
   fullLists,
+  NetworkFilter,
   PlaywrightBlocker,
   Request,
 } from '@cliqz/adblocker-playwright';
@@ -51,17 +52,24 @@ import * as pw from 'playwright';
     console.log('style', url, style.length);
   });
 
-  blocker.on('scriptlet-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('script-matched', rule, context);
+  blocker.on('scriptlet-matched', (rule: CosmeticFilter) => {
+    console.log('script-matched', rule);
   });
 
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('extended-rule-matched', rule, context);
+  blocker.on('extended-rule-matched', (rule: CosmeticFilter) => {
+    console.log('extended-rule-matched', rule);
   });
 
-  blocker.on('style-rule-matched', (rule: CosmeticFilter, context: MatchingContext) => {
-    console.log('style-matched', rule, context);
+  blocker.on('style-rule-matched', (rule: CosmeticFilter) => {
+    console.log('style-matched', rule);
   });
+
+  blocker.on(
+    'filter-matched',
+    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
+      console.log('filter-matched', filter, context);
+    },
+  );
 
   await page.goto('https://www.mangareader.net/');
   await page.screenshot({ path: 'output.png' });
