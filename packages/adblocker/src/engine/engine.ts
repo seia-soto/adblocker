@@ -127,22 +127,31 @@ export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
 
 export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
 
+type LegacyNetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => any;
+type LegacyCosmeticFilterMatchEvent = (rule: CosmeticFilter) => any;
+
+type CosmeticInjectionEvent = (
+  script: string,
+  url: string,
+  context: CosmeticFilterMatchingContext,
+) => any;
+
 export type EngineEventHandlers = {
-  'request-allowed': (request: Request, result: BlockingResponse) => any;
-  'request-blocked': (request: Request, result: BlockingResponse) => any;
-  'request-redirected': (request: Request, result: BlockingResponse) => any;
-  'request-whitelisted': (request: Request, result: BlockingResponse) => any;
+  'request-allowed': LegacyNetworkFilterMatchEvent;
+  'request-blocked': LegacyNetworkFilterMatchEvent;
+  'request-redirected': LegacyNetworkFilterMatchEvent;
+  'request-whitelisted': LegacyNetworkFilterMatchEvent;
   'html-filtered': (
     htmlSelectors: HTMLSelector[],
     url: string,
     context: CosmeticFilterMatchingContext,
   ) => any;
   'csp-injected': (csps: string, request: Request) => any;
-  'script-injected': (script: string, url: string, context: CosmeticFilterMatchingContext) => any;
-  'style-injected': (script: string, url: string, context: CosmeticFilterMatchingContext) => any;
-  'scriptlet-matched': (rule: CosmeticFilter) => any;
-  'extended-rule-matched': (rule: CosmeticFilter) => any;
-  'style-rule-matched': (rule: CosmeticFilter) => any;
+  'script-injected': CosmeticInjectionEvent;
+  'style-injected': CosmeticInjectionEvent;
+  'scriptlet-matched': LegacyCosmeticFilterMatchEvent;
+  'extended-rule-matched': LegacyCosmeticFilterMatchEvent;
+  'style-rule-matched': LegacyCosmeticFilterMatchEvent;
 
   // The below event kinds describe the internal process that was blackboxed before.
   // In favor of backward-compatibility and the notification of the final action, above event kinds will be kept.
