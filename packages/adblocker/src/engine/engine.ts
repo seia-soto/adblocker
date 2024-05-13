@@ -129,12 +129,7 @@ export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatch
 
 type LegacyNetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => any;
 type LegacyCosmeticFilterMatchEvent = (rule: CosmeticFilter) => any;
-
-type CosmeticInjectionEvent = (
-  script: string,
-  url: string,
-  context: CosmeticFilterMatchingContext,
-) => any;
+type LegacyCosmeticInjectionEvent = (script: string, url: string) => any;
 
 export type EngineEventHandlers = {
   'request-allowed': LegacyNetworkFilterMatchEvent;
@@ -147,8 +142,8 @@ export type EngineEventHandlers = {
     context: CosmeticFilterMatchingContext,
   ) => any;
   'csp-injected': (csps: string, request: Request) => any;
-  'script-injected': CosmeticInjectionEvent;
-  'style-injected': CosmeticInjectionEvent;
+  'script-injected': LegacyCosmeticInjectionEvent;
+  'style-injected': LegacyCosmeticInjectionEvent;
   'scriptlet-matched': LegacyCosmeticFilterMatchEvent;
   'extended-rule-matched': LegacyCosmeticFilterMatchEvent;
   'style-rule-matched': LegacyCosmeticFilterMatchEvent;
@@ -980,14 +975,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     for (const injection of injections) {
       const script = injection.getScript(this.resources.js);
       if (script !== undefined) {
-        this.emit('script-injected', script, url, context);
+        this.emit('script-injected', script, url);
         scripts.push(script);
       }
     }
 
     // Emit events
     if (stylesheet.length !== 0) {
-      this.emit('style-injected', stylesheet, url, context);
+      this.emit('style-injected', stylesheet, url);
     }
 
     return {

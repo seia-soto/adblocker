@@ -93,11 +93,11 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
     console.log('csp', request.url, csps.length);
   });
 
-  blocker.on('script-injected', (script: string, url: string, context: MatchingContext) => {
+  blocker.on('script-injected', (script: string, url: string) => {
     console.log('script', url, script.length, context);
   });
 
-  blocker.on('style-injected', (style: string, url: string, context: MatchingContext) => {
+  blocker.on('style-injected', (style: string, url: string) => {
     console.log('style', url, style.length, context);
   });
 

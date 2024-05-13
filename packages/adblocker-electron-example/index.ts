@@ -68,11 +68,11 @@ async function createWindow() {
     console.log('csp', csps, request.url);
   });
 
-  blocker.on('script-injected', (script: string, url: string, context: MatchingContext) => {
+  blocker.on('script-injected', (script: string, url: string) => {
     console.log('script', script.length, url, context);
   });
 
-  blocker.on('style-injected', (style: string, url: string, context: MatchingContext) => {
+  blocker.on('style-injected', (style: string, url: string) => {
     console.log('style', style.length, url, context);
   });
 
