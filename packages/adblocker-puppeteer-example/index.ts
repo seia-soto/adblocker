@@ -70,18 +70,6 @@ function getUrlToLoad(): string {
     console.log('style', url, style.length, context);
   });
 
-  blocker.on('scriptlet-matched', (rule: CosmeticFilter) => {
-    console.log('script-matched', rule);
-  });
-
-  blocker.on('extended-rule-matched', (rule: CosmeticFilter) => {
-    console.log('extended-rule-matched', rule);
-  });
-
-  blocker.on('style-rule-matched', (rule: CosmeticFilter) => {
-    console.log('style-matched', rule);
-  });
-
   blocker.on(
     'filter-matched',
     (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {

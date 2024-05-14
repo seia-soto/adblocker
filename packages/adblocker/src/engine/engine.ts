@@ -102,8 +102,6 @@ type CosmeticFilterMatchingContextBase = {
   domain: string | null | undefined;
   hostname: string | undefined;
 
-  isFilterExcluded: (filter: IFilter) => boolean;
-
   // Additional context given from user
   matchType: FilterType.COSMETIC;
   reference: any;
@@ -128,7 +126,6 @@ export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
 export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
 
 type LegacyNetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => any;
-type LegacyCosmeticFilterMatchEvent = (rule: CosmeticFilter) => any;
 type LegacyCosmeticInjectionEvent = (script: string, url: string) => any;
 
 export type EngineEventHandlers = {
@@ -144,9 +141,6 @@ export type EngineEventHandlers = {
   'csp-injected': (csps: string, request: Request) => any;
   'script-injected': LegacyCosmeticInjectionEvent;
   'style-injected': LegacyCosmeticInjectionEvent;
-  'scriptlet-matched': LegacyCosmeticFilterMatchEvent;
-  'extended-rule-matched': LegacyCosmeticFilterMatchEvent;
-  'style-rule-matched': LegacyCosmeticFilterMatchEvent;
 
   // The below event kinds describe the internal process that was blackboxed before.
   // In favor of backward-compatibility and the notification of the final action, above event kinds will be kept.
@@ -785,8 +779,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       hostname,
       domain,
 
-      isFilterExcluded: this.isFilterExcluded.bind(this),
-
       matchType: FilterType.COSMETIC,
       reference,
     };
@@ -947,23 +939,12 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       getRulesFromDOM,
       getRulesFromHostname,
 
-      isFilterExcluded: this.isFilterExcluded.bind(this),
-
       matchType: FilterType.COSMETIC,
       reference,
     };
 
     for (const match of matches) {
       this.emit('filter-matched', match, context);
-
-      // These are for backward-compatibility
-      if (match.isScriptInject()) {
-        this.emit('scriptlet-matched', match);
-      } else if (match.isCSS()) {
-        this.emit('style-rule-matched', match);
-      } else if (match.isExtended()) {
-        this.emit('extended-rule-matched', match);
-      }
 
       if (exceptionMatches.has(match)) {
         this.emit('filter-matched', exceptionMatches.get(match)!, context);
@@ -1026,18 +1007,15 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       );
     }
 
-    const matches: Set<NetworkFilter> = new Set(filters);
-    const context: NetworkFilterMatchingContext = {
-      request,
+    for (const filter of filters) {
+      this.emit('filter-matched', filter, {
+        request,
 
-      matchType: FilterType.NETWORK,
-    };
-
-    for (const match of matches) {
-      this.emit('filter-matched', match, context);
+        matchType: FilterType.NETWORK,
+      });
     }
 
-    return matches;
+    return new Set(filters);
   }
 
   /**
@@ -1063,13 +1041,12 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     // Collect all CSP directives and keep track of exceptions
     const disabledCsp = new Set();
     const enabledCsp = new Set();
-    const context: NetworkFilterMatchingContext = {
-      request,
-
-      matchType: FilterType.NETWORK,
-    };
     for (const filter of matches) {
-      this.emit('filter-matched', filter, context);
+      this.emit('filter-matched', filter, {
+        request,
+
+        matchType: FilterType.NETWORK,
+      });
 
       if (filter.isException()) {
         if (filter.csp === undefined) {
