@@ -125,22 +125,22 @@ export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
 
 export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
 
-type LegacyNetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => any;
-type LegacyCosmeticInjectionEvent = (script: string, url: string) => any;
+type NetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => any;
+type CosmeticInjectionEvent = (script: string, url: string) => any;
 
 export type EngineEventHandlers = {
-  'request-allowed': LegacyNetworkFilterMatchEvent;
-  'request-blocked': LegacyNetworkFilterMatchEvent;
-  'request-redirected': LegacyNetworkFilterMatchEvent;
-  'request-whitelisted': LegacyNetworkFilterMatchEvent;
+  'request-allowed': NetworkFilterMatchEvent;
+  'request-blocked': NetworkFilterMatchEvent;
+  'request-redirected': NetworkFilterMatchEvent;
+  'request-whitelisted': NetworkFilterMatchEvent;
   'html-filtered': (
     htmlSelectors: HTMLSelector[],
     url: string,
     context: CosmeticFilterMatchingContext,
   ) => any;
   'csp-injected': (csps: string, request: Request) => any;
-  'script-injected': LegacyCosmeticInjectionEvent;
-  'style-injected': LegacyCosmeticInjectionEvent;
+  'script-injected': CosmeticInjectionEvent;
+  'style-injected': CosmeticInjectionEvent;
 
   // The below event kinds describe the internal process that was blackboxed before.
   // In favor of backward-compatibility and the notification of the final action, above event kinds will be kept.
