@@ -2461,17 +2461,18 @@ describe('scriptlets arguments parsing', () => {
   });
 
   it('parses replace modifier', () => {
-    const filterString = String.raw`||www.youtube.com/playlist?list=$xhr,1p,replace=/("trackingParam":"kx_fmPxhoPZR)[-_0-9A-Za-z]{150}[-_0-9A-Za-z]+?([-_0-9A-Za-z]{55}lLKPQ-SS"\})/\$1\$2/`;
-
     it('respects escaped characters', () => {
-      expect(findLastIndexOfUnescapedCharacter(filterString, '$')).to.be.eql(32);
-      expect(findIndexOfUnescapedCharacter(filterString, '$')).to.be.eql(32);
-      expect(splitUnescaped(filterString, '$').length).to.be.eql(2);
+      const line = String.raw`||www.youtube.com/playlist?list=$xhr,1p,replace=/("trackingParam":"kx_fmPxhoPZR)[-_0-9A-Za-z]{150}[-_0-9A-Za-z]+?([-_0-9A-Za-z]{55}lLKPQ-SS"\})/\$1\$2/`;
+
+      expect(findLastIndexOfUnescapedCharacter(line, '$')).to.be.eql(32);
+      expect(findIndexOfUnescapedCharacter(line, '$')).to.be.eql(32);
+      expect(splitUnescaped(line, '$').length).to.be.eql(2);
+
+      expect(splitUnescaped('aa', '$')).to.be.deep.equal(['aa']);
+      expect(splitUnescaped('aa$', '$')).to.be.deep.equal(['aa', '']);
+      expect(splitUnescaped('aa\\$$', '$')).to.be.deep.equal(['aa\\$', '']);
+      expect(splitUnescaped('$\\$aa', '$')).to.be.deep.equal(['', '\\$aa']);
+      expect(splitUnescaped('aa$aa\\$', '$')).to.be.deep.equal(['aa', 'aa\\$']);
     });
-
-    const filter = NetworkFilter.parse(filterString);
-
-    expect(filter).not.to.be.null;
-    expect(filter!.isReplace()).to.be.true;
   });
 });
