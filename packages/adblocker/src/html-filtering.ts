@@ -292,8 +292,6 @@ export default class StreamingHtmlFilter {
 
     const [tags, parsed, rest] = extractTagsFromHtml(this.buffer + chunk, 'script');
 
-    console.log(tags, parsed, rest);
-
     if (tags.length === 0) {
       this.buffer = parsed;
 
