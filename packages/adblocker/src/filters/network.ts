@@ -326,7 +326,7 @@ function computeFilterId(
   hostname: string | undefined,
   domains: Domains | undefined,
   denyallow: Domains | undefined,
-  modifierOptionValue: string | undefined,
+  optionValue: string | undefined,
 ): number {
   let hash = (HASH_SEED * HASH_INTERNAL_MULT) ^ mask;
 
@@ -350,9 +350,9 @@ function computeFilterId(
     }
   }
 
-  if (modifierOptionValue !== undefined) {
-    for (let i = 0; i < modifierOptionValue.length; i += 1) {
-      hash = (hash * HASH_INTERNAL_MULT) ^ modifierOptionValue.charCodeAt(i);
+  if (optionValue !== undefined) {
+    for (let i = 0; i < optionValue.length; i += 1) {
+      hash = (hash * HASH_INTERNAL_MULT) ^ optionValue.charCodeAt(i);
     }
   }
 
@@ -465,7 +465,7 @@ export default class NetworkFilter implements IFilter {
     let hostname: string | undefined;
     let domains: Domains | undefined;
     let denyallow: Domains | undefined;
-    let modifierOptionValue: string | undefined;
+    let optionValue: string | undefined;
 
     // Start parsing
     let filterIndexStart: number = 0;
@@ -495,29 +495,29 @@ export default class NetworkFilter implements IFilter {
         let option = negation === true ? rawOption.slice(1) : rawOption;
 
         // Check for options: option=value1|value2
-        let optionValue: string = '';
+        let value: string = '';
         const indexOfEqual: number = option.indexOf('=');
         if (indexOfEqual !== -1) {
-          optionValue = option.slice(indexOfEqual + 1);
+          value = option.slice(indexOfEqual + 1);
           option = option.slice(0, indexOfEqual);
         }
 
         switch (option) {
           case 'denyallow': {
-            denyallow = Domains.parse(optionValue.split('|'), debug);
+            denyallow = Domains.parse(value.split('|'), debug);
             break;
           }
           case 'domain':
           case 'from': {
             // domain list starting or ending with '|' is invalid
             if (
-              optionValue.charCodeAt(0) === 124 /* '|' */ ||
-              optionValue.charCodeAt(optionValue.length - 1) === 124 /* '|' */
+              value.charCodeAt(0) === 124 /* '|' */ ||
+              value.charCodeAt(value.length - 1) === 124 /* '|' */
             ) {
               return null;
             }
 
-            domains = Domains.parse(optionValue.split('|'), debug);
+            domains = Domains.parse(value.split('|'), debug);
             break;
           }
           case 'badfilter':
@@ -567,7 +567,7 @@ export default class NetworkFilter implements IFilter {
             }
 
             // Ignore this filter if no redirection resource is specified
-            if (optionValue.length === 0) {
+            if (value.length === 0) {
               return null;
             }
 
@@ -577,7 +577,7 @@ export default class NetworkFilter implements IFilter {
               mask = setBit(mask, NETWORK_FILTER_MASK.isRedirectRule);
             }
 
-            modifierOptionValue = optionValue;
+            optionValue = value;
             break;
           case 'csp':
             if (negation) {
@@ -585,8 +585,8 @@ export default class NetworkFilter implements IFilter {
             }
 
             mask = setBit(mask, NETWORK_FILTER_MASK.isCSP);
-            if (optionValue.length > 0) {
-              modifierOptionValue = optionValue;
+            if (value.length > 0) {
+              optionValue = value;
             }
             break;
           case 'ehide':
@@ -620,7 +620,7 @@ export default class NetworkFilter implements IFilter {
             }
 
             mask = setBit(mask, NETWORK_FILTER_MASK.isCSP);
-            modifierOptionValue =
+            optionValue =
               "script-src 'self' 'unsafe-eval' http: https: data: blob: mediastream: filesystem:";
             break;
           case 'inline-font':
@@ -629,16 +629,16 @@ export default class NetworkFilter implements IFilter {
             }
 
             mask = setBit(mask, NETWORK_FILTER_MASK.isCSP);
-            modifierOptionValue =
+            optionValue =
               "font-src 'self' 'unsafe-eval' http: https: data: blob: mediastream: filesystem:";
             break;
           case 'replace':
-            if (negation || splitUnescaped(optionValue, '/').length !== 4) {
+            if (negation || splitUnescaped(value, '/').length !== 4) {
               return null;
             }
 
             mask = setBit(mask, NETWORK_FILTER_MASK.isReplace);
-            modifierOptionValue = optionValue;
+            optionValue = value;
 
             break;
           default: {
@@ -910,7 +910,7 @@ export default class NetworkFilter implements IFilter {
       mask,
       domains,
       denyallow,
-      modifierOptionValue,
+      optionValue,
       rawLine: debug === true ? line : undefined,
       regex: undefined,
     });
@@ -944,7 +944,7 @@ export default class NetworkFilter implements IFilter {
       domains: (optionalParts & 4) === 4 ? Domains.deserialize(buffer) : undefined,
       rawLine: (optionalParts & 8) === 8 ? buffer.getRawNetwork() : undefined,
       denyallow: (optionalParts & 16) === 16 ? Domains.deserialize(buffer) : undefined,
-      modifierOptionValue:
+      optionValue:
         (optionalParts & 32) === 32
           ? getBit(mask, NETWORK_FILTER_MASK.isCSP)
             ? buffer.getNetworkCSP()
@@ -961,7 +961,7 @@ export default class NetworkFilter implements IFilter {
   public readonly mask: number;
   public readonly domains: Domains | undefined;
   public readonly denyallow: Domains | undefined;
-  public readonly modifierOptionValue: string | undefined;
+  public readonly optionValue: string | undefined;
 
   // Set only in debug mode
   public readonly rawLine: string | undefined;
@@ -976,7 +976,7 @@ export default class NetworkFilter implements IFilter {
     mask,
     domains,
     denyallow,
-    modifierOptionValue,
+    optionValue,
     rawLine,
     regex,
   }: {
@@ -985,7 +985,7 @@ export default class NetworkFilter implements IFilter {
     mask: number;
     domains: Domains | undefined;
     denyallow: Domains | undefined;
-    modifierOptionValue: string | undefined;
+    optionValue: string | undefined;
     rawLine: string | undefined;
     regex: RegExp | undefined;
   }) {
@@ -994,7 +994,7 @@ export default class NetworkFilter implements IFilter {
     this.mask = mask;
     this.domains = domains;
     this.denyallow = denyallow;
-    this.modifierOptionValue = modifierOptionValue;
+    this.optionValue = optionValue;
 
     this.rawLine = rawLine;
 
@@ -1007,7 +1007,7 @@ export default class NetworkFilter implements IFilter {
       return undefined;
     }
 
-    return this.modifierOptionValue;
+    return this.optionValue;
   }
 
   public get redirect(): string | undefined {
@@ -1015,7 +1015,7 @@ export default class NetworkFilter implements IFilter {
       return undefined;
     }
 
-    return this.modifierOptionValue;
+    return this.optionValue;
   }
 
   public isCosmeticFilter() {
@@ -1103,15 +1103,15 @@ export default class NetworkFilter implements IFilter {
       this.denyallow.serialize(buffer);
     }
 
-    if (this.modifierOptionValue !== undefined) {
+    if (this.optionValue !== undefined) {
       optionalParts |= 32;
 
       if (this.isCSP()) {
-        buffer.pushNetworkCSP(this.modifierOptionValue);
+        buffer.pushNetworkCSP(this.optionValue);
       } else if (this.isRedirect()) {
-        buffer.pushNetworkRedirect(this.modifierOptionValue);
+        buffer.pushNetworkRedirect(this.optionValue);
       } else {
-        buffer.pushUTF8(this.modifierOptionValue);
+        buffer.pushUTF8(this.optionValue);
       }
     }
 
@@ -1145,13 +1145,13 @@ export default class NetworkFilter implements IFilter {
       estimate += this.denyallow.getSerializedSize();
     }
 
-    if (this.modifierOptionValue !== undefined) {
+    if (this.optionValue !== undefined) {
       if (this.isCSP()) {
-        estimate += sizeOfNetworkCSP(this.modifierOptionValue, compression);
+        estimate += sizeOfNetworkCSP(this.optionValue, compression);
       } else if (this.isRedirect()) {
-        estimate += sizeOfNetworkRedirect(this.modifierOptionValue, compression);
+        estimate += sizeOfNetworkRedirect(this.optionValue, compression);
       } else {
-        estimate += sizeOfUTF8(this.modifierOptionValue);
+        estimate += sizeOfUTF8(this.optionValue);
       }
     }
 
@@ -1235,7 +1235,7 @@ export default class NetworkFilter implements IFilter {
     }
 
     if (this.isCSP()) {
-      options.push(`csp=${this.modifierOptionValue}`);
+      options.push(`csp=${this.optionValue}`);
     }
 
     if (this.isElemHide()) {
@@ -1302,7 +1302,7 @@ export default class NetworkFilter implements IFilter {
       this.hostname,
       this.domains,
       this.denyallow,
-      this.modifierOptionValue,
+      this.optionValue,
     );
   }
 
@@ -1314,7 +1314,7 @@ export default class NetworkFilter implements IFilter {
         this.hostname,
         this.domains,
         this.denyallow,
-        this.modifierOptionValue,
+        this.optionValue,
       );
     }
     return this.id;
@@ -1336,8 +1336,8 @@ export default class NetworkFilter implements IFilter {
     return this.getMask() & FROM_ANY;
   }
 
-  private getModifierOptionValue() {
-    return this.modifierOptionValue || '';
+  private getOptionValue() {
+    return this.optionValue || '';
   }
 
   public isRedirect(): boolean {
@@ -1349,7 +1349,7 @@ export default class NetworkFilter implements IFilter {
   }
 
   public getRedirect(): string {
-    return this.getModifierOptionValue();
+    return this.getOptionValue();
   }
 
   public isReplace(): boolean {
@@ -1358,10 +1358,7 @@ export default class NetworkFilter implements IFilter {
 
   public getHtmlModifier(): [RegExp, string] | null {
     if (this.isReplace()) {
-      const [, rawRegexp, replacement, modifiers] = splitUnescaped(
-        this.getModifierOptionValue(),
-        '/',
-      );
+      const [, rawRegexp, replacement, modifiers] = splitUnescaped(this.getOptionValue(), '/');
       const regexp = new RegExp(rawRegexp, modifiers);
 
       return [regexp, replacement];
