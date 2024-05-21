@@ -37,6 +37,7 @@ import {
   HASH_INTERNAL_MULT,
 } from '../utils';
 import IFilter from './interface';
+import { HTMLModifier } from '../html-filtering';
 
 const HTTP_HASH = fastHash('http');
 const HTTPS_HASH = fastHash('https');
@@ -446,6 +447,20 @@ export function splitUnescaped(text: string, character: string) {
   return parts;
 }
 
+export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
+  const components = splitUnescaped(value, '/');
+
+  if (components.length !== 4) {
+    return null;
+  }
+
+  if (components[1].length === 0) {
+    return null;
+  }
+
+  return [new RegExp(components[2], components[4]), components[3]];
+}
+
 const MATCH_ALL = new RegExp('');
 
 export default class NetworkFilter implements IFilter {
@@ -633,7 +648,7 @@ export default class NetworkFilter implements IFilter {
               "font-src 'self' 'unsafe-eval' http: https: data: blob: mediastream: filesystem:";
             break;
           case 'replace':
-            if (negation || splitUnescaped(value, '/').length !== 4) {
+            if (negation || replaceOptionValueToRegexp(value) === null) {
               return null;
             }
 
@@ -1356,12 +1371,9 @@ export default class NetworkFilter implements IFilter {
     return getBit(this.getMask(), NETWORK_FILTER_MASK.isReplace);
   }
 
-  public getHtmlModifier(): [RegExp, string] | null {
+  public getHtmlModifier(): HTMLModifier | null {
     if (this.isReplace()) {
-      const [, rawRegexp, replacement, modifiers] = splitUnescaped(this.getOptionValue(), '/');
-      const regexp = new RegExp(rawRegexp, modifiers);
-
-      return [regexp, replacement];
+      return replaceOptionValueToRegexp(this.getOptionValue());
     }
 
     return null;
