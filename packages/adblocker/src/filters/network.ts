@@ -432,8 +432,8 @@ export function findIndexOfUnescapedCharacter(
 export function splitUnescaped(text: string, character: string) {
   const parts: string[] = [];
 
-  let lastOccurrence = -1;
-  let nextOccurrence = -1;
+  let lastOccurrence = 0;
+  let nextOccurrence = 0;
 
   while (
     (nextOccurrence = findIndexOfUnescapedCharacter(text, character, lastOccurrence)) !== -1
