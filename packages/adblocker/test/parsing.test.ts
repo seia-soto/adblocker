@@ -2474,5 +2474,42 @@ describe('scriptlets arguments parsing', () => {
       expect(splitUnescaped('$\\$aa', '$')).to.be.deep.equal(['', '\\$aa']);
       expect(splitUnescaped('aa$aa\\$', '$')).to.be.deep.equal(['aa', 'aa\\$']);
     });
+
+    const filters = String.raw`||alliptvlinks.com/tktk-content/plugins/$script,1p,replace=/\bconst now.+?, 100/clearInterval(timer);resolve();}, 100/gms
+/theme/002/js/application.js?2.0|$script,1p,replace=/video\.maxPop/0/
+||s3media.247sports.com/Scripts/Bundle/*/videoPlayer.js^$script,1p,replace=/;if\(!\([a-z]+\|\|\(null===[^{]+/;if(false)/
+||dehlinks.ir/link_download.php?Mozojadid_Id=$doc,replace=/content="15;/content="0;/
+||rekidai-info.github.io/_app/immutable/components/pages/index/_page.svelte-$script,replace=/try\{.*?catch.*?push\(\)\}catch\{//
+||rekidai-info.github.io/_app/immutable/components/pages/index/_page.svelte-$script,replace=/throw new Error\("Error Loading Rekidai Data."\)\}throw new Error\("Ad block detected."\)//
+||veev.to/assets/videoplayer/*.js$script,replace=/\bhttps:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js/https:\/\/veev.to\/assets\/videoplayer\/17c088d.js/
+||theappstore.org/script.js?v=$script,1p,replace=/result\.length \> 10000/result.length < 10000/g
+/loader.min.js$xhr,script,domain=loawa.com|ygosu.com|sportalkorea.com|enetnews.co.kr|edaily.co.kr|economist.co.kr|etoday.co.kr|hankyung.com|isplus.com|hometownstation.com|inven.co.kr|honkailab.com|warcraftrumbledeck.com|genshinlab.com|thestockmarketwatch.com|thephoblographer.com|issuya.com|dogdrip.net|worldhistory.org|bamgosu.site,replace=/\)\{var [a-z]{1,2},[a-z]{1,2},[a-z]{1,2},[a-z]{1,2}\=[a-z]{2};return [a-z]\(\)/){return;/g
+/loader.min.js$xhr,script,domain=loawa.com|ygosu.com|sportalkorea.com|enetnews.co.kr|edaily.co.kr|economist.co.kr|etoday.co.kr|hankyung.com|isplus.com|hometownstation.com|inven.co.kr|honkailab.com|warcraftrumbledeck.com|genshinlab.com|thestockmarketwatch.com|thephoblographer.com|issuya.com|dogdrip.net|worldhistory.org|bamgosu.site,replace=/\)\{var [a-z]{1,2},[a-z]{1,2},[a-z]{1,2};.*?return [a-z]\(\)/){return; return c()/g
+/loader.min.js$xhr,script,domain=loawa.com|ygosu.com|sportalkorea.com|enetnews.co.kr|edaily.co.kr|economist.co.kr|etoday.co.kr|hankyung.com|isplus.com|hometownstation.com|inven.co.kr|honkailab.com|warcraftrumbledeck.com|genshinlab.com|thestockmarketwatch.com|thephoblographer.com|issuya.com|dogdrip.net|worldhistory.org,replace=/\.mark\(\(function [a-z0-9]{1,2}\([a-z0-9]{1,2},[a-z0-9]{1,2}\){var.*\]\]\)\}\)\)\),/.mark((function neutralized(a,b){var none = false;}))),/g
+||bitcotasks.com/assets/js/mainjs.php$script,1p,replace=/entry.duration > 0/entry.duration < 10/
+||d3lj2s469wtjp0.cloudfront.net/build/js/public/$script,3p,replace=/\{try\{.*?clip-path.*?catch\(/{try{}catch(/,domain=puzzle-loop.com|puzzle-words.com|puzzle-chess.com|puzzle-thermometers.com|puzzle-norinori.com|puzzle-minesweeper.com|puzzle-slant.com|puzzle-lits.com|puzzle-galaxies.com|puzzle-tents.com|puzzle-battleships.com|puzzle-pipes.com|puzzle-hitori.com|puzzle-heyawake.com|puzzle-shingoki.com|puzzle-masyu.com|puzzle-stitches.com|puzzle-aquarium.com|puzzle-tapa.com|puzzle-star-battle.com|puzzle-kakurasu.com|puzzle-skyscrapers.com|puzzle-futoshiki.com|puzzle-shakashaka.com|puzzle-kakuro.com|puzzle-jigsaw-sudoku.com|puzzle-killer-sudoku.com|puzzle-binairo.com|puzzle-nonograms.com|puzzle-sudoku.com|puzzle-light-up.com|puzzle-bridges.com|puzzle-shikaku.com|puzzle-nurikabe.com|puzzle-dominosa.com
+||statics.1mv.xyz/statics/*.js|$script,3p,replace=/;return _0x[a-z0-9]+\['[_a-z]+'\]\['s'\]/;return false/
+||statics.1mv.xyz/statics/*.js|$script,3p,replace=/;if\(null!==\(_0x[a-z0-9]+=this\['[_a-z]+'\]\)[^)]+\)return;/;if(true)return;/
+||in-jpn.com^$script,replace=/var w_status[\s\S\n]+?doSakigake\(\);[\s\S\n]+?\}//,badfilter
+||in-jpn.com^$script,replace=/var w_\w+[\s\S\n]+?doSakigake\(\);[\s\S\n]+?\}//
+||www.facebook.com/api/graphql/$xhr,replace=/\{"brs_content_label":[^,]+,"category":"ENGAGEMENT[^\n]+"cursor":"[^"]+"\}/{}/g
+||solarmovie.vip/js/$script,1p,replace=/\(\{checkers\:.*?\]\}\)/({checkers:[]})/g
+||tver.jp/_next/static/chunks/$replace=/e\?(e\(\):\(n\.play\(\))/!1?\$1/,script
+||www.youtube.com/playlist?list=$xhr,1p,replace=/"adPlacements.*?([A-Z]"\}|"\}{2\,4})\}\]\,//
+||www.youtube.com/playlist?list=$xhr,1p,replace=/"adSlots.*?\}\]\}\}\]\,//
+||www.youtube.com/watch?v=$xhr,1p,replace=/"adPlacements.*?([A-Z]"\}|"\}{2\,4})\}\]\,//
+||www.youtube.com/watch?v=$xhr,1p,replace=/"adSlots.*?\}\]\}\}\]\,//
+||www.youtube.com/youtubei/v1/player?$xhr,1p,replace=/"adPlacements.*?([A-Z]"\}|"\}{2\,4})\}\]\,//
+||www.youtube.com/youtubei/v1/player?$xhr,1p,replace=/"adSlots.*?\}\]\}\}\]\,//
+||www.facebook.com/api/graphql/$xhr,replace=/\{"brs_content_label":[^,]+,"category":"SPONSORED"[^\n]+"cursor":"[^"]+"\}/{}/
+||www.facebook.com/api/graphql/$xhr,replace=/\{"node":\{"role":"SEARCH_ADS"[^\n]+?cursor":[^}]+\}/{}/g
+||www.facebook.com/api/graphql/$xhr,replace=/\{"node":\{"__typename":"MarketplaceFeedAdStory"[^\n]+?"cursor":(?:null|"\{[^\n]+?\}"|[^\n]+?MarketplaceSearchFeedStoriesEdge")\}/{}/g`;
+
+    for (const filterString of filters.split('\n')) {
+      const filter = NetworkFilter.parse(filterString);
+
+      expect(filter).not.to.be.null;
+      expect(filter!.isReplace()).to.be.true;
+    }
   });
 });
