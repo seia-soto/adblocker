@@ -1,3 +1,41 @@
+# v1.27.3 (Tue May 07 2024)
+
+#### :nut_and_bolt: Dependencies
+
+- Build(deps): Bump puppeteer from 22.7.0 to 22.7.1 [#3929](https://github.com/ghostery/adblocker/pull/3929) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Build(deps): Bump puppeteer from 22.6.5 to 22.7.0 [#3927](https://github.com/ghostery/adblocker/pull/3927) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
+# v1.27.2 (Tue Apr 23 2024)
+
+#### :nut_and_bolt: Dependencies
+
+- Build(deps): Bump puppeteer from 22.6.4 to 22.6.5 [#3910](https://github.com/ghostery/adblocker/pull/3910) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Build(deps): Bump puppeteer from 22.6.2 to 22.6.4 [#3901](https://github.com/ghostery/adblocker/pull/3901) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
+# v1.27.1 (Tue Apr 09 2024)
+
+#### :nut_and_bolt: Dependencies
+
+- Build(deps): Bump puppeteer from 22.5.0 to 22.6.2 [#3875](https://github.com/ghostery/adblocker/pull/3875) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
 # v1.27.0 (Fri Mar 29 2024)
 
 #### :nut_and_bolt: Dependencies

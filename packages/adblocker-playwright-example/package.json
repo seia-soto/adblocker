@@ -1,7 +1,7 @@
 {
   "name": "@cliqz/adblocker-playwright-example",
   "private": true,
-  "version": "1.27.0",
+  "version": "1.27.3",
   "description": "Cliqz adblocker PlayWright wrapper",
   "author": {
     "name": "Cliqz"
@@ -25,15 +25,14 @@
     "url": "https://github.com/cliqz-oss/adblocker/issues"
   },
   "dependencies": {
-    "@cliqz/adblocker-playwright": "^1.27.0",
-    "node-fetch": "^3.3.2",
+    "@cliqz/adblocker-playwright": "^1.27.3",
+    "cross-fetch": "^4.0.0",
     "playwright": "^1.38.0",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
-    "@types/node-fetch": "^3.0.3",
     "eslint": "^8.49.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.4.5"
   },
   "contributors": [
     {

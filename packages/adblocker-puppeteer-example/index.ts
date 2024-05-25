@@ -11,7 +11,7 @@ import fetch from 'node-fetch';
 import * as puppeteer from 'puppeteer';
 
 function getUrlToLoad(): string {
-  let url = 'https://www.mangareader.net/';
+  let url = 'https://www.mangareader.to/';
   if (process.argv[process.argv.length - 1].endsWith('.ts') === false) {
     url = process.argv[process.argv.length - 1];
   }
