@@ -5,7 +5,7 @@ import {
   PuppeteerBlocker,
   Request,
 } from '@cliqz/adblocker-puppeteer';
-import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
+import { MatchingContext } from '@cliqz/adblocker';
 import { promises as fs } from 'fs';
 import fetch from 'node-fetch';
 import * as puppeteer from 'puppeteer';

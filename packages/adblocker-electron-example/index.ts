@@ -9,7 +9,7 @@ import {
   NetworkFilter,
   Request,
 } from '@cliqz/adblocker-electron';
-import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
+import { MatchingContext } from '@cliqz/adblocker';
 
 function getUrlToLoad(): string {
   let url = 'https://google.com';

@@ -5,7 +5,7 @@ import {
   PlaywrightBlocker,
   Request,
 } from '@cliqz/adblocker-playwright';
-import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
+import { MatchingContext } from '@cliqz/adblocker';
 import fetch from 'node-fetch';
 
 import * as pw from 'playwright';

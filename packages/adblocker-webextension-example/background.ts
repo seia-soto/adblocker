@@ -17,7 +17,7 @@ import {
   Request,
   WebExtensionBlocker,
 } from '@cliqz/adblocker-webextension';
-import { MatchingContext } from '@cliqz/adblocker/src/engine/engine';
+import { MatchingContext } from '@cliqz/adblocker';
 
 /**
  * Keep track of number of network requests altered for each tab
