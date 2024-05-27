@@ -189,10 +189,6 @@ export class PuppeteerBlocker extends FiltersEngine {
 
         // Will handle DOM features (see below).
         getRulesFromDOM: false,
-
-        reference: {
-          frame,
-        },
       });
 
       if (active === false) {

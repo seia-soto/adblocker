@@ -351,8 +351,6 @@ export class WebExtensionBlocker extends FiltersEngine {
       reference: {
         tabId: details.tabId,
         frameId: details.frameId,
-
-        navigationDetails: details,
       },
     });
     if (active === false) {
@@ -471,8 +469,6 @@ export class WebExtensionBlocker extends FiltersEngine {
         reference: {
           tabId: sender.tab?.id,
           frameId: sender.frameId,
-
-          senderDetails: sender,
         },
       });
 
@@ -515,8 +511,6 @@ export class WebExtensionBlocker extends FiltersEngine {
         reference: {
           tabId: sender.tab?.id,
           frameId: sender.frameId,
-
-          senderDetails: sender,
         },
       });
 

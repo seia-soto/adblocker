@@ -179,10 +179,6 @@ export class PlaywrightBlocker extends FiltersEngine {
 
         // Will handle DOM features (see below).
         getRulesFromDOM: false,
-
-        reference: {
-          frame,
-        },
       });
 
       if (active === false) {
@@ -220,10 +216,6 @@ export class PlaywrightBlocker extends FiltersEngine {
 
           // Allows to get styles for updated DOM.
           getRulesFromDOM: true,
-
-          reference: {
-            frame,
-          },
         });
 
         // Abort if cosmetics are disabled

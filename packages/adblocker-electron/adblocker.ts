@@ -188,7 +188,8 @@ export class ElectronBlocker extends FiltersEngine {
       getRulesFromDOM: false, // Only done on updates (see `onGetCosmeticFiltersUpdated`)
 
       reference: {
-        event,
+        frameId: event.frameId,
+        processId: event.processId,
       },
     });
 
@@ -239,8 +240,10 @@ export class ElectronBlocker extends FiltersEngine {
       getRulesFromDOM: true,
 
       reference: {
-        event,
-        message: msg,
+        frameId: event.frameId,
+        processId: event.processId,
+
+        lifecycle: msg.lifecycle,
       },
     });
 
