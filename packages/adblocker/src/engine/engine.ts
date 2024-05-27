@@ -774,23 +774,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    const context: CosmeticFilterMatchingContext = {
-      url,
-      hostname,
-      domain,
-
-      matchType: FilterType.COSMETIC,
-      reference,
-    };
-
-    for (const match of matches) {
-      this.emit('filter-matched', match, context);
-
-      if (exceptions.has(match)) {
-        this.emit('filter-matched', exceptions.get(match)!, context);
-      }
-    }
-
     for (const rule of rules) {
       const extended = rule.getExtendedSelector();
       if (extended !== undefined) {
@@ -798,8 +781,27 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       }
     }
 
-    if (htmlSelectors.length !== 0) {
-      this.emit('html-filtered', htmlSelectors, url, context);
+    if (this.hasListeners()) {
+      const context: CosmeticFilterMatchingContext = {
+        url,
+        hostname,
+        domain,
+
+        matchType: FilterType.COSMETIC,
+        reference,
+      };
+
+      for (const match of matches) {
+        this.emit('filter-matched', match, context);
+
+        if (exceptions.has(match)) {
+          this.emit('filter-matched', exceptions.get(match)!, context);
+        }
+      }
+
+      if (htmlSelectors.length !== 0) {
+        this.emit('html-filtered', htmlSelectors, url, context);
+      }
     }
 
     return htmlSelectors;
@@ -921,33 +923,35 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    const context: CosmeticFilterMatchingContext = {
-      url,
-      domain,
-      hostname,
+    if (this.hasListeners()) {
+      const context: CosmeticFilterMatchingContext = {
+        url,
+        domain,
+        hostname,
 
-      classes,
-      hrefs,
-      ids,
+        classes,
+        hrefs,
+        ids,
 
-      allowGenericHides,
-      allowSpecificHides,
+        allowGenericHides,
+        allowSpecificHides,
 
-      getBaseRules,
-      getInjectionRules,
-      getExtendedRules,
-      getRulesFromDOM,
-      getRulesFromHostname,
+        getBaseRules,
+        getInjectionRules,
+        getExtendedRules,
+        getRulesFromDOM,
+        getRulesFromHostname,
 
-      matchType: FilterType.COSMETIC,
-      reference,
-    };
+        matchType: FilterType.COSMETIC,
+        reference,
+      };
 
-    for (const match of matches) {
-      this.emit('filter-matched', match, context);
+      for (const match of matches) {
+        this.emit('filter-matched', match, context);
 
-      if (exceptionMatches.has(match)) {
-        this.emit('filter-matched', exceptionMatches.get(match)!, context);
+        if (exceptionMatches.has(match)) {
+          this.emit('filter-matched', exceptionMatches.get(match)!, context);
+        }
       }
     }
 

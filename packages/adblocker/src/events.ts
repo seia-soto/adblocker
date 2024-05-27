@@ -138,4 +138,11 @@ export class EventEmitter<
       this.onceListeners.delete(event);
     }
   }
+
+  /**
+   * Check if there's at least one active listener.
+   */
+  public hasListeners() {
+    return this.onListeners.size + this.onceListeners.size !== 0;
+  }
 }
