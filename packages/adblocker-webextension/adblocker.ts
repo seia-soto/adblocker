@@ -347,6 +347,13 @@ export class WebExtensionBlocker extends FiltersEngine {
       getExtendedRules: false,
       getRulesFromDOM: false,
       getRulesFromHostname: true,
+
+      reference: {
+        tabId: details.tabId,
+        frameId: details.frameId,
+
+        navigationDetails: details,
+      },
     });
     if (active === false) {
       return;
@@ -460,6 +467,13 @@ export class WebExtensionBlocker extends FiltersEngine {
         getExtendedRules: false,
         getRulesFromDOM: false,
         getRulesFromHostname: false,
+
+        reference: {
+          tabId: sender.tab?.id,
+          frameId: sender.frameId,
+
+          senderDetails: sender,
+        },
       });
 
       if (active === false) {
@@ -497,6 +511,13 @@ export class WebExtensionBlocker extends FiltersEngine {
 
         // This will be done every time we get information about DOM mutation
         getRulesFromDOM: msg.lifecycle === 'dom-update',
+
+        reference: {
+          tabId: sender.tab?.id,
+          frameId: sender.frameId,
+
+          senderDetails: sender,
+        },
       });
 
       if (active === false) {
