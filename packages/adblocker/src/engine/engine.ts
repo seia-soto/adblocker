@@ -125,8 +125,8 @@ export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
 
 export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
 
-type NetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => any;
-type CosmeticInjectionEvent = (script: string, url: string) => any;
+type NetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => void;
+type CosmeticInjectionEvent = (script: string, url: string) => void;
 
 export type EngineEventHandlers = {
   'request-allowed': NetworkFilterMatchEvent;
@@ -137,8 +137,8 @@ export type EngineEventHandlers = {
     htmlSelectors: HTMLSelector[],
     url: string,
     context: CosmeticFilterMatchingContext,
-  ) => any;
-  'csp-injected': (csps: string, request: Request) => any;
+  ) => void;
+  'csp-injected': (csps: string, request: Request) => void;
   'script-injected': CosmeticInjectionEvent;
   'style-injected': CosmeticInjectionEvent;
 
