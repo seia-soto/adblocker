@@ -1402,7 +1402,7 @@ describe('diff updates', () => {
   testUpdates('easylist engine', loadEasyListFilters());
 });
 
-describe.only('events', () => {
+describe('events', () => {
   async function createEventAwaiter<
     Name extends keyof EngineEventHandlers,
     Handler extends EngineEventHandlers[Name],
