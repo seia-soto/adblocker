@@ -368,8 +368,6 @@ export default class CosmeticFilterBucket {
       return true;
     });
 
-    // Additional data for engine events
-    const matches: CosmeticFilter[] = [...rules];
     const exceptions: Map<CosmeticFilter, CosmeticFilter> = new Map();
 
     // If we found at least one candidate, check if we have unhidden rules.
@@ -395,7 +393,7 @@ export default class CosmeticFilterBucket {
 
     return {
       rules: modifications,
-      matches,
+      matches: rules,
       exceptions,
     };
   }
