@@ -17,7 +17,7 @@ import {
   StreamingHtmlFilter,
 } from '@cliqz/adblocker';
 import { IBackgroundCallback, IMessageFromBackground } from '@cliqz/adblocker-content';
-import { HTMLModifier } from '@cliqz/adblocker/src/html-filtering';
+import { HTMLModifier } from '@cliqz/adblocker';
 
 export type OnBeforeRequestDetailsType = Pick<
   WebRequest.OnBeforeRequestDetailsType,
