@@ -1,12 +1,12 @@
 {
   "name": "@cliqz/adblocker-electron-example",
   "private": true,
-  "version": "1.27.2",
+  "version": "1.27.10",
   "description": "Cliqz adblocker Electron wrapper",
   "author": {
     "name": "Cliqz"
   },
-  "homepage": "https://github.com/cliqz-oss/adblocker#readme",
+  "homepage": "https://github.com/ghostery/adblocker#readme",
   "license": "MPL-2.0",
   "files": [
     "LICENSE",
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/cliqz-oss/adblocker.git",
+    "url": "git+ssh://git@github.com/ghostery/adblocker.git",
     "directory": "packages/adblocker-electron-example"
   },
   "scripts": {
@@ -23,7 +23,7 @@
     "lint": "eslint index.ts"
   },
   "bugs": {
-    "url": "https://github.com/cliqz-oss/adblocker/issues"
+    "url": "https://github.com/ghostery/adblocker/issues"
   },
   "contributors": [
     {
@@ -60,14 +60,14 @@
     }
   ],
   "dependencies": {
-    "@cliqz/adblocker-electron": "^1.27.2",
+    "@cliqz/adblocker-electron": "^1.27.10",
+    "cross-fetch": "^4.0.0",
     "electron": "^30.0.0",
-    "node-fetch": "^3.3.2",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
-    "@types/node-fetch": "^3.0.3",
-    "eslint": "^8.49.0",
-    "typescript": "^5.2.2"
+    "@types/node": "^20.12.12",
+    "eslint": "^9.3.0",
+    "typescript": "^5.4.5"
   }
 }

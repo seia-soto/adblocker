@@ -9,6 +9,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 import { fullLists } from '../adblocker';
 
@@ -23,7 +26,7 @@ function readAsset(filepath: string) {
 }
 
 const PREFIX =
-  'https://raw.githubusercontent.com/cliqz-oss/adblocker/master/packages/adblocker/assets';
+  'https://raw.githubusercontent.com/ghostery/adblocker/master/packages/adblocker/assets';
 
 export const allLists = (() => {
   return fullLists

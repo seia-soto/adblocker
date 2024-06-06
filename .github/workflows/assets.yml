@@ -12,6 +12,8 @@ jobs:
     if: github.repository_owner == 'ghostery'
     steps:
       - uses: actions/checkout@v3
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Use node
         uses: actions/setup-node@v3
@@ -20,14 +22,11 @@ jobs:
           node-version-file: '.tool-versions'
           registry-url: https://registry.npmjs.org
 
-      - name: Bootstrap
+      - name: Install dependencies
         run: yarn install --immutable
 
       - name: Build
         run: yarn build
-
-      - name: Bundle
-        run: yarn bundle
 
       - name: Fetch latest assets
         id: fetch
