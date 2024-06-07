@@ -32,7 +32,7 @@
 ! - http://www.surfline.com/video/ (links not working)
 ! - https://github.com/gorhill/uBlock/issues/529
 ! - http://www.scotrail.co.uk/check-your-journey (via https://twitter.com/andy_pee_tho/status/710508529405263872)
-*/b/ss/*&aqe=$image,redirect=1x1-transparent.gif
+*/b/ss/*&aqe=$image,redirect=1x1.gif
 ! https://adblockplus.org/forum/viewtopic.php?f=1&t=44930
 ! https://github.com/uBlockOrigin/uAssets/issues/4353#issuecomment-449159137
 ! https://github.com/jspenguin2017/uBlockProtector/issues/1085
@@ -202,7 +202,7 @@ hintergrundbild.org#@#.ads1
 @@||streamplay.to^*.mp4$xhr
 @@||streamplay.to^*.m4s$xhr
 ! https://www.reddit.com/r/uBlockOrigin/comments/83odfj/ublock_breaking_sites_which_lists_should_i/
-||frog.wix.com/da-client$image,redirect=1x1-transparent.gif,domain=deviantart.com
+||frog.wix.com/da-client$image,redirect=1x1.gif,domain=deviantart.com
 ! https://github.com/uBlockOrigin/uAssets/issues/1704#issuecomment-372543282
 ! https://forums.lanik.us/viewtopic.php?f=64&t=43860&p=151105#p151105
 @@||pages.bostonglobe.com/login/js/lib/AppMeasurement.js$script,1p
@@ -389,6 +389,8 @@ britannica.com###md-media-overlay-ad
 @@||nxp.com/*/resources/scripts/analytics/webanalytics.js$script,1p
 ! https://forums.lanik.us/viewtopic.php?f=64&t=41502
 @@||apply.indeed.com/$frame,1p
+! https://github.com/uBlockOrigin/uAssets/issues/23747
+indeed.com##+js(set, DD_RUM.addAction, noopFunc)
 ! https://github.com/uBlockOrigin/uAssets/issues/1225#issuecomment-416297077
 @@||anyporn.com/key.jsx$script,1p
 ! https://github.com/NanoAdblocker/NanoFilters/issues/172#issuecomment-416314453
@@ -440,9 +442,6 @@ warszawawpigulce.pl##.eklama
 @@||googletagmanager.com/gtm.js$script,domain=hellofresh.com
 ! https://github.com/uBlockOrigin/uAssets/issues/3672
 @@||vice.com/*/AdobeAnalyticsSDK$script,1p
-! https://github.com/uBlockOrigin/uAssets/issues/3676
-@@||twitter.com/*/profiles/show/*$xhr,1p
-@@||twitter.com/*/status/*conversation_id$xhr,1p
 ! https://adblockplus.org/forum/viewtopic.php?f=10&t=60372&start=0
 @@||mssl.fwmrm.net/p/abc_live/$script,domain=abc.go.com
 @@||v.fwmrm.net/ad/g/1$script,domain=abc.go.com
@@ -727,7 +726,7 @@ detroitnews.com###partner-poster-0
 @@||fontspring.com/analytics/hi.gif$image,1p
 ! https://www.reddit.com/r/uBlockOrigin/comments/bpt2b5/getting_big_ads_4_ads_x_2_sponsored_content_on/
 ! [badfilter] ||thelibertydaily.com^$csp=script-src 'self' *.leadpages.net *.gstatic.com *.google.com *.googleapis.com *.playwire.com *.facebook.com *.bootstrapcdn.com,badfilter
-! [badfilter] ||bigleaguepolitics.com^$csp=script-src 'self' *.leadpages.net *.gstatic.com *.google.com *.googleapis.com *.playwire.com *.facebook.com *.bootstrapcdn.com *.twitter.com *.spot.im,badfilter
+! [badfilter] ||bigleaguepolitics.com^$csp=script-src 'self' *.leadpages.net *.gstatic.com *.google.com *.googleapis.com *.playwire.com *.facebook.com *.bootstrapcdn.com *.twitter.com *.spot.im *.x.com,badfilter
 ! https://github.com/uBlockOrigin/uBlock-issues/issues/583
 @@||googletagmanager.com/gtm.js$script,domain=rappi.com.mx
 ! https://github.com/NanoMeow/QuickReports/issues/1257
@@ -764,6 +763,7 @@ calgaryherald.com#@#.local-branding
 @@||hyundaiusa.com/js/analytics/analytics.js$script,1p
 ! https://twitter.com/localnewsman/status/1137958542927835136
 @@||appspot.com/api/*/feed/tag$xhr,domain=apnews.com
+! https://github.com/uBlockOrigin/uAssets/issues/23607
 ! https://github.com/uBlockOrigin/uAssets/issues/5841
 @@||djnf6e5yyirys.cloudfront.net/js/friendbuy.min.js$script,domain=imperfectfoods.com|imperfectproduce.com
 @@||friendbuy.com^$xhr,frame,domain=imperfectfoods.com|imperfectproduce.com
@@ -880,7 +880,7 @@ techradar.com#@#a[href^="https://amazon."][href*="tag="]
 @@||d2wzl9lnvjz3bh.cloudfront.net/frosmo.easy.js$script,domain=tally-weijl.com
 @@||frosmo.com/tally-weijl-product-listing/$xhr,domain=tally-weijl.com
 ! https://github.com/uBlockOrigin/uAssets/issues/6288
-||clustrmaps.com^$image,redirect=32x32-transparent.png,domain=motls.blogspot.com
+||clustrmaps.com^$image,redirect=32x32.png,domain=motls.blogspot.com
 ! https://www.reddit.com/r/uBlockOrigin/comments/d3mrfr/how_to_unblock_ebay_sponsored_listings/
 ebay.com#@#li.s-item:has(span:has-text(SPONSORED))
 ! https://github.com/uBlockOrigin/uAssets/issues/6304
@@ -891,14 +891,10 @@ ebay.com#@#li.s-item:has(span:has-text(SPONSORED))
 @@||rcijeux.fr/game/20minutes/$frame,domain=20minutes.fr
 ! https://github.com/NanoMeow/QuickReports/issues/283
 @@||opgg-static.akamaized.net/*/tracker.js$script,domain=op.gg
-! https://github.com/uBlockOrigin/uAssets/commit/69bced5eba64f7960acaa5fa85df06958fb64a93#commitcomment-35179436
-twitter.com#@#article[role="article"]:has-text(Promoted)
 ! To counter the adswizz filter in Peter Lowe's list
 ! [badfilter] ||adswizz.com^$badfilter
 ||adswizz.com^$3p
 ! https://www.reddit.com/r/uBlockOrigin/comments/d6zbqv/login_popup_for_disqus_being_blocked/
-! whitelisting recaptcha .net
-@@||recaptcha.net/recaptcha/
 ! https://github.com/uBlockOrigin/uAssets/issues/6334
 ||rtl.de/pf/resources/js/videotracking.min.js$script,redirect=noopjs,1p
 ! https://github.com/uBlockOrigin/uAssets/issues/6338
@@ -1044,6 +1040,7 @@ reuters.com#@#[class^="primary-video__container_"]
 ! https://github.com/uBlockOrigin/uAssets/issues/23365
 !#if !env_mobile
 reuters.com##ul[class^="cluster__stories"] > li[class^="cluster__cluster-basic"][class*="cluster__column-left"]:style(margin-left: 17.0418006431vw !important;)
+reuters.com##ul[class^="cluster__stories"] > li[class^="cluster__cluster-hub"][class*="cluster__column-middle"][class*="cluster__break-after"]:style(margin-bottom: 100px !important;)
 !#endif
 ! https://github.com/uBlockOrigin/uAssets/issues/6601
 @@||cdn.mxpnl.com/libs/mixpanel-*-latest.min.js$script,domain=groupme.com
@@ -1056,8 +1053,6 @@ reuters.com##ul[class^="cluster__stories"] > li[class^="cluster__cluster-basic"]
 ! https://forums.lanik.us/viewtopic.php?f=64&t=43928
 @@||captcha.px-cdn.net^$script
 @@||perimeterx.net/api/v2/collector/ocaptcha$xhr
-! fix fembed.com download button
-! [badfilter] *$script,3p,domain=fembed.com,badfilter
 ! https://github.com/uBlockOrigin/uAssets/issues/4542#issuecomment-559369797
 @@||mixdrop.co^$frame
 ! https://forums.lanik.us/viewtopic.php?f=64&t=43926
@@ -1114,9 +1109,6 @@ yugioh.com##.cookie-policy-container-invisible.cookie-policy-container
 @@||static.goolive.de/media/static/images/smileys/ad.gif$image
 ! https://github.com/NanoMeow/QuickReports/issues/2526
 ||gratis.com/file/*/global/gtm.min.js$script,1p,redirect=noopjs
-! https://forums.lanik.us/viewtopic.php?f=64&t=44087
-! [badfilter] *$3p,image,domain=rd.com,badfilter
-! [badfilter] *$3p,xhr,domain=rd.com,badfilter
 ! https://github.com/NanoMeow/QuickReports/issues/1261
 @@||viu.com/*/tracking/$script,1p
 ||amazonaws.com^$xhr,redirect-rule=nooptext,domain=viu.com
@@ -1136,8 +1128,6 @@ qqcinema21.com##a[rel="nofollow"]:has(img)
 begadistrictnews.com.au,bendigoadvertiser.com.au,goulburnpost.com.au,maitlandmercury.com.au,newcastleherald.com.au##.subscribe-article .subscriber-hider:style(display:block!important)
 begadistrictnews.com.au,bendigoadvertiser.com.au,goulburnpost.com.au,maitlandmercury.com.au,newcastleherald.com.au##.subscribe-article .subscribe-truncate:style(max-height:unset!important;order:unset!important;)
 begadistrictnews.com.au,bendigoadvertiser.com.au,goulburnpost.com.au,maitlandmercury.com.au,newcastleherald.com.au##.subscribe-article .subscribe-truncate::before:style(background:none!important;)
-! https://github.com/uBlockOrigin/uAssets/issues/6784
-! [badfilter] ||pega.com^$3p,badfilter
 ! whentai .com broken pages
 @@||whentai.com/combine.js$script,1p
 ! https://github.com/uBlockOrigin/uAssets/issues/6793
@@ -1434,7 +1424,8 @@ order-order.com#@#.tag-sponsored
 ! https://github.com/NanoMeow/QuickReports/issues/1659
 ! [badfilter] ||streamplay.*/jquery-$badfilter
 ! https://github.com/uBlockOrigin/uAssets/issues/7439
-*$image,redirect-rule=1x1.gif,domain=play.cadenaser.com
+! https://github.com/uBlockOrigin/uAssets/issues/20628#issuecomment-2119339478
+*$image,redirect-rule=1x1.gif,domain=cadenaser.com
 ! https://www.reddit.com/r/uBlockOrigin/comments/fini9h/subtitles_not_showing_up_on_solarmovieto/
 @@||fmovies.to/subtitles/*$xhr
 ! https://github.com/NanoMeow/QuickReports/issues/3925
@@ -3150,11 +3141,13 @@ securegames.iwin.com##+js(no-xhr-if, %2Fgtm.js)
 pcwelt.de#@#a[href^="https://pvn.mediamarkt.de/"]
 pcwelt.de#@#a[href^="https://pvn.saturn.de/"]
 ! wgplayer breakages
+||wgplayer.com^
 ! https://github.com/AdguardTeam/AdguardFilters/issues/143493
 ! games
-@@||scylla.wgplayer.com/f_webp/*$image
+! https://github.com/uBlockOrigin/uAssets/issues/23767
+@@||scylla.wgplayer.com/f_webp/$image
 @@||universal.wgplayer.com/tag/$script,domain=brightygames.com|eminiclip.ro|sisigames.com|yoho.games
-@@||wgplayer.com/*/wgAds.$script,domain=brightygames.com|eminiclip.ro|sisigames.com|yoho.games
+@@||wgplayer.com/*/wgAds.$script,domain=brightygames.com|eminiclip.ro|pastelkattogames.com|sisigames.com|yoho.games
 @@||imasdk.googleapis.com/js/sdkloader/ima3.js$script,domain=brightygames.com|eminiclip.ro|sisigames.com|yoho.games
 ! videos
 ||imasdk.googleapis.com/js/sdkloader/ima3.js$script,redirect-rule=google-ima.js,domain=canvids.com
@@ -3424,6 +3417,7 @@ mytempsms.com#@##container-ad
 ||dynatrace.com^$script,redirect-rule=noopjs,domain=bcbstx.com
 ! https://247sports.com/player/chance-robinson-46114146/ video breakage
 ||imasdk.googleapis.com/js/sdkloader/ima3.js$script,redirect=google-ima.js,domain=247sports.com,important
+! https://247sports.com/247sportslive/late-kick-with-josh-pate/late-kick-building-on-success-year-to-year-at-ohio-state-with-ryan-day/
 ! https://github.com/finnish-easylist-addition/finnish-easylist-addition/discussions/416#discussioncomment-6595712
 @@||mpsnare.iesnare.com/snare.js$script,domain=elgiganten.dk|elgiganten.se|elkjop.no|gigantti.fi|power.fi
 ! https://github.com/uBlockOrigin/uAssets/issues/19338
@@ -3449,6 +3443,9 @@ uol.com.br##+js(set, YT.ImaManager, noopFunc)
 uol.com.br##+js(set, UOLPD, %7B%7D)
 uol.com.br##+js(set, UOLPD.dataLayer, %7B%7D)
 uol.com.br##+js(set, __configuredDFPTags, %7B%7D)
+! https://github.com/AdguardTeam/AdguardFilters/issues/159573#issuecomment-2089027050
+@@||googleads.github.io/videojs-ima/node_modules/video.js/dist/video.min.js$script,domain=cultura.uol.com.br
+@@||googleads.github.io/videojs-ima/node_modules/video.js/dist/video-js.min.css$css,domain=cultura.uol.com.br
 ! https://myspace.com/myspace/video/charles-bradley-the-ferris-wheel-interviews/109587715 - video breakage
 ||imasdk.googleapis.com/js/sdkloader/ima3.js$script,redirect=google-ima.js,domain=myspace.com,important
 ! https://www.carmagazine.co.uk/car-reviews/smart/-1-suv/ - images breakage
@@ -3824,3 +3821,35 @@ moneycontrol.com##.hide_in_desktop.footer_navigation_list:style(height: 10px !im
 moneycontrol.com##.advSlotsGrayBox
 ! https://github.com/uBlockOrigin/uAssets/issues/23415
 ||appboycdn.com^$script,3p,redirect-rule=noopjs,domain=animates.co.nz
+! https://www.etonline.com/michael-strahans-daughter-isabella-strahan-has-best-response-to-fan-asking-if-shes-still-alive - video breakage
+||imasdk.googleapis.com/js/sdkloader/ima3.js^$script,3p,redirect=google-ima.js,domain=etonline.com,important
+! https://github.com/uBlockOrigin/uAssets/issues/23446
+||yieldlove.com/v2/yieldlove.js$script,domain=whatismyip.com,important
+whatismyip.com##+js(set, yieldlove_cmd, %7B%7D)
+whatismyip.com##+js(set, yieldlove_cmd.push, noopFunc)
+! https://github.com/uBlockOrigin/uAssets/issues/23507
+myfitnesspal.com##+js(set, dataLayer.push, noopFunc)
+! https://github.com/uBlockOrigin/uAssets/issues/23508
+myair.resmed.com##+js(no-xhr-if, 1.1.1.1%2Fcdn-cgi%2Ftrace)
+! https://github.com/uBlockOrigin/uAssets/issues/23301
+||cdn.getblueshift.com/blueshift.js^$script,3p,redirect=noopjs,domain=rentcafe.com,important
+! https://github.com/uBlockOrigin/uAssets/issues/23602
+! [badfilter] *$script,3p,domain=faselhd-watch.shop,badfilter
+! [badfilter] *$xhr,3p,domain=faselhd-watch.shop,badfilter
+! https://github.com/uBlockOrigin/uAssets/issues/23623
+@@||partner-api.jobbio.com/channels/data$xhr,3p,domain=stackoverflow.jobs
+@@||partner-api.jobbio.com/channels/stack-overflow-jobs/feed$xhr,3p,domain=stackoverflow.jobs
+! https://github.com/uBlockOrigin/uAssets/issues/23694
+gifmagic.com###logoContainer:style(top: 0px !important;)
+! https://github.com/uBlockOrigin/uAssets/issues/23729
+! https://github.com/uBlockOrigin/uAssets/issues/23741
+@@||googletagmanager.com/gtag/js$3p,script,domain=trinket.io
+! https://www.reddit.com/r/uBlockOrigin/comments/1cvkaq9/artstation_website_does_not_allow_saving_of/
+||artstation.com/*/views_tracking/$xhr,1p,redirect-rule=nooptext
+! https://github.com/uBlockOrigin/uAssets/issues/23791
+! [badfilter] ||tapad.com^$badfilter
+||tapad.com^$domain=~crportal.tapad.com
+! https://github.com/uBlockOrigin/uAssets/issues/23795
+||imasdk.googleapis.com/js/sdkloader/ima3.js$script,3p,redirect-rule=google-ima.js,domain=pilipinaslive.com
+! https://github.com/uBlockOrigin/uAssets/issues/23779
+||imasdk.googleapis.com/js/sdkloader/ima3.js$script,domain=viu.com,redirect-rule=google-ima.js

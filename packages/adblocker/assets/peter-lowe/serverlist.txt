@@ -6,10 +6,10 @@
 !
 !For more information about this list, see: https://pgl.yoyo.org/adservers/
 !----
-!Last modified: Mon, 22 Apr 2024 16:25:09 GMT
+!Last modified: Sun, 05 May 2024 19:21:23 GMT
 !Homepage:      https://pgl.yoyo.org/adservers/
 !Format:        adblockplus
-!Entries:       3737
+!Entries:       3726
 !Credits:       Peter Lowe - pgl@yoyo.org - pgl on github - https://pgl.yoyo.org/
 !This URL:      https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&showintro=0&mimetype=plaintext
 !Policy:        https://pgl.yoyo.org/adservers/policy.php
@@ -232,6 +232,7 @@
 ||ademails.com^$third-party
 ||adengage.com^$third-party
 ||adetracking.com^$third-party
+||adeure.com^$third-party
 ||adexc.net^$third-party
 ||adexchangegate.com^$third-party
 ||adexchangeprediction.com^$third-party
@@ -302,7 +303,6 @@
 ||admedia.com^$third-party
 ||admeld.com^$third-party
 ||admeridianads.com^$third-party
-||admeta.com^$third-party
 ||admex.com^$third-party
 ||admidadsp.com^$third-party
 ||adminder.com^$third-party
@@ -602,12 +602,10 @@
 ||ads.soft32.com^$third-party
 ||ads.soweb.gr^$third-party
 ||ads.space.com^$third-party
-||ads.stackoverflow.com^$third-party
 ||ads.sun.com^$third-party
 ||ads.suomiautomaatti.com^$third-party
 ||ads.supplyframe.com^$third-party
 ||ads.syscdn.de^$third-party
-||ads.tahono.com^$third-party
 ||ads.themovienation.com^$third-party
 ||ads.thestar.com^$third-party
 ||ads.thrillsaffiliates.com^$third-party
@@ -678,6 +676,7 @@
 ||ads2.xnet.cz^$third-party
 ||ads2004.treiberupdate.de^$third-party
 ||ads24h.net^$third-party
+||ads3-adnow.com^$third-party
 ||ads3.contentabc.com^$third-party
 ||ads3.gamecity.net^$third-party
 ||ads3.virtual-nights.com^$third-party
@@ -1014,6 +1013,7 @@
 ! ||appsflyer.com^$third-party
 ||aps.hearstnp.com^$third-party
 ||apsalar.com^$third-party
+||aptabase.com^$third-party
 ||apture.com^$third-party
 ||apu.samsungelectronics.com^$third-party
 ||aquaticanswer.com^$third-party
@@ -1025,7 +1025,6 @@
 ||ard.xxxblackbook.com^$third-party
 ||argyresthia.com^$third-party
 ||aromamirror.com^$third-party
-||artisany.net^$third-party
 ||as.webmd.com^$third-party
 ||as2.adserverhd.com^$third-party
 ||aserv.motorsgate.com^$third-party
@@ -1792,7 +1791,6 @@
 ||farethief.com^$third-party
 ||farmergoldfish.com^$third-party
 ||fascinatedfeather.com^$third-party
-||fast-redirecting.com^$third-party
 ||fastclick.com^$third-party
 ||fastclick.com.edgesuite.net^$third-party
 ||fastclick.net^$third-party
@@ -2157,7 +2155,6 @@
 ||kanoodle.com^$third-party
 ||kargo.com^$third-party
 ||karonty.com^$third-party
-||kesmatic.com^$third-party
 ||keymedia.hu^$third-party
 ||kindads.com^$third-party
 ||kissmetrics.com^$third-party
@@ -2312,7 +2309,6 @@
 ||markedpail.com^$third-party
 ||marketing.888.com^$third-party
 ||marketing.desertcart.com^$third-party
-||marketing.hearstmagazines.nl^$third-party
 ||marketing.net.brillen.de^$third-party
 ||marketing.net.home24.de^$third-party
 ||marketing.net.occhiali24.it^$third-party
@@ -2482,7 +2478,6 @@
 ||n2.mouseflow.com^$third-party
 ||n69.com^$third-party
 ||naj.sk^$third-party
-||naj22.proasdf.com^$third-party
 ||nappyattack.com^$third-party
 ||nappyneck.com^$third-party
 ||nastydollars.com^$third-party
@@ -2629,7 +2624,6 @@
 ||owebmoney.ru^$third-party
 ||owlsr.us^$third-party
 ||owneriq.net^$third-party
-||ox1.shopcool.com.tw^$third-party
 ||oxado.com^$third-party
 ||oxcash.com^$third-party
 ||oxen.hillcountrytexas.com^$third-party
@@ -2780,7 +2774,6 @@
 ||props.id^$third-party
 ||prosper.on-line-casino.ca^$third-party
 ||protectcrev.com^$third-party
-||protectivemetrics.com^$third-party
 ||protectsubrev.com^$third-party
 ||protestcopy.com^$third-party
 ||proton-tm.com^$third-party
@@ -2817,7 +2810,6 @@
 ||pushwhy.com^$third-party
 ||px.dynamicyield.com^$third-party
 ||px.gfycat.com^$third-party
-||px.spiceworks.com^$third-party
 ||pxf.io^$third-party
 ||pxl-mailtracker.com^$third-party
 ||pxl.iqm.com^$third-party
@@ -3236,7 +3228,6 @@
 ||steelhouse.com^$third-party
 ||steelhousemedia.com^$third-party
 ||steepscale.com^$third-party
-||stepplane.com^$third-party
 ||stickssheep.com^$third-party
 ||stickyadstv.com^$third-party
 ||stiffgame.com^$third-party
@@ -3398,7 +3389,6 @@
 ||tm.br.de^$third-party
 ||tnkexchange.com^$third-party
 ||tns-counter.ru^$third-party
-||tntclix.co.uk^$third-party
 ||toothbrushnote.com^$third-party
 ||top-casting-termine.de^$third-party
 ||top-site-list.com^$third-party
@@ -3415,6 +3405,7 @@
 ||toplista.mw.hu^$third-party
 ||toplistcity.com^$third-party
 ||topsir.com^$third-party
+||topsite.lv^$third-party
 ||topsites.com.br^$third-party
 ||topstats.com^$third-party
 ||totemcash.com^$third-party
@@ -3476,7 +3467,6 @@
 ||tracking.olx-st.com^$third-party
 ||tracking.orixa-media.com^$third-party
 ||tracking.shopstyle.com^$third-party
-||tracking.theoceanac.online^$third-party
 ||tracking.thinkabt.com^$third-party
 ||tracking.utlservice.com^$third-party
 ||tracking.wetter.at^$third-party
@@ -3506,7 +3496,6 @@
 ||traffiq.com^$third-party
 ! [dup] from ublock-origin/unbreak.txt
 ! ||trafic.ro^$third-party
-||traildelsfars.com^$third-party
 ||traktrafficflow.com^$third-party
 ||tranquilplume.com^$third-party
 ||tranquilside.com^$third-party
@@ -3569,6 +3558,7 @@
 ||unbecominglamp.com^$third-party
 ||understoodocean.com^$third-party
 ||undertone.com^$third-party
+||unidentifiedanalytics.web.app^$third-party
 ||unknowntray.com^$third-party
 ||unrulymedia.com^$third-party
 ||untd.com^$third-party
@@ -3683,7 +3673,6 @@
 ||webtrendslive.com^$third-party
 ||webxcdn.com^$third-party
 ||wellmadefrog.com^$third-party
-||welved.com^$third-party
 ||werbung.meteoxpress.com^$third-party
 ||wetrack.it^$third-party
 ||whaleads.com^$third-party

@@ -8,11 +8,10 @@
 
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import sourcemaps from 'rollup-plugin-sourcemaps';
 
 export default [
   {
-    input: './dist/cjs/background.js',
+    input: './dist/src/background.js',
     output: {
       file: './dist/background.iife.js',
       format: 'iife',
@@ -24,11 +23,10 @@ export default [
         mainFields: ['main'],
       }),
       commonjs(),
-      sourcemaps(),
     ],
   },
   {
-    input: './dist/cjs/content-script.js',
+    input: './dist/src/content-script.js',
     output: {
       file: './dist/content-script.iife.js',
       format: 'iife',
@@ -40,7 +38,6 @@ export default [
         mainFields: ['main'],
       }),
       commonjs(),
-      sourcemaps(),
     ],
   },
 ];
