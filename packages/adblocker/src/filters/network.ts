@@ -396,6 +396,11 @@ function compileRegex(
   return new RegExp(filter);
 }
 
+/**
+ * Finds the last index of an unescaped character in the given string.
+ * This function tries to find the match from the backward.
+ * When this function sees an escaping character, it will jump to the next index.
+ */
 export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
   let lastIndex = text.lastIndexOf(character);
 
@@ -410,6 +415,11 @@ export function findLastIndexOfUnescapedCharacter(text: string, character: strin
   return lastIndex;
 }
 
+/**
+ * Finds the first index of an unescaped character in the given string.
+ * This function tries to find the match from the forward.
+ * When this function sees an escaping character before the match, it will jump to the next index.
+ */
 export function findIndexOfUnescapedCharacter(
   text: string,
   character: string,
@@ -429,6 +439,12 @@ export function findIndexOfUnescapedCharacter(
   return nextIndex;
 }
 
+/**
+ * Splits the given string while respecting the escaping character.
+ * This function leverages `findIndexOfUnescapedCharacter` and `findLastIndexOfUnescapedCharacter`
+ * to find the split indexes efficiently.
+ * The expected behavior of this function should be matched with `String.prototype.split`.
+ */
 export function splitUnescaped(text: string, character: string) {
   const parts: string[] = [];
 
@@ -447,6 +463,13 @@ export function splitUnescaped(text: string, character: string) {
   return parts;
 }
 
+/**
+ * Collects a filter option key until the function sees the special character.
+ * This function will stop iterating over the given string if it sees equal sign or comma sign.
+ * If there's an equal sign, it means that we'll see the value.
+ * Otherwise, if there's a comma sign, it means that the option doesn't have any values.
+ * Note that this function doesn't respect the escaping sign.
+ */
 function getFilterOptionKey(line: string, pos: number, end: number) {
   const start = pos;
 
@@ -463,6 +486,12 @@ function getFilterOptionKey(line: string, pos: number, end: number) {
   return [pos, line.slice(start, pos)] as const;
 }
 
+/**
+ * Collects a filter option value until the function sees the special character.
+ * This function respects the escaping characters, so we can safely collect the full value
+ * including the special characters which are not allowed normally.
+ * This function will stop if it sees a comma sign.
+ */
 function getFilterOptionValue(line: string, pos: number, end: number): [number, string] {
   let code: number;
   let value = '';
@@ -484,6 +513,13 @@ function getFilterOptionValue(line: string, pos: number, end: number): [number, 
   return [pos, value];
 }
 
+/**
+ * Collects a filter option value of the replace modifier.
+ * This function respects the escaping character with the allowed characters of the replace modifier.
+ * In the replace modifier, it can include the any sign allowed in the regular expression.
+ * Therefore, a comma sign can interfere the `getFilterOptionValue` function.
+ * This function will not stop unless it collects the all of parts of the replace modifier option value.
+ */
 function getFilterReplaceOptionValue(line: string, pos: number, end: number): [number, string[]] {
   const parts = ['', '', '', '', ''];
 
@@ -519,6 +555,12 @@ function getFilterReplaceOptionValue(line: string, pos: number, end: number): [n
   return [pos, parts];
 }
 
+/**
+ * Collects an array of filter options from the given index.
+ * This function leverages `getFilterOptionKey`, `getFilterOptionValue`, and every extension functions.
+ * Depending on the filter option key, the function to collect filter option value can vary.
+ * For the generic filter option value, it'll use `getFilterOptionValue` function to get the value.
+ */
 function getFilterOptions(line: string, pos: number, end: number) {
   const options: Array<[string, string]> = [];
 
@@ -549,6 +591,12 @@ function getFilterOptions(line: string, pos: number, end: number) {
   return options;
 }
 
+/**
+ * Transforms the replace modifier option value into the regular expression with its replacement.
+ * This function takes a fixed length array from `getFilterReplaceOptionValue`
+ * then try to build the regular expression.
+ * This function will return `null` if the array format or the given regular expression components are not valid.
+ */
 export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
   const [, values] = getFilterReplaceOptionValue(value, 0, value.length);
 
