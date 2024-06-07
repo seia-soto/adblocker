@@ -11,11 +11,6 @@ import 'mocha';
 
 import CosmeticFilter, { DEFAULT_HIDDING_STYLE } from '../src/filters/cosmetic';
 import NetworkFilter from '../src/filters/network';
-import {
-  findIndexOfUnescapedCharacter,
-  findLastIndexOfUnescapedCharacter,
-  splitUnescaped,
-} from '../src/utils';
 import { parseFilters } from '../src/lists';
 import { hashStrings, tokenize } from '../src/utils';
 import { HTMLSelector } from '../src/html-filtering';
