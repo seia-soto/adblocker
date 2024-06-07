@@ -1,3 +1,75 @@
+# v1.27.8 (Thu Jun 06 2024)
+
+#### :bug: Bug Fix
+
+- Bump version to: v1.27.7 \[skip ci\] [#4005](https://github.com/ghostery/adblocker/pull/4005) ([@adblocker-bot](https://github.com/adblocker-bot))
+- Update CHANGELOG.md \[skip ci\] ([@adblocker-bot](https://github.com/adblocker-bot))
+
+#### :nail_care: Polish
+
+- Rename cliqz-oss to ghostery [#3986](https://github.com/ghostery/adblocker/pull/3986) ([@chrmod](https://github.com/chrmod))
+
+#### ⚠️ Pushed to `master`
+
+- Build system: update rollup plugins ([@chrmod](https://github.com/chrmod))
+
+#### :house: Internal
+
+- CI: fix releases [#3985](https://github.com/ghostery/adblocker/pull/3985) ([@chrmod](https://github.com/chrmod))
+- ESLint update [#3977](https://github.com/ghostery/adblocker/pull/3977) ([@chrmod](https://github.com/chrmod))
+- ESM modules [#3924](https://github.com/ghostery/adblocker/pull/3924) ([@chrmod](https://github.com/chrmod))
+
+#### :nut_and_bolt: Dependencies
+
+- Build(deps): Bump @types/chrome from 0.0.267 to 0.0.268 [#3952](https://github.com/ghostery/adblocker/pull/3952) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 3
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Adblocker Bot ([@adblocker-bot](https://github.com/adblocker-bot))
+- Krzysztof Modras ([@chrmod](https://github.com/chrmod))
+
+---
+
+# v1.27.4 (Wed Jun 05 2024)
+
+#### :nail_care: Polish
+
+- Rename cliqz-oss to ghostery [#3986](https://github.com/ghostery/adblocker/pull/3986) ([@chrmod](https://github.com/chrmod))
+
+#### ⚠️ Pushed to `master`
+
+- Build system: update rollup plugins ([@chrmod](https://github.com/chrmod))
+
+#### :house: Internal
+
+- CI: fix releases [#3985](https://github.com/ghostery/adblocker/pull/3985) ([@chrmod](https://github.com/chrmod))
+- ESLint update [#3977](https://github.com/ghostery/adblocker/pull/3977) ([@chrmod](https://github.com/chrmod))
+- ESM modules [#3924](https://github.com/ghostery/adblocker/pull/3924) ([@chrmod](https://github.com/chrmod))
+
+#### :nut_and_bolt: Dependencies
+
+- Build(deps): Bump @types/chrome from 0.0.267 to 0.0.268 [#3952](https://github.com/ghostery/adblocker/pull/3952) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Krzysztof Modras ([@chrmod](https://github.com/chrmod))
+
+---
+
+# v1.27.3 (Tue May 07 2024)
+
+#### :nut_and_bolt: Dependencies
+
+- Build(deps): Bump @types/chrome from 0.0.266 to 0.0.267 [#3931](https://github.com/ghostery/adblocker/pull/3931) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 1
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+
+---
+
 # v1.27.2 (Tue Apr 23 2024)
 
 #### :nut_and_bolt: Dependencies
@@ -370,9 +442,9 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.158 to 0.0.159 [#2266](https://github.com/cliqz-oss/adblocker/pull/2266) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @rollup/plugin-commonjs from 20.0.0 to 21.0.0 [#2260](https://github.com/cliqz-oss/adblocker/pull/2260) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @types/chrome from 0.0.157 to 0.0.158 [#2245](https://github.com/cliqz-oss/adblocker/pull/2245) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.158 to 0.0.159 [#2266](https://github.com/ghostery/adblocker/pull/2266) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @rollup/plugin-commonjs from 20.0.0 to 21.0.0 [#2260](https://github.com/ghostery/adblocker/pull/2260) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.157 to 0.0.158 [#2245](https://github.com/ghostery/adblocker/pull/2245) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 1
 
@@ -384,12 +456,12 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :house: Internal
 
-- Bump typescript [#2243](https://github.com/cliqz-oss/adblocker/pull/2243) ([@remusao](https://github.com/remusao))
-- Remove express dependency [#2242](https://github.com/cliqz-oss/adblocker/pull/2242) ([@remusao](https://github.com/remusao))
+- Bump typescript [#2243](https://github.com/ghostery/adblocker/pull/2243) ([@remusao](https://github.com/remusao))
+- Remove express dependency [#2242](https://github.com/ghostery/adblocker/pull/2242) ([@remusao](https://github.com/remusao))
 
 #### :nut_and_bolt: Dependencies
 
-- Bump electron from 14.0.1 to 15.0.0 [#2236](https://github.com/cliqz-oss/adblocker/pull/2236) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump electron from 14.0.1 to 15.0.0 [#2236](https://github.com/ghostery/adblocker/pull/2236) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 2
 
@@ -402,9 +474,9 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.155 to 0.0.157 [#2214](https://github.com/cliqz-oss/adblocker/pull/2214) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @types/chrome from 0.0.154 to 0.0.155 [#2211](https://github.com/cliqz-oss/adblocker/pull/2211) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump electron from 13.2.2 to 14.0.0 [#2200](https://github.com/cliqz-oss/adblocker/pull/2200) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.155 to 0.0.157 [#2214](https://github.com/ghostery/adblocker/pull/2214) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.154 to 0.0.155 [#2211](https://github.com/ghostery/adblocker/pull/2211) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump electron from 13.2.2 to 14.0.0 [#2200](https://github.com/ghostery/adblocker/pull/2200) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 1
 
@@ -416,7 +488,7 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.153 to 0.0.154 [#2118](https://github.com/cliqz-oss/adblocker/pull/2118) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.153 to 0.0.154 [#2118](https://github.com/ghostery/adblocker/pull/2118) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 1
 
@@ -428,8 +500,8 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.149 to 0.0.153 [#2107](https://github.com/cliqz-oss/adblocker/pull/2107) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @rollup/plugin-commonjs from 19.0.2 to 20.0.0 [#2099](https://github.com/cliqz-oss/adblocker/pull/2099) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.149 to 0.0.153 [#2107](https://github.com/ghostery/adblocker/pull/2107) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @rollup/plugin-commonjs from 19.0.2 to 20.0.0 [#2099](https://github.com/ghostery/adblocker/pull/2099) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 1
 
@@ -441,9 +513,9 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.148 to 0.0.149 [#2078](https://github.com/cliqz-oss/adblocker/pull/2078) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @types/chrome from 0.0.146 to 0.0.148 [#2058](https://github.com/cliqz-oss/adblocker/pull/2058) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @types/chrome from 0.0.145 to 0.0.146 [#2037](https://github.com/cliqz-oss/adblocker/pull/2037) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.148 to 0.0.149 [#2078](https://github.com/ghostery/adblocker/pull/2078) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.146 to 0.0.148 [#2058](https://github.com/ghostery/adblocker/pull/2058) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.145 to 0.0.146 [#2037](https://github.com/ghostery/adblocker/pull/2037) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 1
 
@@ -455,7 +527,7 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.144 to 0.0.145 [#1995](https://github.com/cliqz-oss/adblocker/pull/1995) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.144 to 0.0.145 [#1995](https://github.com/ghostery/adblocker/pull/1995) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 1
 
@@ -467,7 +539,7 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.143 to 0.0.144 [#1972](https://github.com/cliqz-oss/adblocker/pull/1972) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.143 to 0.0.144 [#1972](https://github.com/ghostery/adblocker/pull/1972) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 1
 
@@ -479,19 +551,19 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :rocket: New Feature
 
-- Bump Electron to v13.x and Puppeteer to v9.x [#1967](https://github.com/cliqz-oss/adblocker/pull/1967) ([@remusao](https://github.com/remusao))
+- Bump Electron to v13.x and Puppeteer to v9.x [#1967](https://github.com/ghostery/adblocker/pull/1967) ([@remusao](https://github.com/remusao))
 
 #### :house: Internal
 
-- Bump lock file to fix some security issue [#1922](https://github.com/cliqz-oss/adblocker/pull/1922) ([@remusao](https://github.com/remusao))
+- Bump lock file to fix some security issue [#1922](https://github.com/ghostery/adblocker/pull/1922) ([@remusao](https://github.com/remusao))
 
 #### :nut_and_bolt: Dependencies
 
-- Bump @types/chrome from 0.0.139 to 0.0.141 [#1939](https://github.com/cliqz-oss/adblocker/pull/1939) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @types/chrome from 0.0.138 to 0.0.139 [#1927](https://github.com/cliqz-oss/adblocker/pull/1927) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @types/chrome from 0.0.137 to 0.0.138 [#1925](https://github.com/cliqz-oss/adblocker/pull/1925) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @rollup/plugin-node-resolve from 11.2.1 to 13.0.0 [#1912](https://github.com/cliqz-oss/adblocker/pull/1912) ([@dependabot[bot]](https://github.com/dependabot[bot]))
-- Bump @types/chrome from 0.0.136 to 0.0.137 [#1911](https://github.com/cliqz-oss/adblocker/pull/1911) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.139 to 0.0.141 [#1939](https://github.com/ghostery/adblocker/pull/1939) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.138 to 0.0.139 [#1927](https://github.com/ghostery/adblocker/pull/1927) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.137 to 0.0.138 [#1925](https://github.com/ghostery/adblocker/pull/1925) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @rollup/plugin-node-resolve from 11.2.1 to 13.0.0 [#1912](https://github.com/ghostery/adblocker/pull/1912) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- Bump @types/chrome from 0.0.136 to 0.0.137 [#1911](https://github.com/ghostery/adblocker/pull/1911) ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
 #### Authors: 2
 
@@ -511,11 +583,11 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.135 to 0.0.136 [#1899](https://github.com/cliqz-oss/adblocker/pull/1899) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump auto from 10.25.0 to 10.25.1 [#1877](https://github.com/cliqz-oss/adblocker/pull/1877) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.134 to 0.0.135 [#1876](https://github.com/cliqz-oss/adblocker/pull/1876) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.133 to 0.0.134 [#1838](https://github.com/cliqz-oss/adblocker/pull/1838) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-commonjs from 17.1.0 to 18.0.0 [#1812](https://github.com/cliqz-oss/adblocker/pull/1812) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.135 to 0.0.136 [#1899](https://github.com/ghostery/adblocker/pull/1899) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump auto from 10.25.0 to 10.25.1 [#1877](https://github.com/ghostery/adblocker/pull/1877) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.134 to 0.0.135 [#1876](https://github.com/ghostery/adblocker/pull/1876) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.133 to 0.0.134 [#1838](https://github.com/ghostery/adblocker/pull/1838) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-commonjs from 17.1.0 to 18.0.0 [#1812](https://github.com/ghostery/adblocker/pull/1812) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -533,13 +605,13 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :house: Internal
 
-- Update copyright notices [#1715](https://github.com/cliqz-oss/adblocker/pull/1715) ([@remusao](https://github.com/remusao))
+- Update copyright notices [#1715](https://github.com/ghostery/adblocker/pull/1715) ([@remusao](https://github.com/remusao))
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.132 to 0.0.133 [#1703](https://github.com/cliqz-oss/adblocker/pull/1703) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.131 to 0.0.132 [#1694](https://github.com/cliqz-oss/adblocker/pull/1694) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.130 to 0.0.131 [#1689](https://github.com/cliqz-oss/adblocker/pull/1689) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.132 to 0.0.133 [#1703](https://github.com/ghostery/adblocker/pull/1703) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.131 to 0.0.132 [#1694](https://github.com/ghostery/adblocker/pull/1694) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.130 to 0.0.131 [#1689](https://github.com/ghostery/adblocker/pull/1689) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 2
 
@@ -557,8 +629,8 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.129 to 0.0.130 [#1671](https://github.com/cliqz-oss/adblocker/pull/1671) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.128 to 0.0.129 [#1621](https://github.com/cliqz-oss/adblocker/pull/1621) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.129 to 0.0.130 [#1671](https://github.com/ghostery/adblocker/pull/1671) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.128 to 0.0.129 [#1621](https://github.com/ghostery/adblocker/pull/1621) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -570,12 +642,12 @@ Changed the timing of scriptlet injection to before the DOMContentLoaded event f
 
 ### Release Notes
 
-#### Initial support for extended CSS selectors (a.k.a. procedural filters) ([#1574](https://github.com/cliqz-oss/adblocker/pull/1574))
+#### Initial support for extended CSS selectors (a.k.a. procedural filters) ([#1574](https://github.com/ghostery/adblocker/pull/1574))
 
 Add initial support for extended CSS selectors (a.k.a. procedural filters) as well as the `:remove()` modifier for element hiding rules (note: the already supported `:style` modified now also works with extended CSS selectors). The following new pseudo-classes are implemented: `:has` (and its alias `:if`), `:has-text` (both string and RegExp literals), and `:not` (whenever its argument is also an extended selector, otherwise fallback to native implementation).
 
 Caveats:
-* Loading of extended css filters is disabled by default and needs to be toggled using the `loadExtendedSelectors` option while [initializing the blocker instance](https://github.com/cliqz-oss/adblocker/blob/3361723138f40c3cb96b4c6e611f2b030f75d891/packages/adblocker-webextension-example/background.ts#L61).
+* Loading of extended css filters is disabled by default and needs to be toggled using the `loadExtendedSelectors` option while [initializing the blocker instance](https://github.com/ghostery/adblocker/blob/3361723138f40c3cb96b4c6e611f2b030f75d891/packages/adblocker-webextension-example/background.ts#L61).
 * These news selectors are currently only supported by `WebExtensionBlocker` (support for Puppeteer, Electron and Playwright is not planned at this time but help from the community would be greatly appreciated).
 
 Miscellaneous changes:
@@ -586,7 +658,7 @@ Miscellaneous changes:
 
 #### :rocket: New Feature
 
-- Initial support for extended CSS selectors (a.k.a. procedural filters) [#1574](https://github.com/cliqz-oss/adblocker/pull/1574) ([@remusao](https://github.com/remusao))
+- Initial support for extended CSS selectors (a.k.a. procedural filters) [#1574](https://github.com/ghostery/adblocker/pull/1574) ([@remusao](https://github.com/remusao))
 
 #### :bug: Bug Fix
 
@@ -594,7 +666,7 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.127 to 0.0.128 [#1561](https://github.com/cliqz-oss/adblocker/pull/1561) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.127 to 0.0.128 [#1561](https://github.com/ghostery/adblocker/pull/1561) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 2
 
@@ -613,9 +685,9 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.126 to 0.0.127 [#1506](https://github.com/cliqz-oss/adblocker/pull/1506) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-commonjs from 16.0.0 to 17.0.0 [#1479](https://github.com/cliqz-oss/adblocker/pull/1479) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-node-resolve from 10.0.0 to 11.0.0 [#1478](https://github.com/cliqz-oss/adblocker/pull/1478) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.126 to 0.0.127 [#1506](https://github.com/ghostery/adblocker/pull/1506) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-commonjs from 16.0.0 to 17.0.0 [#1479](https://github.com/ghostery/adblocker/pull/1479) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-node-resolve from 10.0.0 to 11.0.0 [#1478](https://github.com/ghostery/adblocker/pull/1478) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -627,7 +699,7 @@ Miscellaneous changes:
 
 #### :nail_care: Polish
 
-- Fix with newer Typescript + cleanups [#1466](https://github.com/cliqz-oss/adblocker/pull/1466) ([@remusao](https://github.com/remusao))
+- Fix with newer Typescript + cleanups [#1466](https://github.com/ghostery/adblocker/pull/1466) ([@remusao](https://github.com/remusao))
 
 #### Authors: 1
 
@@ -650,16 +722,16 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.125 to 0.0.126 [#1380](https://github.com/cliqz-oss/adblocker/pull/1380) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-node-resolve from 9.0.0 to 10.0.0 [#1373](https://github.com/cliqz-oss/adblocker/pull/1373) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-commonjs from 15.1.0 to 16.0.0 [#1372](https://github.com/cliqz-oss/adblocker/pull/1372) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.1.4 to 10.1.5 [#1363](https://github.com/cliqz-oss/adblocker/pull/1363) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.1.3 to 10.1.4 [#1354](https://github.com/cliqz-oss/adblocker/pull/1354) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @types/node from 14.11.8 to 14.11.10 [#1351](https://github.com/cliqz-oss/adblocker/pull/1351) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.124 to 0.0.125 [#1349](https://github.com/cliqz-oss/adblocker/pull/1349) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.1.2 to 10.1.3 [#1307](https://github.com/cliqz-oss/adblocker/pull/1307) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @types/sinon-chai from 3.2.4 to 3.2.5 [#1303](https://github.com/cliqz-oss/adblocker/pull/1303) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.123 to 0.0.124 [#1302](https://github.com/cliqz-oss/adblocker/pull/1302) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.125 to 0.0.126 [#1380](https://github.com/ghostery/adblocker/pull/1380) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-node-resolve from 9.0.0 to 10.0.0 [#1373](https://github.com/ghostery/adblocker/pull/1373) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-commonjs from 15.1.0 to 16.0.0 [#1372](https://github.com/ghostery/adblocker/pull/1372) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.1.4 to 10.1.5 [#1363](https://github.com/ghostery/adblocker/pull/1363) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.1.3 to 10.1.4 [#1354](https://github.com/ghostery/adblocker/pull/1354) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @types/node from 14.11.8 to 14.11.10 [#1351](https://github.com/ghostery/adblocker/pull/1351) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.124 to 0.0.125 [#1349](https://github.com/ghostery/adblocker/pull/1349) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.1.2 to 10.1.3 [#1307](https://github.com/ghostery/adblocker/pull/1307) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @types/sinon-chai from 3.2.4 to 3.2.5 [#1303](https://github.com/ghostery/adblocker/pull/1303) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.123 to 0.0.124 [#1302](https://github.com/ghostery/adblocker/pull/1302) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -677,11 +749,11 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump electron from 10.1.1 to 10.1.2 [#1273](https://github.com/cliqz-oss/adblocker/pull/1273) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump puppeteer from 5.2.1 to 5.3.0 [#1269](https://github.com/cliqz-oss/adblocker/pull/1269) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @types/node from 14.10.0 to 14.10.1 [#1268](https://github.com/cliqz-oss/adblocker/pull/1268) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.122 to 0.0.123 [#1267](https://github.com/cliqz-oss/adblocker/pull/1267) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.1.0 to 10.1.1 [#1240](https://github.com/cliqz-oss/adblocker/pull/1240) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.1.1 to 10.1.2 [#1273](https://github.com/ghostery/adblocker/pull/1273) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump puppeteer from 5.2.1 to 5.3.0 [#1269](https://github.com/ghostery/adblocker/pull/1269) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @types/node from 14.10.0 to 14.10.1 [#1268](https://github.com/ghostery/adblocker/pull/1268) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.122 to 0.0.123 [#1267](https://github.com/ghostery/adblocker/pull/1267) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.1.0 to 10.1.1 [#1240](https://github.com/ghostery/adblocker/pull/1240) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -698,8 +770,8 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump electron from 10.0.1 to 10.1.0 [#1226](https://github.com/cliqz-oss/adblocker/pull/1226) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.0.0 to 10.0.1 [#1225](https://github.com/cliqz-oss/adblocker/pull/1225) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.1 to 10.1.0 [#1226](https://github.com/ghostery/adblocker/pull/1226) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0 to 10.0.1 [#1225](https://github.com/ghostery/adblocker/pull/1225) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -715,7 +787,7 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump electron from 10.0.0-beta.25 to 10.0.0 [#1217](https://github.com/cliqz-oss/adblocker/pull/1217) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.25 to 10.0.0 [#1217](https://github.com/ghostery/adblocker/pull/1217) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -742,20 +814,20 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump electron from 10.0.0-beta.23 to 10.0.0-beta.25 [#1212](https://github.com/cliqz-oss/adblocker/pull/1212) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump typescript from 3.9.7 to 4.0.2 [#1202](https://github.com/cliqz-oss/adblocker/pull/1202) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.0.0-beta.21 to 10.0.0-beta.23 [#1197](https://github.com/cliqz-oss/adblocker/pull/1197) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-node-resolve from 8.4.0 to 9.0.0 [#1181](https://github.com/cliqz-oss/adblocker/pull/1181) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-commonjs from 14.0.0 to 15.0.0 [#1179](https://github.com/cliqz-oss/adblocker/pull/1179) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.0.0-beta.19 to 10.0.0-beta.21 [#1171](https://github.com/cliqz-oss/adblocker/pull/1171) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.0.0-beta.17 to 10.0.0-beta.19 [#1158](https://github.com/cliqz-oss/adblocker/pull/1158) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.0.0-beta.15 to 10.0.0-beta.17 [#1151](https://github.com/cliqz-oss/adblocker/pull/1151) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.0.0-beta.14 to 10.0.0-beta.15 [#1138](https://github.com/cliqz-oss/adblocker/pull/1138) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump electron from 10.0.0-beta.12 to 10.0.0-beta.14 [#1130](https://github.com/cliqz-oss/adblocker/pull/1130) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.121 to 0.0.122 [#1118](https://github.com/cliqz-oss/adblocker/pull/1118) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- Update deps [#1107](https://github.com/cliqz-oss/adblocker/pull/1107) ([@remusao](https://github.com/remusao))
-- build(deps): bump @types/chrome from 0.0.120 to 0.0.121 [#1103](https://github.com/cliqz-oss/adblocker/pull/1103) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-commonjs from 13.0.1 to 14.0.0 [#1088](https://github.com/cliqz-oss/adblocker/pull/1088) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.23 to 10.0.0-beta.25 [#1212](https://github.com/ghostery/adblocker/pull/1212) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump typescript from 3.9.7 to 4.0.2 [#1202](https://github.com/ghostery/adblocker/pull/1202) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.21 to 10.0.0-beta.23 [#1197](https://github.com/ghostery/adblocker/pull/1197) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-node-resolve from 8.4.0 to 9.0.0 [#1181](https://github.com/ghostery/adblocker/pull/1181) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-commonjs from 14.0.0 to 15.0.0 [#1179](https://github.com/ghostery/adblocker/pull/1179) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.19 to 10.0.0-beta.21 [#1171](https://github.com/ghostery/adblocker/pull/1171) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.17 to 10.0.0-beta.19 [#1158](https://github.com/ghostery/adblocker/pull/1158) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.15 to 10.0.0-beta.17 [#1151](https://github.com/ghostery/adblocker/pull/1151) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.14 to 10.0.0-beta.15 [#1138](https://github.com/ghostery/adblocker/pull/1138) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump electron from 10.0.0-beta.12 to 10.0.0-beta.14 [#1130](https://github.com/ghostery/adblocker/pull/1130) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.121 to 0.0.122 [#1118](https://github.com/ghostery/adblocker/pull/1118) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- Update deps [#1107](https://github.com/ghostery/adblocker/pull/1107) ([@remusao](https://github.com/remusao))
+- build(deps): bump @types/chrome from 0.0.120 to 0.0.121 [#1103](https://github.com/ghostery/adblocker/pull/1103) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-commonjs from 13.0.1 to 14.0.0 [#1088](https://github.com/ghostery/adblocker/pull/1088) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 2
 
@@ -772,7 +844,7 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.119 to 0.0.120 [#1074](https://github.com/cliqz-oss/adblocker/pull/1074) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.119 to 0.0.120 [#1074](https://github.com/ghostery/adblocker/pull/1074) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -792,12 +864,12 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.118 to 0.0.119 [#1063](https://github.com/cliqz-oss/adblocker/pull/1063) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.117 to 0.0.118 [#1057](https://github.com/cliqz-oss/adblocker/pull/1057) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.116 to 0.0.117 [#1021](https://github.com/cliqz-oss/adblocker/pull/1021) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.115 to 0.0.116 [#1009](https://github.com/cliqz-oss/adblocker/pull/1009) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @remusao/smaz-generate from 1.8.0 to 1.9.0 [#997](https://github.com/cliqz-oss/adblocker/pull/997) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.114 to 0.0.115 [#995](https://github.com/cliqz-oss/adblocker/pull/995) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.118 to 0.0.119 [#1063](https://github.com/ghostery/adblocker/pull/1063) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.117 to 0.0.118 [#1057](https://github.com/ghostery/adblocker/pull/1057) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.116 to 0.0.117 [#1021](https://github.com/ghostery/adblocker/pull/1021) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.115 to 0.0.116 [#1009](https://github.com/ghostery/adblocker/pull/1009) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @remusao/smaz-generate from 1.8.0 to 1.9.0 [#997](https://github.com/ghostery/adblocker/pull/997) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.114 to 0.0.115 [#995](https://github.com/ghostery/adblocker/pull/995) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -813,7 +885,7 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps-dev): bump @rollup/plugin-commonjs from 12.0.0 to 13.0.0 [#977](https://github.com/cliqz-oss/adblocker/pull/977) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-commonjs from 12.0.0 to 13.0.0 [#977](https://github.com/ghostery/adblocker/pull/977) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -837,16 +909,16 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.113 to 0.0.114 [#909](https://github.com/cliqz-oss/adblocker/pull/909) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-node-resolve from 7.1.3 to 8.0.0 [#907](https://github.com/cliqz-oss/adblocker/pull/907) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps-dev): bump @rollup/plugin-commonjs from 11.1.0 to 12.0.0 [#906](https://github.com/cliqz-oss/adblocker/pull/906) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/puppeteer from 2.1.0 to 3.0.0 [#899](https://github.com/cliqz-oss/adblocker/pull/899) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.112 to 0.0.113 [#898](https://github.com/cliqz-oss/adblocker/pull/898) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.111 to 0.0.112 [#881](https://github.com/cliqz-oss/adblocker/pull/881) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.110 to 0.0.111 [#877](https://github.com/cliqz-oss/adblocker/pull/877) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.109 to 0.0.110 [#875](https://github.com/cliqz-oss/adblocker/pull/875) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.108 to 0.0.109 [#873](https://github.com/cliqz-oss/adblocker/pull/873) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.107 to 0.0.108 [#865](https://github.com/cliqz-oss/adblocker/pull/865) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.113 to 0.0.114 [#909](https://github.com/ghostery/adblocker/pull/909) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-node-resolve from 7.1.3 to 8.0.0 [#907](https://github.com/ghostery/adblocker/pull/907) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump @rollup/plugin-commonjs from 11.1.0 to 12.0.0 [#906](https://github.com/ghostery/adblocker/pull/906) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/puppeteer from 2.1.0 to 3.0.0 [#899](https://github.com/ghostery/adblocker/pull/899) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.112 to 0.0.113 [#898](https://github.com/ghostery/adblocker/pull/898) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.111 to 0.0.112 [#881](https://github.com/ghostery/adblocker/pull/881) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.110 to 0.0.111 [#877](https://github.com/ghostery/adblocker/pull/877) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.109 to 0.0.110 [#875](https://github.com/ghostery/adblocker/pull/875) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.108 to 0.0.109 [#873](https://github.com/ghostery/adblocker/pull/873) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.107 to 0.0.108 [#865](https://github.com/ghostery/adblocker/pull/865) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -862,7 +934,7 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.106 to 0.0.107 [#843](https://github.com/cliqz-oss/adblocker/pull/843) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.106 to 0.0.107 [#843](https://github.com/ghostery/adblocker/pull/843) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -879,8 +951,8 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps-dev): bump rollup-plugin-sourcemaps from 0.5.0 to 0.6.1 [#830](https://github.com/cliqz-oss/adblocker/pull/830) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
-- build(deps): bump @types/chrome from 0.0.104 to 0.0.106 [#813](https://github.com/cliqz-oss/adblocker/pull/813) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps-dev): bump rollup-plugin-sourcemaps from 0.5.0 to 0.6.1 [#830](https://github.com/ghostery/adblocker/pull/830) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.104 to 0.0.106 [#813](https://github.com/ghostery/adblocker/pull/813) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -896,7 +968,7 @@ Miscellaneous changes:
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.103 to 0.0.104 [#751](https://github.com/cliqz-oss/adblocker/pull/751) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.103 to 0.0.104 [#751](https://github.com/ghostery/adblocker/pull/751) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -924,7 +996,7 @@ _From #738_
 
 #### :rocket: New Feature
 
-- Various improvements [#738](https://github.com/cliqz-oss/adblocker/pull/738) ([@remusao](https://github.com/remusao))
+- Various improvements [#738](https://github.com/ghostery/adblocker/pull/738) ([@remusao](https://github.com/remusao))
 
 #### Authors: 1
 
@@ -936,7 +1008,7 @@ _From #738_
 
 #### :memo: Documentation
 
-- Fix line break in CHANGELOG.md [#691](https://github.com/cliqz-oss/adblocker/pull/691) ([@remusao](https://github.com/remusao))
+- Fix line break in CHANGELOG.md [#691](https://github.com/ghostery/adblocker/pull/691) ([@remusao](https://github.com/remusao))
 
 #### Authors: 1
 
@@ -956,7 +1028,7 @@ PuppeteerBlocker is now more powerful and will be able to better block ads on mo
 
 #### :rocket: New Feature
 
-- Fix PuppeteerBlocker and enable blocking of frames and DOM monitoring. [#690](https://github.com/cliqz-oss/adblocker/pull/690) ([@remusao](https://github.com/remusao))
+- Fix PuppeteerBlocker and enable blocking of frames and DOM monitoring. [#690](https://github.com/ghostery/adblocker/pull/690) ([@remusao](https://github.com/remusao))
 
 #### Authors: 1
 
@@ -968,11 +1040,11 @@ PuppeteerBlocker is now more powerful and will be able to better block ads on mo
 
 #### :house: Internal
 
-- Update README.md [#670](https://github.com/cliqz-oss/adblocker/pull/670) ([@remusao](https://github.com/remusao))
+- Update README.md [#670](https://github.com/ghostery/adblocker/pull/670) ([@remusao](https://github.com/remusao))
 
 #### :nut_and_bolt: Dependencies
 
-- build(deps): bump @types/chrome from 0.0.102 to 0.0.103 [#671](https://github.com/cliqz-oss/adblocker/pull/671) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+- build(deps): bump @types/chrome from 0.0.102 to 0.0.103 [#671](https://github.com/ghostery/adblocker/pull/671) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 2
 
@@ -985,7 +1057,7 @@ PuppeteerBlocker is now more powerful and will be able to better block ads on mo
 
 #### :bug: Bug Fix
 
-- Abstract DOM monitoring away and fix #573 [#657](https://github.com/cliqz-oss/adblocker/pull/657) ([@remusao](https://github.com/remusao))
+- Abstract DOM monitoring away and fix #573 [#657](https://github.com/ghostery/adblocker/pull/657) ([@remusao](https://github.com/remusao))
 
 #### Authors: 1
 
@@ -997,12 +1069,12 @@ PuppeteerBlocker is now more powerful and will be able to better block ads on mo
 
 #### :nut_and_bolt: Dependencies
 
--  [#653](https://github.com/cliqz-oss/adblocker/pull/653) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
--  [#629](https://github.com/cliqz-oss/adblocker/pull/629) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
--  [#617](https://github.com/cliqz-oss/adblocker/pull/617) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
--  [#586](https://github.com/cliqz-oss/adblocker/pull/586) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
--  [#577](https://github.com/cliqz-oss/adblocker/pull/577) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
--  [#552](https://github.com/cliqz-oss/adblocker/pull/552) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+-  [#653](https://github.com/ghostery/adblocker/pull/653) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+-  [#629](https://github.com/ghostery/adblocker/pull/629) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+-  [#617](https://github.com/ghostery/adblocker/pull/617) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+-  [#586](https://github.com/ghostery/adblocker/pull/586) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+-  [#577](https://github.com/ghostery/adblocker/pull/577) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
+-  [#552](https://github.com/ghostery/adblocker/pull/552) ([@dependabot-preview[bot]](https://github.com/dependabot-preview[bot]))
 
 #### Authors: 1
 
@@ -1050,7 +1122,7 @@ Signed-off-by: dependabot-preview[bot] <support@dependabot.com>  ([@dependabot-p
 
 #### :bug: Bug Fix
 
-- Fix implicit tslib dependency [#494](https://github.com/cliqz-oss/adblocker/pull/494) ([@remusao](https://github.com/remusao))
+- Fix implicit tslib dependency [#494](https://github.com/ghostery/adblocker/pull/494) ([@remusao](https://github.com/remusao))
 
 #### Authors: 1
 

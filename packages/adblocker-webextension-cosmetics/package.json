@@ -1,14 +1,20 @@
 {
   "name": "@cliqz/adblocker-webextension-cosmetics",
-  "version": "1.27.2",
+  "version": "1.27.10",
   "description": "Enable cosmetics in WebExtension content blocker using Cliqz adblocker",
   "author": {
     "name": "Cliqz"
   },
-  "homepage": "https://github.com/cliqz-oss/adblocker#readme",
+  "homepage": "https://github.com/ghostery/adblocker#readme",
   "license": "MPL-2.0",
-  "main": "dist/cjs/adblocker.js",
-  "module": "dist/es6/adblocker.js",
+  "type": "module",
+  "exports": {
+    "require": "./dist/cjs/adblocker.cjs",
+    "import": "./dist/esm/adblocker.js",
+    "types": "./dist/types/adblocker.d.ts"
+  },
+  "main": "dist/cjs/adblocker.cjs",
+  "module": "dist/esm/adblocker.js",
   "types": "dist/types/adblocker.d.ts",
   "files": [
     "LICENSE",
@@ -19,19 +25,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/cliqz-oss/adblocker.git",
+    "url": "git+ssh://git@github.com/ghostery/adblocker.git",
     "directory": "packages/adblocker-webextension-cosmetics"
   },
   "scripts": {
     "clean": "rimraf dist coverage",
     "lint": "eslint adblocker.ts",
-    "build": "tsc --build ./tsconfig.json",
-    "bundle": "tsc --build ./tsconfig.bundle.json && rollup --config ./rollup.config.ts --configPlugin typescript",
-    "prepack": "yarn run bundle",
-    "test": "nyc mocha --config ../../.mocharc.js"
+    "build": "tsc --build ./tsconfig.json && rollup --config ./rollup.config.ts --configPlugin typescript",
+    "test": "nyc mocha --config ../../.mocharc.json"
   },
   "bugs": {
-    "url": "https://github.com/cliqz-oss/adblocker/issues"
+    "url": "https://github.com/ghostery/adblocker/issues"
   },
   "contributors": [
     {
@@ -68,30 +72,27 @@
     }
   ],
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.3",
     "@types/chai": "^4.3.6",
-    "@types/chrome": "^0.0.266",
+    "@types/chrome": "^0.0.268",
     "@types/jsdom": "^21.1.3",
     "@types/mocha": "^10.0.1",
+    "@types/node": "^20.12.12",
     "@types/sinon": "^17.0.2",
-    "@types/sinon-chai": "^3.2.9",
-    "chai": "^4.3.8",
-    "eslint": "^8.49.0",
+    "chai": "^5.1.0",
+    "eslint": "^9.3.0",
     "jsdom": "^24.0.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "rimraf": "^5.0.1",
     "rollup": "^4.0.2",
-    "rollup-plugin-sourcemaps": "^0.6.3",
-    "rollup-plugin-terser": "^7.0.2",
-    "sinon": "^17.0.0",
-    "sinon-chai": "^3.7.0",
+    "sinon": "^18.0.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@cliqz/adblocker-content": "^1.27.2",
-    "@cliqz/adblocker-extended-selectors": "^1.27.2"
+    "@cliqz/adblocker-content": "^1.27.10",
+    "@cliqz/adblocker-extended-selectors": "^1.27.10"
   }
 }
