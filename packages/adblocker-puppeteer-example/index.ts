@@ -1,5 +1,6 @@
 import { fullLists, PuppeteerBlocker, Request } from '@cliqz/adblocker-puppeteer';
 import fetch from 'cross-fetch';
+import fs from 'fs/promises';
 import * as puppeteer from 'puppeteer';
 
 function getUrlToLoad(): string {
