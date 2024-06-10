@@ -1011,12 +1011,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       );
     }
 
-    for (const filter of filters) {
-      this.emit('filter-matched', filter, {
-        request,
+    if (this.hasListeners()) {
+      for (const filter of filters) {
+        this.emit('filter-matched', filter, {
+          request,
 
-        matchType: FilterType.NETWORK,
-      });
+          matchType: FilterType.NETWORK,
+        });
+      }
     }
 
     return new Set(filters);
@@ -1051,7 +1053,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
         matchType: FilterType.NETWORK,
       });
-
       if (filter.isException()) {
         if (filter.csp === undefined) {
           // All CSP directives are disabled for this site
@@ -1150,11 +1151,13 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         // If we found either a redirection rule or a normal match, then check
         // for exceptions which could apply on the request and un-block it.
         if (result.filter !== undefined) {
+          // Emit if a filter matched
           this.emit('filter-matched', result.filter, context);
 
           result.exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
         }
       } else {
+        // Emit if an important flagged filter matched
         this.emit('filter-matched', result.filter, context);
       }
 
@@ -1178,17 +1181,20 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     result.match = result.exception === undefined && result.filter !== undefined;
 
-    // Emit events if we found a match
-    if (result.exception !== undefined) {
-      this.emit('filter-matched', result.exception, context);
+    if (this.hasListeners()) {
+      // Emit events if we found a match
+      if (result.exception !== undefined) {
+        // Emit if an exception matched
+        this.emit('filter-matched', result.exception, context);
 
-      this.emit('request-whitelisted', request, result);
-    } else if (result.redirect !== undefined) {
-      this.emit('request-redirected', request, result);
-    } else if (result.filter !== undefined) {
-      this.emit('request-blocked', request, result);
-    } else {
-      this.emit('request-allowed', request, result);
+        this.emit('request-whitelisted', request, result);
+      } else if (result.redirect !== undefined) {
+        this.emit('request-redirected', request, result);
+      } else if (result.filter !== undefined) {
+        this.emit('request-blocked', request, result);
+      } else {
+        this.emit('request-allowed', request, result);
+      }
     }
 
     if (withMetadata === true && result.filter !== undefined && this.metadata) {
