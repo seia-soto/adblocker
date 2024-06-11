@@ -370,22 +370,39 @@ export default class CosmeticFilterBucket {
 
     const exceptions: Map<CosmeticFilter, CosmeticFilter> = new Map();
 
+    if (rules.length === 0) {
+      return {
+        rules: [],
+        matches: rules,
+        exceptions,
+      };
+    }
+
     // If we found at least one candidate, check if we have unhidden rules.
     const disabledRules: Map<string, CosmeticFilter> = new Map();
-    if (rules.length !== 0) {
-      this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
-        if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
-          disabledRules.set(rule.getSelector(), rule);
-        }
+    this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
+      if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
+        disabledRules.set(rule.getSelector(), rule);
+      }
 
-        return true;
-      });
+      return true;
+    });
+
+    if (disabledRules.size === 0) {
+      return {
+        rules,
+        matches: rules,
+        exceptions,
+      };
     }
 
     const modifications: CosmeticFilter[] = [];
+    let exception: CosmeticFilter | undefined;
     for (const rule of rules) {
-      if (disabledRules.size !== 0 && disabledRules.has(rule.getSelector())) {
-        exceptions.set(rule, disabledRules.get(rule.getSelector())!);
+      exception = disabledRules.get(rule.getSelector());
+
+      if (exception !== undefined) {
+        exceptions.set(rule, exception);
       } else {
         modifications.push(rule);
       }
