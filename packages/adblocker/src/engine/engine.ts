@@ -697,9 +697,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
               .concat(networkFilters.map((filter) => filter.getId())),
           );
 
-          Array.prototype.push.apply(removedCosmeticFilters, cosmeticFilters);
-          Array.prototype.push.apply(removedNetworkFilters, networkFilters);
-
           removedPreprocessors.push(
             new Preprocessor({
               condition,
@@ -718,9 +715,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
               .concat(cosmeticFilters.map((filter) => filter.getId()))
               .concat(networkFilters.map((filter) => filter.getId())),
           );
-
-          Array.prototype.push.apply(newCosmeticFilters, cosmeticFilters);
-          Array.prototype.push.apply(newNetworkFilters, networkFilters);
 
           newPreprocessors.push(
             new Preprocessor({
