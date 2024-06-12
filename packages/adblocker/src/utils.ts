@@ -411,3 +411,54 @@ const hasUnicodeRe = /[^\u0000-\u00ff]/;
 export function hasUnicode(str: string): boolean {
   return hasUnicodeRe.test(str);
 }
+
+export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
+  let lastIndex = text.lastIndexOf(character);
+
+  if (lastIndex === -1) {
+    return -1;
+  }
+
+  while (lastIndex > 0 && text.charCodeAt(lastIndex - 1) === 92 /* '\\' */) {
+    lastIndex = text.lastIndexOf(character, lastIndex - 1);
+  }
+
+  return lastIndex;
+}
+
+export function findIndexOfUnescapedCharacter(
+  text: string,
+  character: string,
+  position: number = 0,
+) {
+  const end = text.length;
+  let nextIndex = text.indexOf(character, position);
+
+  if (nextIndex === -1) {
+    return -1;
+  }
+
+  while (nextIndex < end && text.charCodeAt(nextIndex - 1) === 92 /* '\\' */) {
+    nextIndex = text.indexOf(character, nextIndex + 1);
+  }
+
+  return nextIndex;
+}
+
+export function splitUnescaped(text: string, character: string) {
+  const parts: string[] = [];
+
+  let lastOccurrence = 0;
+  let nextOccurrence = 0;
+
+  while (
+    (nextOccurrence = findIndexOfUnescapedCharacter(text, character, lastOccurrence)) !== -1
+  ) {
+    parts.push(text.slice(lastOccurrence, nextOccurrence));
+    lastOccurrence = nextOccurrence + 1;
+  }
+
+  parts.push(text.slice(lastOccurrence));
+
+  return parts;
+}

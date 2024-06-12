@@ -10,11 +10,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import CosmeticFilter, { DEFAULT_HIDDING_STYLE } from '../src/filters/cosmetic';
-import NetworkFilter, {
-  findIndexOfUnescapedCharacter,
-  findLastIndexOfUnescapedCharacter,
-  splitUnescaped,
-} from '../src/filters/network';
+import NetworkFilter from '../src/filters/network';
 import { parseFilters } from '../src/lists';
 import { hashStrings, tokenize } from '../src/utils';
 import { HTMLSelector } from '../src/html-filtering';
@@ -2461,20 +2457,6 @@ describe('scriptlets arguments parsing', () => {
   });
 
   it('parses replace modifier', () => {
-    it('respects escaped characters', () => {
-      const line = String.raw`||www.youtube.com/playlist?list=$xhr,1p,replace=/("trackingParam":"kx_fmPxhoPZR)[-_0-9A-Za-z]{150}[-_0-9A-Za-z]+?([-_0-9A-Za-z]{55}lLKPQ-SS"\})/\$1\$2/`;
-
-      expect(findLastIndexOfUnescapedCharacter(line, '$')).to.be.eql(32);
-      expect(findIndexOfUnescapedCharacter(line, '$')).to.be.eql(32);
-      expect(splitUnescaped(line, '$').length).to.be.eql(2);
-
-      expect(splitUnescaped('aa', '$')).to.be.deep.equal(['aa']);
-      expect(splitUnescaped('aa$', '$')).to.be.deep.equal(['aa', '']);
-      expect(splitUnescaped('aa\\$$', '$')).to.be.deep.equal(['aa\\$', '']);
-      expect(splitUnescaped('$\\$aa', '$')).to.be.deep.equal(['', '\\$aa']);
-      expect(splitUnescaped('aa$aa\\$', '$')).to.be.deep.equal(['aa', 'aa\\$']);
-    });
-
     const filters = String.raw`||alliptvlinks.com/tktk-content/plugins/$script,1p,replace=/\bconst now.+?, 100/clearInterval(timer);resolve();}, 100/gms
 /theme/002/js/application.js?2.0|$script,1p,replace=/video\.maxPop/0/
 ||s3media.247sports.com/Scripts/Bundle/*/videoPlayer.js^$script,1p,replace=/;if\(!\([a-z]+\|\|\(null===[^{]+/;if(false)/

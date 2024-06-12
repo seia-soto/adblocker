@@ -396,6 +396,11 @@ function compileRegex(
   return new RegExp(filter);
 }
 
+/**
+ * Finds the last index of an unescaped character in the given string.
+ * This function tries to find the match from the backward.
+ * When this function sees an escaping character, it will jump to the next index.
+ */
 export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
   let lastIndex = text.lastIndexOf(character);
 
@@ -410,6 +415,11 @@ export function findLastIndexOfUnescapedCharacter(text: string, character: strin
   return lastIndex;
 }
 
+/**
+ * Finds the first index of an unescaped character in the given string.
+ * This function tries to find the match from the forward.
+ * When this function sees an escaping character before the match, it will jump to the next index.
+ */
 export function findIndexOfUnescapedCharacter(
   text: string,
   character: string,
@@ -429,6 +439,12 @@ export function findIndexOfUnescapedCharacter(
   return nextIndex;
 }
 
+/**
+ * Splits the given string while respecting the escaping character.
+ * This function leverages `findIndexOfUnescapedCharacter` and `findLastIndexOfUnescapedCharacter`
+ * to find the split indexes efficiently.
+ * The expected behavior of this function should be matched with `String.prototype.split`.
+ */
 export function splitUnescaped(text: string, character: string) {
   const parts: string[] = [];
 
@@ -447,18 +463,154 @@ export function splitUnescaped(text: string, character: string) {
   return parts;
 }
 
+/**
+ * Collects a filter option key until the function sees the special character.
+ * This function will stop iterating over the given string if it sees equal sign or comma sign.
+ * If there's an equal sign, it means that we'll see the value.
+ * Otherwise, if there's a comma sign, it means that the option doesn't have any values.
+ * Note that this function doesn't respect the escaping sign.
+ */
+function getFilterOptionKey(line: string, pos: number, end: number) {
+  const start = pos;
+
+  let code: number;
+
+  for (; pos < end; pos++) {
+    code = line.charCodeAt(pos);
+
+    if (code === 61 /* '=' */ || code === 44 /* ',' */) {
+      break;
+    }
+  }
+
+  return [pos, line.slice(start, pos)] as const;
+}
+
+/**
+ * Collects a filter option value until the function sees the special character.
+ * This function respects the escaping characters, so we can safely collect the full value
+ * including the special characters which are not allowed normally.
+ * This function will stop if it sees a comma sign.
+ */
+function getFilterOptionValue(line: string, pos: number, end: number): [number, string] {
+  let code: number;
+  let value = '';
+
+  for (; pos < end; pos++) {
+    code = line.charCodeAt(pos);
+
+    if (code === 92 /* '\\' */) {
+      value += line.charAt(pos + 1);
+
+      pos++;
+    } else if (code === 44 /* ',' */) {
+      break;
+    } else {
+      value += line.charAt(pos);
+    }
+  }
+
+  return [pos, value];
+}
+
+/**
+ * Collects a filter option value of the replace modifier.
+ * This function respects the escaping character with the allowed characters of the replace modifier.
+ * In the replace modifier, it can include the any sign allowed in the regular expression.
+ * Therefore, a comma sign can interfere the `getFilterOptionValue` function.
+ * This function will not stop unless it collects the all of parts of the replace modifier option value.
+ */
+function getFilterReplaceOptionValue(line: string, pos: number, end: number): [number, string[]] {
+  const parts = ['', '', '', '', ''];
+
+  let code: number;
+  let slashCounts = 0;
+
+  for (; pos < end; pos++) {
+    code = line.charCodeAt(pos);
+
+    if (code === 92 /* '\\' */) {
+      code = line.charCodeAt(++pos);
+
+      parts[slashCounts] += '\\' + line.charAt(pos);
+    } else if (code === 47 /* '/' */) {
+      if (++slashCounts === 4) {
+        pos++; // Next should be comma
+
+        break;
+      }
+    } else {
+      parts[slashCounts] += line.charAt(pos);
+    }
+  }
+
+  const valueEnd = findIndexOfUnescapedCharacter(line, ',', pos);
+
+  if (end === -1) {
+    parts[slashCounts] = line.slice(pos, end);
+  } else {
+    parts[slashCounts] = line.slice(pos, valueEnd);
+  }
+
+  return [pos, parts];
+}
+
+/**
+ * Collects an array of filter options from the given index.
+ * This function leverages `getFilterOptionKey`, `getFilterOptionValue`, and every extension functions.
+ * Depending on the filter option key, the function to collect filter option value can vary.
+ * For the generic filter option value, it'll use `getFilterOptionValue` function to get the value.
+ */
+function getFilterOptions(line: string, pos: number, end: number) {
+  const options: Array<[string, string]> = [];
+
+  let key: string | undefined;
+  let value: string;
+
+  for (; pos < end; pos++) {
+    [pos, key] = getFilterOptionKey(line, pos, end);
+
+    if (key !== undefined) {
+      if (line.charCodeAt(pos) === 61 /* '=' */) {
+        pos++;
+      }
+
+      if (key === 'replace') {
+        const result = getFilterReplaceOptionValue(line, pos, end);
+
+        pos = result[0];
+        value = result[1].join('/');
+      } else {
+        [pos, value] = getFilterOptionValue(line, pos, end);
+      }
+
+      options.push([key, value]);
+    }
+  }
+
+  return options;
+}
+
+/**
+ * Transforms the replace modifier option value into the regular expression with its replacement.
+ * This function takes a fixed length array from `getFilterReplaceOptionValue`
+ * then try to build the regular expression.
+ * This function will return `null` if the array format or the given regular expression components are not valid.
+ */
 export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
-  const components = splitUnescaped(value, '/');
+  const [, values] = getFilterReplaceOptionValue(value, 0, value.length);
 
-  if (components.length !== 4) {
+  // We expect `/regexp/replacement/flags/` to be [*empty, regexp, replacement, flags, *empty]
+  if (values.length !== 5 || values[0].length + values[4].length !== 0) {
     return null;
   }
 
-  if (components[1].length === 0) {
+  // RegExp constructor can throw an error
+  try {
+    return [new RegExp(values[1], values[3]), values[2]];
+  } catch (error) {
     return null;
   }
-
-  return [new RegExp(components[2], components[4]), components[3]];
 }
 
 const MATCH_ALL = new RegExp('');
@@ -505,17 +657,10 @@ export default class NetworkFilter implements IFilter {
       // --------------------------------------------------------------------- //
       // parseOptions
       // --------------------------------------------------------------------- //
-      for (const rawOption of line.slice(optionsIndex + 1).split(',')) {
-        const negation = rawOption.charCodeAt(0) === 126; /* '~' */
-        let option = negation === true ? rawOption.slice(1) : rawOption;
-
-        // Check for options: option=value1|value2
-        let value: string = '';
-        const indexOfEqual: number = option.indexOf('=');
-        if (indexOfEqual !== -1) {
-          value = option.slice(indexOfEqual + 1);
-          option = option.slice(0, indexOfEqual);
-        }
+      for (const rawOption of getFilterOptions(line, optionsIndex + 1, line.length)) {
+        const negation = rawOption[0].charCodeAt(0) === 126; /* '~' */
+        const option = negation === true ? rawOption[0].slice(1) : rawOption[0];
+        const value = rawOption[1];
 
         switch (option) {
           case 'denyallow': {
