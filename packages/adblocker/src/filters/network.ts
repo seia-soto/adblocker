@@ -471,9 +471,8 @@ export function splitUnescaped(text: string, character: string) {
  * Note that this function doesn't respect the escaping sign.
  */
 function getFilterOptionKey(line: string, pos: number, end: number) {
-  const start = pos;
-
   let code: number;
+  let value = '';
 
   for (; pos < end; pos++) {
     code = line.charCodeAt(pos);
@@ -481,9 +480,11 @@ function getFilterOptionKey(line: string, pos: number, end: number) {
     if (code === 61 /* '=' */ || code === 44 /* ',' */) {
       break;
     }
+
+    value += line.charAt(pos);
   }
 
-  return [pos, line.slice(start, pos)] as const;
+  return [pos, value] as const;
 }
 
 /**
@@ -523,7 +524,12 @@ export function getFilterReplaceOptionValue(
   pos: number,
   end: number,
 ): [number, string[]] {
-  const parts = ['', '', '', ''];
+  // Try to fast exit if the first character is an unexpected character.
+  if (line.charCodeAt(pos) !== 47 /* '/ */) {
+    return [-1, []];
+  }
+
+  const parts = ['', '', ''];
 
   let code: number;
   let slashes = 0;
@@ -534,9 +540,10 @@ export function getFilterReplaceOptionValue(
     if (code === 92 /* '\\' */) {
       parts[slashes] += '\\' + line.charAt(++pos);
     } else if (code === 47 /* '/' */) {
-      if (++slashes === 3) {
+      if (++slashes === 2) {
         // Skip the last slash character
         // Since we saw 3 slashes in total, it means that the option value should be closed here.
+        // Note that we already saw the first slash before the loop.
         pos++;
 
         break;
@@ -553,7 +560,7 @@ export function getFilterReplaceOptionValue(
   }
 
   if (pos - end !== 0) {
-    parts[3] = line.slice(pos, end);
+    parts[2] = line.slice(pos, end);
   }
 
   pos = end;
@@ -606,8 +613,9 @@ function getFilterOptions(line: string, pos: number, end: number) {
 export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
   const [, values] = getFilterReplaceOptionValue(value, 0, value.length);
 
-  // We expect `/regexp/replacement/flags` to be [*empty, regexp, replacement, flags]
-  if (values.length !== 4 || values[0].length !== 0) {
+  // We expect `/regexp/replacement/flags` to be [regexp, replacement, flags]
+  // The first entry should be removed in the early steps
+  if (values.length !== 3) {
     return null;
   }
 
