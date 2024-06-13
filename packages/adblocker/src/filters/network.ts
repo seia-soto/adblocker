@@ -613,14 +613,10 @@ function getFilterOptions(line: string, pos: number, end: number) {
 export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
   const [, values] = getFilterReplaceOptionValue(value, 0, value.length);
 
-  // We expect `/regexp/replacement/flags` to be [regexp, replacement, flags]
-  // The first entry should be removed in the early steps
-  if (values.length !== 3) {
-    return null;
-  }
-
   // RegExp constructor can throw an error
   try {
+    // We expect `/regexp/replacement/flags` to be [regexp, replacement, flags]
+    // The first slash should be removed in the early steps
     return [new RegExp(values[1], values[3]), values[2]];
   } catch (error) {
     return null;
