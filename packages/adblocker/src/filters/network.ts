@@ -525,7 +525,7 @@ export function getFilterReplaceOptionValue(
   end: number,
 ): [number, string[]] {
   // Try to fast exit if the first character is an unexpected character.
-  if (line.charCodeAt(pos) !== 47 /* '/ */) {
+  if (line.charCodeAt(pos++) !== 47 /* '/' */) {
     return [end, []];
   }
 
@@ -594,7 +594,7 @@ function getFilterOptions(line: string, pos: number, end: number) {
         pos = result[0];
 
         if (result[1].length !== 0) {
-          value = '/' + result[1][1] + '/' + result[1][2] + '/' + result[1][3];
+          value = '/' + result[1][0] + '/' + result[1][1] + '/' + result[1][2];
         } else {
           value = '';
         }
@@ -622,7 +622,7 @@ export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
   try {
     // We expect `/regexp/replacement/flags` to be [regexp, replacement, flags]
     // The first slash should be removed in the early steps
-    return [new RegExp(values[1], values[3]), values[2]];
+    return [new RegExp(values[0], values[2]), values[1]];
   } catch (error) {
     return null;
   }

@@ -962,7 +962,7 @@ describe('Network filters', () => {
       network('@@||foo.com^$generichide,specifichide', { isElemHide: true, isException: true });
     });
 
-    describe.only('replace', () => {
+    describe('replace', () => {
       it('parses known filters', () => {
         const filters = String.raw`||alliptvlinks.com/tktk-content/plugins/$script,1p,replace=/\bconst now.+?, 100/clearInterval(timer);resolve();}, 100/gms
     /theme/002/js/application.js?2.0|$script,1p,replace=/video\.maxPop/0/
