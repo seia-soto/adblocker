@@ -526,7 +526,7 @@ export function getFilterReplaceOptionValue(
 ): [number, string[]] {
   // Try to fast exit if the first character is an unexpected character.
   if (line.charCodeAt(pos) !== 47 /* '/ */) {
-    return [-1, []];
+    return [end, []];
   }
 
   const parts = ['', '', ''];
@@ -592,7 +592,12 @@ function getFilterOptions(line: string, pos: number, end: number) {
         const result = getFilterReplaceOptionValue(line, pos, end);
 
         pos = result[0];
-        value = '/' + result[1][1] + '/' + result[1][2] + '/' + result[1][3];
+
+        if (result[1].length !== 0) {
+          value = '/' + result[1][1] + '/' + result[1][2] + '/' + result[1][3];
+        } else {
+          value = '';
+        }
       } else {
         [pos, value] = getFilterOptionValue(line, pos, end);
       }
