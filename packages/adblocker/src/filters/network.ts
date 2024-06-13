@@ -500,13 +500,13 @@ function getFilterOptionValue(line: string, pos: number, end: number): [number, 
     code = line.charCodeAt(pos);
 
     if (code === 92 /* '\\' */) {
-      value += line.charAt(pos + 1);
+      value += line[pos + 1];
 
       pos++;
     } else if (code === 44 /* ',' */) {
       break;
     } else {
-      value += line.charAt(pos);
+      value += line[pos];
     }
   }
 
@@ -520,11 +520,15 @@ function getFilterOptionValue(line: string, pos: number, end: number): [number, 
  * Therefore, a comma sign can interfere the `getFilterOptionValue` function.
  * This function will not stop unless it collects the all of parts of the replace modifier option value.
  */
-function getFilterReplaceOptionValue(line: string, pos: number, end: number): [number, string[]] {
-  const parts = ['', '', '', '', ''];
+export function getFilterReplaceOptionValue(
+  line: string,
+  pos: number,
+  end: number,
+): [number, string[]] {
+  const parts = ['', '', '', ''];
 
   let code: number;
-  let slashCounts = 0;
+  let slashes = 0;
 
   for (; pos < end; pos++) {
     code = line.charCodeAt(pos);
@@ -532,24 +536,28 @@ function getFilterReplaceOptionValue(line: string, pos: number, end: number): [n
     if (code === 92 /* '\\' */) {
       code = line.charCodeAt(++pos);
 
-      parts[slashCounts] += '\\' + line.charAt(pos);
+      parts[slashes] += '\\' + line[pos];
     } else if (code === 47 /* '/' */) {
-      if (++slashCounts === 4) {
-        pos++; // Next should be comma
+      if (++slashes === 3) {
+        // Skip the last slash character
+        // Since we saw 3 slashes in total, it means that the option value should be closed here.
+        pos++;
 
         break;
       }
     } else {
-      parts[slashCounts] += line.charAt(pos);
+      parts[slashes] += line.charAt(pos);
     }
   }
 
   const valueEnd = findIndexOfUnescapedCharacter(line, ',', pos);
 
-  if (end === -1) {
-    parts[slashCounts] = line.slice(pos, end);
+  if (valueEnd === -1) {
+    parts[slashes] = line.slice(pos, end);
+    pos = end;
   } else {
-    parts[slashCounts] = line.slice(pos, valueEnd);
+    parts[slashes] = line.slice(pos, valueEnd);
+    pos = valueEnd;
   }
 
   return [pos, parts];
@@ -600,8 +608,8 @@ function getFilterOptions(line: string, pos: number, end: number) {
 export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
   const [, values] = getFilterReplaceOptionValue(value, 0, value.length);
 
-  // We expect `/regexp/replacement/flags/` to be [*empty, regexp, replacement, flags, *empty]
-  if (values.length !== 5 || values[0].length + values[4].length !== 0) {
+  // We expect `/regexp/replacement/flags` to be [*empty, regexp, replacement, flags]
+  if (values.length !== 4 || values[0].length) {
     return null;
   }
 
