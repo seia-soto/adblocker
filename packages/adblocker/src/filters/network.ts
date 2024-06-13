@@ -500,13 +500,11 @@ function getFilterOptionValue(line: string, pos: number, end: number): [number, 
     code = line.charCodeAt(pos);
 
     if (code === 92 /* '\\' */) {
-      value += line[pos + 1];
-
-      pos++;
+      value += line.charAt(++pos);
     } else if (code === 44 /* ',' */) {
       break;
     } else {
-      value += line[pos];
+      value += line.charAt(pos);
     }
   }
 
@@ -534,9 +532,7 @@ export function getFilterReplaceOptionValue(
     code = line.charCodeAt(pos);
 
     if (code === 92 /* '\\' */) {
-      code = line.charCodeAt(++pos);
-
-      parts[slashes] += '\\' + line[pos];
+      parts[slashes] += '\\' + line.charAt(++pos);
     } else if (code === 47 /* '/' */) {
       if (++slashes === 3) {
         // Skip the last slash character
@@ -550,15 +546,17 @@ export function getFilterReplaceOptionValue(
     }
   }
 
-  const valueEnd = findIndexOfUnescapedCharacter(line, ',', pos);
+  const valueEnd = line.indexOf(',', pos);
 
-  if (valueEnd === -1) {
-    parts[slashes] = line.slice(pos, end);
-    pos = end;
-  } else {
-    parts[slashes] = line.slice(pos, valueEnd);
-    pos = valueEnd;
+  if (valueEnd !== -1) {
+    end = valueEnd;
   }
+
+  if (pos - end !== 0) {
+    parts[3] = line.slice(pos, end);
+  }
+
+  pos = end;
 
   return [pos, parts];
 }
@@ -587,7 +585,7 @@ function getFilterOptions(line: string, pos: number, end: number) {
         const result = getFilterReplaceOptionValue(line, pos, end);
 
         pos = result[0];
-        value = result[1].join('/');
+        value = '/' + result[1][1] + '/' + result[1][2] + '/' + result[1][3];
       } else {
         [pos, value] = getFilterOptionValue(line, pos, end);
       }
@@ -609,7 +607,7 @@ export function replaceOptionValueToRegexp(value: string): HTMLModifier | null {
   const [, values] = getFilterReplaceOptionValue(value, 0, value.length);
 
   // We expect `/regexp/replacement/flags` to be [*empty, regexp, replacement, flags]
-  if (values.length !== 4 || values[0].length) {
+  if (values.length !== 4 || values[0].length !== 0) {
     return null;
   }
 
