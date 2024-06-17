@@ -108,20 +108,7 @@ type CosmeticFilterMatchingContextBase = {
 };
 
 export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
-  Partial<{
-    classes: string[] | undefined;
-    hrefs: string[] | undefined;
-    ids: string[] | undefined;
-
-    allowGenericHides: boolean;
-    allowSpecificHides: boolean;
-
-    getBaseRules: boolean;
-    getInjectionRules: boolean;
-    getExtendedRules: boolean;
-    getRulesFromDOM: boolean;
-    getRulesFromHostname: boolean;
-  }>;
+  Partial<Omit<Parameters<FilterEngine['getCosmeticsFilters']>, 'userContext'>>;
 
 export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
 
@@ -142,12 +129,11 @@ export type EngineEventHandlers = {
   'script-injected': CosmeticInjectionEvent;
   'style-injected': CosmeticInjectionEvent;
 
-  // The below event kinds describe the internal process that was blackboxed before.
-  // In favor of backward-compatibility and the notification of the final action, above event kinds will be kept.
-  // We would match all *supported* filter by the engine.
-  // The result of *matched* filter can be differed by the end-user capability.
-  // However, we should rely on the given capability information and try to be accurate on our end as well.
-  // The unsupported filter won't be fired via the following events.
+  // 'filter-matched' event is fired on the match of both cosmetic and network filter.
+  // This event aims to demonstrate the matching process rather the final behavior.
+  // Therefore, using the above events would be helpful if you want to know the final action.
+  // An exception filter event will be always fired right after a corresponding filter.
+  // However, exceptions without a corresponding filter will not handled by this event.
   'filter-matched': (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => any;
 };
 
