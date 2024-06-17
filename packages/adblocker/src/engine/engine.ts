@@ -788,8 +788,9 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       for (const match of candidates) {
         this.emit('filter-matched', match, context);
 
-        if (exceptions.has(match)) {
-          this.emit('filter-matched', exceptions.get(match)!, context);
+        const exception = exceptions.get(match);
+        if (exception !== undefined) {
+          this.emit('filter-matched', exception, context);
         }
       }
 
