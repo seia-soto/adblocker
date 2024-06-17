@@ -91,8 +91,7 @@ export interface Caching {
 export type NetworkFilterMatchingContext = {
   request: Request;
 
-  // `type` will cause a conflict in the variable name of `Request`.
-  matchType: FilterType.NETWORK;
+  filterType: FilterType.NETWORK;
 };
 
 // Cosmetic rule is commonly used word in the project,
@@ -102,7 +101,7 @@ type CosmeticFilterMatchingContextBase = {
   domain: string | null | undefined;
   hostname: string | undefined;
 
-  matchType: FilterType.COSMETIC;
+  filterType: FilterType.COSMETIC;
 
   // Additional context given from user
   userContext: any;
@@ -782,7 +781,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         hostname,
         domain,
 
-        matchType: FilterType.COSMETIC,
+        filterType: FilterType.COSMETIC,
         userContext,
       };
 
@@ -938,7 +937,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         getRulesFromDOM,
         getRulesFromHostname,
 
-        matchType: FilterType.COSMETIC,
+        filterType: FilterType.COSMETIC,
         userContext,
       };
 
@@ -1012,7 +1011,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         this.emit('filter-matched', filter, {
           request,
 
-          matchType: FilterType.NETWORK,
+          filterType: FilterType.NETWORK,
         });
       }
     }
@@ -1047,7 +1046,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       this.emit('filter-matched', filter, {
         request,
 
-        matchType: FilterType.NETWORK,
+        filterType: FilterType.NETWORK,
       });
       if (filter.isException()) {
         if (filter.csp === undefined) {
@@ -1094,7 +1093,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     const context: NetworkFilterMatchingContext = {
       request,
 
-      matchType: FilterType.NETWORK,
+      filterType: FilterType.NETWORK,
     };
 
     if (request.isSupported) {
