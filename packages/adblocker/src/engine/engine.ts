@@ -98,7 +98,7 @@ export type NetworkFilterMatchingContext = {
 // but cosmetic filter is used for better documentation.
 type CosmeticFilterMatchingContextBase = {
   url: string;
-  domain: string | null | undefined;
+  domain: string;
   hostname: string | undefined;
 
   filterType: FilterType.COSMETIC;
@@ -751,8 +751,10 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       return htmlSelectors;
     }
 
+    domain ||= '';
+
     const { rules, candidates, exceptions } = this.cosmetics.getHtmlRules({
-      domain: domain || '',
+      domain,
       hostname,
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
@@ -935,8 +937,9 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       for (const match of candidates) {
         this.emit('filter-matched', match, context);
 
-        if (exceptionMatches.has(match)) {
-          this.emit('filter-matched', exceptionMatches.get(match)!, context);
+        const exception = exceptionMatches.get(match);
+        if (exception !== undefined) {
+          this.emit('filter-matched', exception, context);
         }
       }
     }
