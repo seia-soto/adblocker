@@ -762,7 +762,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       return htmlSelectors;
     }
 
-    const { rules, matches, exceptions } = this.cosmetics.getHtmlRules({
+    const { rules, candidates, exceptions } = this.cosmetics.getHtmlRules({
       domain: domain || '',
       hostname,
       isFilterExcluded: this.isFilterExcluded.bind(this),
@@ -785,7 +785,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         reference,
       };
 
-      for (const match of matches) {
+      for (const match of candidates) {
         this.emit('filter-matched', match, context);
 
         if (exceptions.has(match)) {
@@ -895,7 +895,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       injections,
       stylesheet,
       extended,
-      matches,
+      candidates,
       exceptions: exceptionMatches,
     } = this.cosmetics.getCosmeticsFilters({
       domain: domain || '',
@@ -940,7 +940,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         reference,
       };
 
-      for (const match of matches) {
+      for (const match of candidates) {
         this.emit('filter-matched', match, context);
 
         if (exceptionMatches.has(match)) {
