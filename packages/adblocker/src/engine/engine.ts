@@ -86,8 +86,8 @@ export interface Caching {
   write: (path: string, buffer: Uint8Array) => Promise<void>;
 }
 
-// Cosmetic rule is commonly used word in the project,
-// but cosmetic filter is used for better documentation.
+// We do have a full context in case of the network filter matching.
+// It's because network filter matching does rely on an argument of the request.
 export type NetworkFilterMatchingContext = {
   request: Request;
 
@@ -95,8 +95,8 @@ export type NetworkFilterMatchingContext = {
   matchType: FilterType.NETWORK;
 };
 
-// We do have a full context in case of the network filter matching.
-// It's because network filter matching does rely on an argument of the request.
+// Cosmetic rule is commonly used word in the project,
+// but cosmetic filter is used for better documentation.
 type CosmeticFilterMatchingContextBase = {
   url: string;
   domain: string | null | undefined;
