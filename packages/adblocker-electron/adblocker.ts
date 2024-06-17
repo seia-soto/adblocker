@@ -187,7 +187,7 @@ export class ElectronBlocker extends FiltersEngine {
       getRulesFromHostname: true,
       getRulesFromDOM: false, // Only done on updates (see `onGetCosmeticFiltersUpdated`)
 
-      reference: {
+      userContext: {
         frameId: event.frameId,
         processId: event.processId,
       },
@@ -239,7 +239,7 @@ export class ElectronBlocker extends FiltersEngine {
       // This will be done every time we get information about DOM mutation
       getRulesFromDOM: true,
 
-      reference: {
+      userContext: {
         frameId: event.frameId,
         processId: event.processId,
 
