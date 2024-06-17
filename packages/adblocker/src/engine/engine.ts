@@ -108,7 +108,10 @@ type CosmeticFilterMatchingContextBase = {
 };
 
 export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
-  Partial<Omit<Parameters<FilterEngine['getCosmeticsFilters']>, 'userContext'>>;
+  Partial<
+    Omit<Parameters<FilterEngine['getCosmeticsFilters']>[0], 'userContext'> &
+      Omit<Parameters<CosmeticFilterBucket['getCosmeticsFilters']>[0], 'isFilterExcluded'>
+  >;
 
 export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
 
@@ -877,6 +880,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       allowSpecificHides = shouldApplyHideException(specificHides) === false;
     }
 
+    domain ||= '';
+
     // Lookup injections as well as stylesheets
     const {
       injections,
@@ -885,7 +890,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       candidates,
       exceptions: exceptionMatches,
     } = this.cosmetics.getCosmeticsFilters({
-      domain: domain || '',
+      domain,
       hostname,
 
       classes,
