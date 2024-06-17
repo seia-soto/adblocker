@@ -542,7 +542,6 @@ export default class CosmeticFilterBucket {
     }
 
     // Additional data for engine events
-    const matches: CosmeticFilter[] = [...rules];
     const exceptions: Map<CosmeticFilter, CosmeticFilter> = new Map();
 
     const extended: CosmeticFilter[] = [];
@@ -650,7 +649,7 @@ export default class CosmeticFilterBucket {
       extended: extendedProcessed,
       injections,
       stylesheet,
-      matches,
+      matches: rules,
       exceptions,
     };
   }
