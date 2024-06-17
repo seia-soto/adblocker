@@ -52,6 +52,9 @@ function unregisterCallback<EventNames>(
     if (indexOfCallback !== -1) {
       listenersForEvent.splice(indexOfCallback, 1);
     }
+    if (listenersForEvent.length === 0) {
+      listeners.delete(event);
+    }
   }
 }
 
@@ -142,7 +145,11 @@ export class EventEmitter<
   /**
    * Check if there's at least one active listener.
    */
-  public hasListeners() {
-    return this.onListeners.size + this.onceListeners.size !== 0;
+  public hasListeners(eventName?: EventNames): boolean {
+    if (eventName === undefined) {
+      return this.onListeners.size + this.onceListeners.size !== 0;
+    }
+
+    return this.onListeners.has(eventName) || this.onceListeners.has(eventName);
   }
 }

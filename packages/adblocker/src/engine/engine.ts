@@ -766,7 +766,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       }
     }
 
-    if (this.hasListeners()) {
+    if (this.hasListeners('filter-matched') || this.hasListeners('html-filtered')) {
       const context: CosmeticFilterMatchingContext = {
         url,
         hostname,
@@ -911,7 +911,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    if (this.hasListeners()) {
+    if (this.hasListeners('filter-matched')) {
       const context: CosmeticFilterMatchingContext = {
         url,
         domain,
@@ -1000,7 +1000,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       );
     }
 
-    if (this.hasListeners()) {
+    if (this.hasListeners('filter-matched')) {
       for (const filter of filters) {
         this.emit('filter-matched', filter, {
           request,
@@ -1171,11 +1171,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     result.match = result.exception === undefined && result.filter !== undefined;
 
     if (this.hasListeners()) {
-      // Emit events if we found a match
       if (result.exception !== undefined) {
-        // Emit if an exception matched
-        this.emit('filter-matched', result.exception, context);
-
+        this.emit('filter-matched', result.exception, context); // Emit if an exception matched
         this.emit('request-whitelisted', request, result);
       } else if (result.redirect !== undefined) {
         this.emit('request-redirected', request, result);
