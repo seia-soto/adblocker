@@ -842,12 +842,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       };
     }
 
+    domain ||= '';
+
     let allowGenericHides = true;
     let allowSpecificHides = true;
 
     const exceptions = this.hideExceptions.matchAll(
       Request.fromRawDetails({
-        domain: domain || '',
+        domain,
         hostname,
         url,
 
@@ -881,8 +883,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     if (allowSpecificHides === true) {
       allowSpecificHides = shouldApplyHideException(specificHides) === false;
     }
-
-    domain ||= '';
 
     // Lookup injections as well as stylesheets
     const {
