@@ -412,6 +412,11 @@ export function hasUnicode(str: string): boolean {
   return hasUnicodeRe.test(str);
 }
 
+/**
+ * Finds the last index of an unescaped character in the given string.
+ * This function tries to find the match from the backward.
+ * When this function sees an escaping character, it will jump to the next index.
+ */
 export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
   let lastIndex = text.lastIndexOf(character);
 
@@ -426,6 +431,11 @@ export function findLastIndexOfUnescapedCharacter(text: string, character: strin
   return lastIndex;
 }
 
+/**
+ * Finds the first index of an unescaped character in the given string.
+ * This function tries to find the match from the forward.
+ * When this function sees an escaping character before the match, it will jump to the next index.
+ */
 export function findIndexOfUnescapedCharacter(
   text: string,
   character: string,
@@ -443,22 +453,4 @@ export function findIndexOfUnescapedCharacter(
   }
 
   return nextIndex;
-}
-
-export function splitUnescaped(text: string, character: string) {
-  const parts: string[] = [];
-
-  let lastOccurrence = 0;
-  let nextOccurrence = 0;
-
-  while (
-    (nextOccurrence = findIndexOfUnescapedCharacter(text, character, lastOccurrence)) !== -1
-  ) {
-    parts.push(text.slice(lastOccurrence, nextOccurrence));
-    lastOccurrence = nextOccurrence + 1;
-  }
-
-  parts.push(text.slice(lastOccurrence));
-
-  return parts;
 }

@@ -21,7 +21,6 @@ import {
   findIndexOfUnescapedCharacter,
   findLastIndexOfUnescapedCharacter,
   hasUnicode,
-  splitUnescaped,
   tokenize,
   tokenizeInPlace,
   tokenizeNoSkip,
@@ -272,13 +271,6 @@ describe('utils.ts', () => {
 
       expect(findLastIndexOfUnescapedCharacter(line, '$')).to.be.eql(32);
       expect(findIndexOfUnescapedCharacter(line, '$')).to.be.eql(32);
-      expect(splitUnescaped(line, '$').length).to.be.eql(2);
-
-      expect(splitUnescaped('aa', '$')).to.be.deep.equal(['aa']);
-      expect(splitUnescaped('aa$', '$')).to.be.deep.equal(['aa', '']);
-      expect(splitUnescaped('aa\\$$', '$')).to.be.deep.equal(['aa\\$', '']);
-      expect(splitUnescaped('$\\$aa', '$')).to.be.deep.equal(['', '\\$aa']);
-      expect(splitUnescaped('aa$aa\\$', '$')).to.be.deep.equal(['aa', 'aa\\$']);
     });
   });
 });
