@@ -403,14 +403,17 @@ export default class CosmeticFilterBucket {
     }
 
     const rules: CosmeticFilter[] = [];
-    let exception: CosmeticFilter | undefined;
-    for (const rule of candidates) {
-      exception = disabledRules.get(rule.getSelector());
+    for (
+      let i = 0, exception: CosmeticFilter | undefined = undefined;
+      i < candidates.length;
+      i++
+    ) {
+      exception = disabledRules.get(candidates[i].getSelector());
 
       if (exception !== undefined) {
-        exceptions.set(rule, exception);
+        exceptions.set(candidates[i], exception);
       } else {
-        rules.push(rule);
+        rules.push(candidates[i]);
       }
     }
 
