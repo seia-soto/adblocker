@@ -1042,9 +1042,10 @@ describe('Network filters', () => {
           new RegExp(
             String.raw`\{"brs_content_label":[^,]+,"category":"SPONSORED"[^\n]+"cursor":"[^"]+"\}`,
           ),
-          new RegExp(String.raw`\{"node":\{"role":"SEARCH_ADS"[^\n]+?cursor":[^}]+\}`),
+          new RegExp(String.raw`\{"node":\{"role":"SEARCH_ADS"[^\n]+?cursor":[^}]+\}`, 'g'),
           new RegExp(
             String.raw`\{"node":\{"__typename":"MarketplaceFeedAdStory"[^\n]+?"cursor":(?:null|"\{[^\n]+?\}"|[^\n]+?MarketplaceSearchFeedStoriesEdge")\}`,
+            'g',
           ),
         ];
 
@@ -1057,7 +1058,7 @@ describe('Network filters', () => {
           const htmlModifier = filter!.getHtmlModifier();
 
           expect(htmlModifier).not.to.be.null;
-          expect(htmlModifier!.toString()).to.be.eql(filterExpressions[i].toString());
+          expect(htmlModifier![0].toString()).to.be.eql(filterExpressions[i].toString());
         }
       });
     });
