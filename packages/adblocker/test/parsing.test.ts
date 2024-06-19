@@ -964,7 +964,8 @@ describe('Network filters', () => {
 
     describe('replace', () => {
       it('parses known filters', () => {
-        const filters = String.raw`||alliptvlinks.com/tktk-content/plugins/$script,1p,replace=/\bconst now.+?, 100/clearInterval(timer);resolve();}, 100/gms
+        const filters: string[] =
+          String.raw`||alliptvlinks.com/tktk-content/plugins/$script,1p,replace=/\bconst now.+?, 100/clearInterval(timer);resolve();}, 100/gms
     /theme/002/js/application.js?2.0|$script,1p,replace=/video\.maxPop/0/
     ||s3media.247sports.com/Scripts/Bundle/*/videoPlayer.js^$script,1p,replace=/;if\(!\([a-z]+\|\|\(null===[^{]+/;if(false)/
     ||dehlinks.ir/link_download.php?Mozojadid_Id=$doc,replace=/content="15;/content="0;/
@@ -992,17 +993,71 @@ describe('Network filters', () => {
     ||www.youtube.com/youtubei/v1/player?$xhr,1p,replace=/"adSlots.*?\}\]\}\}\]\,//
     ||www.facebook.com/api/graphql/$xhr,replace=/\{"brs_content_label":[^,]+,"category":"SPONSORED"[^\n]+"cursor":"[^"]+"\}/{}/
     ||www.facebook.com/api/graphql/$xhr,replace=/\{"node":\{"role":"SEARCH_ADS"[^\n]+?cursor":[^}]+\}/{}/g
-    ||www.facebook.com/api/graphql/$xhr,replace=/\{"node":\{"__typename":"MarketplaceFeedAdStory"[^\n]+?"cursor":(?:null|"\{[^\n]+?\}"|[^\n]+?MarketplaceSearchFeedStoriesEdge")\}/{}/g`;
+    ||www.facebook.com/api/graphql/$xhr,replace=/\{"node":\{"__typename":"MarketplaceFeedAdStory"[^\n]+?"cursor":(?:null|"\{[^\n]+?\}"|[^\n]+?MarketplaceSearchFeedStoriesEdge")\}/{}/g`.split(
+            '\n',
+          );
+        const filterExpressions: RegExp[] = [
+          new RegExp(String.raw`\bconst now.+?, 100`, 'gms'),
+          new RegExp(String.raw`video\.maxPop`),
+          new RegExp(String.raw`;if\(!\([a-z]+\|\|\(null===[^{]+`),
+          new RegExp('content="15;'),
+          new RegExp(String.raw`try\{.*?catch.*?push\(\)\}catch\{`),
+          new RegExp(
+            String.raw`throw new Error\("Error Loading Rekidai Data."\)\}throw new Error\("Ad block detected."\)`,
+          ),
+          new RegExp(
+            String.raw`\bhttps:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js`,
+          ),
+          new RegExp(String.raw`result\.length \> 10000`, 'g'),
+          new RegExp(
+            String.raw`\)\{var [a-z]{1,2},[a-z]{1,2},[a-z]{1,2},[a-z]{1,2}\=[a-z]{2};return [a-z]\(\)`,
+            'g',
+          ),
+          new RegExp(
+            String.raw`\)\{var [a-z]{1,2},[a-z]{1,2},[a-z]{1,2};.*?return [a-z]\(\)`,
+            'g',
+          ),
+          new RegExp(
+            String.raw`\.mark\(\(function [a-z0-9]{1,2}\([a-z0-9]{1,2},[a-z0-9]{1,2}\){var.*\]\]\)\}\)\)\),`,
+            'g',
+          ),
+          new RegExp(String.raw`entry.duration > 0`),
+          new RegExp(String.raw`\{try\{.*?clip-path.*?catch\(`),
+          new RegExp(String.raw`;return _0x[a-z0-9]+\['[_a-z]+'\]\['s'\]`),
+          new RegExp(String.raw`;if\(null!==\(_0x[a-z0-9]+=this\['[_a-z]+'\]\)[^)]+\)return;`),
+          new RegExp(String.raw`var w_status[\s\S\n]+?doSakigake\(\);[\s\S\n]+?\}`),
+          new RegExp(String.raw`var w_\w+[\s\S\n]+?doSakigake\(\);[\s\S\n]+?\}`),
+          new RegExp(
+            String.raw`\{"brs_content_label":[^,]+,"category":"ENGAGEMENT[^\n]+"cursor":"[^"]+"\}`,
+            'g',
+          ),
+          new RegExp(String.raw`\(\{checkers\:.*?\]\}\)`, 'g'),
+          new RegExp(String.raw`e\?(e\(\):\(n\.play\(\))`),
+          new RegExp(String.raw`"adPlacements.*?([A-Z]"\}|"\}{2\,4})\}\]\,`),
+          new RegExp(String.raw`"adSlots.*?\}\]\}\}\]\,`),
+          new RegExp(String.raw`"adPlacements.*?([A-Z]"\}|"\}{2\,4})\}\]\,`),
+          new RegExp(String.raw`"adSlots.*?\}\]\}\}\]\,`),
+          new RegExp(String.raw`"adPlacements.*?([A-Z]"\}|"\}{2\,4})\}\]\,`),
+          new RegExp(String.raw`"adSlots.*?\}\]\}\}\]\,`),
+          new RegExp(
+            String.raw`\{"brs_content_label":[^,]+,"category":"SPONSORED"[^\n]+"cursor":"[^"]+"\}`,
+          ),
+          new RegExp(String.raw`\{"node":\{"role":"SEARCH_ADS"[^\n]+?cursor":[^}]+\}`),
+          new RegExp(
+            String.raw`\{"node":\{"__typename":"MarketplaceFeedAdStory"[^\n]+?"cursor":(?:null|"\{[^\n]+?\}"|[^\n]+?MarketplaceSearchFeedStoriesEdge")\}`,
+          ),
+        ];
 
-        for (const filterString of filters.split('\n')) {
-          const filter = NetworkFilter.parse(filterString);
-
-          if (filter === null) {
-            console.log(filterString);
-          }
+        for (let i = 0; i < filters.length; i++) {
+          const filter = NetworkFilter.parse(filters[i]);
 
           expect(filter).not.to.be.null;
           expect(filter!.isReplace()).to.be.true;
+
+          const htmlModifier = filter!.getHtmlModifier();
+
+          expect(htmlModifier).not.to.be.null;
+          expect(htmlModifier!.toString()).to.be.eql(filterExpressions[i].toString());
         }
       });
     });
