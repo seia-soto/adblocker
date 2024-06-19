@@ -104,12 +104,12 @@ type CosmeticFilterMatchingContextBase = {
   filterType: FilterType.COSMETIC;
 
   // Additional context given from user
-  userContext: any;
+  callerContext: any;
 };
 
 export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
   Partial<
-    Omit<Parameters<FilterEngine['getCosmeticsFilters']>[0], 'userContext'> &
+    Omit<Parameters<FilterEngine['getCosmeticsFilters']>[0], 'callerContext'> &
       Omit<Parameters<CosmeticFilterBucket['getCosmeticsFilters']>[0], 'isFilterExcluded'>
   >;
 
@@ -737,13 +737,13 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     hostname,
     domain,
 
-    userContext,
+    callerContext,
   }: {
     url: string;
     hostname: string;
     domain: string | null | undefined;
 
-    userContext?: any | undefined;
+    callerContext?: any | undefined;
   }): HTMLSelector[] {
     const htmlSelectors: HTMLSelector[] = [];
 
@@ -773,7 +773,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         domain,
 
         filterType: FilterType.COSMETIC,
-        userContext,
+        callerContext,
       };
 
       for (const match of candidates) {
@@ -815,7 +815,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     getRulesFromDOM = true,
     getRulesFromHostname = true,
 
-    userContext,
+    callerContext,
   }: {
     url: string;
     hostname: string;
@@ -831,7 +831,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     getRulesFromDOM?: boolean;
     getRulesFromHostname?: boolean;
 
-    userContext?: any | undefined;
+    callerContext?: any | undefined;
   }): IMessageFromBackground {
     if (this.config.loadCosmeticFilters === false) {
       return {
@@ -931,7 +931,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         getRulesFromHostname,
 
         filterType: FilterType.COSMETIC,
-        userContext,
+        callerContext,
       };
 
       for (const match of candidates) {

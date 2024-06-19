@@ -348,7 +348,7 @@ export class WebExtensionBlocker extends FiltersEngine {
       getRulesFromDOM: false,
       getRulesFromHostname: true,
 
-      userContext: {
+      callerContext: {
         tabId: details.tabId,
         frameId: details.frameId,
       },
@@ -466,7 +466,7 @@ export class WebExtensionBlocker extends FiltersEngine {
         getRulesFromDOM: false,
         getRulesFromHostname: false,
 
-        userContext: {
+        callerContext: {
           tabId: sender.tab?.id,
           frameId: sender.frameId,
         },
@@ -508,7 +508,7 @@ export class WebExtensionBlocker extends FiltersEngine {
         // This will be done every time we get information about DOM mutation
         getRulesFromDOM: msg.lifecycle === 'dom-update',
 
-        userContext: {
+        callerContext: {
           tabId: sender.tab?.id,
           frameId: sender.frameId,
         },
