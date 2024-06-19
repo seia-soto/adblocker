@@ -1050,15 +1050,17 @@ describe('Network filters', () => {
         ];
 
         for (let i = 0; i < filters.length; i++) {
-          const filter = NetworkFilter.parse(filters[i]);
+          it(filters[i], () => {
+            const filter = NetworkFilter.parse(filters[i]);
 
-          expect(filter).not.to.be.null;
-          expect(filter!.isReplace()).to.be.true;
+            expect(filter).not.to.be.null;
+            expect(filter!.isReplace()).to.be.true;
 
-          const htmlModifier = filter!.getHtmlModifier();
+            const htmlModifier = filter!.getHtmlModifier();
 
-          expect(htmlModifier).not.to.be.null;
-          expect(htmlModifier![0].toString()).to.be.eql(filterExpressions[i].toString());
+            expect(htmlModifier).not.to.be.null;
+            expect(htmlModifier![0].toString()).to.be.eql(filterExpressions[i].toString());
+          });
         }
       });
     });

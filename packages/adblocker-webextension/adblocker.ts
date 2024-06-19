@@ -12,12 +12,12 @@ import { parse } from 'tldts-experimental';
 import {
   FiltersEngine,
   HTMLSelector,
+  HTMLModifier,
   isUTF8,
   Request,
   StreamingHtmlFilter,
 } from '@cliqz/adblocker';
 import { IBackgroundCallback, IMessageFromBackground } from '@cliqz/adblocker-content';
-import { HTMLModifier } from '@cliqz/adblocker';
 
 export type OnBeforeRequestDetailsType = Pick<
   WebRequest.OnBeforeRequestDetailsType,

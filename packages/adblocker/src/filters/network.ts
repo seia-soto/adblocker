@@ -35,6 +35,7 @@ import {
   tokenizeWithWildcardsInPlace,
   HASH_SEED,
   HASH_INTERNAL_MULT,
+  findLastIndexOfUnescapedCharacter,
 } from '../utils';
 import IFilter from './interface';
 import { HTMLModifier } from '../html-filtering';
@@ -394,73 +395,6 @@ function compileRegex(
   }
 
   return new RegExp(filter);
-}
-
-/**
- * Finds the last index of an unescaped character in the given string.
- * This function tries to find the match from the backward.
- * When this function sees an escaping character, it will jump to the next index.
- */
-export function findLastIndexOfUnescapedCharacter(text: string, character: string) {
-  let lastIndex = text.lastIndexOf(character);
-
-  if (lastIndex === -1) {
-    return -1;
-  }
-
-  while (lastIndex > 0 && text.charCodeAt(lastIndex - 1) === 92 /* '\\' */) {
-    lastIndex = text.lastIndexOf(character, lastIndex - 1);
-  }
-
-  return lastIndex;
-}
-
-/**
- * Finds the first index of an unescaped character in the given string.
- * This function tries to find the match from the forward.
- * When this function sees an escaping character before the match, it will jump to the next index.
- */
-export function findIndexOfUnescapedCharacter(
-  text: string,
-  character: string,
-  position: number = 0,
-) {
-  const end = text.length;
-  let nextIndex = text.indexOf(character, position);
-
-  if (nextIndex === -1) {
-    return -1;
-  }
-
-  while (nextIndex < end && text.charCodeAt(nextIndex - 1) === 92 /* '\\' */) {
-    nextIndex = text.indexOf(character, nextIndex + 1);
-  }
-
-  return nextIndex;
-}
-
-/**
- * Splits the given string while respecting the escaping character.
- * This function leverages `findIndexOfUnescapedCharacter` and `findLastIndexOfUnescapedCharacter`
- * to find the split indexes efficiently.
- * The expected behavior of this function should be matched with `String.prototype.split`.
- */
-export function splitUnescaped(text: string, character: string) {
-  const parts: string[] = [];
-
-  let lastOccurrence = 0;
-  let nextOccurrence = 0;
-
-  while (
-    (nextOccurrence = findIndexOfUnescapedCharacter(text, character, lastOccurrence)) !== -1
-  ) {
-    parts.push(text.slice(lastOccurrence, nextOccurrence));
-    lastOccurrence = nextOccurrence + 1;
-  }
-
-  parts.push(text.slice(lastOccurrence));
-
-  return parts;
 }
 
 /**
