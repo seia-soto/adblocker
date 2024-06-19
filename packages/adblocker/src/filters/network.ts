@@ -148,8 +148,8 @@ export const enum NETWORK_FILTER_MASK {
   isRightAnchor = 1 << 26,
   isException = 1 << 27,
   isHostnameAnchor = 1 << 28,
-  isRedirect = 1 << 29,
-  isRedirectRule = 1 << 30,
+  isRedirectRule = 1 << 29,
+  isRedirect = 1 << 30,
   isReplace = 1 << 31,
 }
 
