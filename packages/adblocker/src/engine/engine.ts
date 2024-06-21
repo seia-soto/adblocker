@@ -766,16 +766,16 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       }
     }
 
-    if (this.hasListeners('filter-matched') || this.hasListeners('html-filtered')) {
-      const context: CosmeticFilterMatchingContext = {
-        url,
-        hostname,
-        domain,
+    const context: CosmeticFilterMatchingContext = {
+      url,
+      hostname,
+      domain,
 
-        filterType: FilterType.COSMETIC,
-        callerContext,
-      };
+      filterType: FilterType.COSMETIC,
+      callerContext,
+    };
 
+    if (this.hasListeners('filter-matched')) {
       for (const match of candidates) {
         this.emit('filter-matched', match, context);
 
@@ -784,10 +784,10 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
           this.emit('filter-matched', exception, context);
         }
       }
+    }
 
-      if (htmlSelectors.length !== 0) {
-        this.emit('html-filtered', htmlSelectors, url, context);
-      }
+    if (htmlSelectors.length !== 0 && this.hasListeners('html-filtered')) {
+      this.emit('html-filtered', htmlSelectors, url, context);
     }
 
     return htmlSelectors;
@@ -884,14 +884,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       allowSpecificHides = shouldApplyHideException(specificHides) === false;
     }
 
-    // Lookup injections as well as stylesheets
-    const {
-      injections,
-      stylesheet,
-      extended,
-      candidates,
-      exceptions: exceptionMatches,
-    } = this.cosmetics.getCosmeticsFilters({
+    const argumentBase = {
       domain,
       hostname,
 
@@ -907,6 +900,17 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       getExtendedRules,
       getRulesFromDOM,
       getRulesFromHostname,
+    };
+
+    // Lookup injections as well as stylesheets
+    const {
+      injections,
+      stylesheet,
+      extended,
+      candidates,
+      exceptions: exceptionMatches,
+    } = this.cosmetics.getCosmeticsFilters({
+      ...argumentBase,
 
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
@@ -914,21 +918,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     if (this.hasListeners('filter-matched')) {
       const context: CosmeticFilterMatchingContext = {
         url,
-        domain,
-        hostname,
 
-        classes,
-        hrefs,
-        ids,
-
-        allowGenericHides,
-        allowSpecificHides,
-
-        getBaseRules,
-        getInjectionRules,
-        getExtendedRules,
-        getRulesFromDOM,
-        getRulesFromHostname,
+        ...argumentBase,
 
         filterType: FilterType.COSMETIC,
         callerContext,
