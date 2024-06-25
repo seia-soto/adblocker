@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testing website</title>
+
+  <style>
+    section {
+      padding: 8px;
+      margin: 8px;
+      border: 1px black solid;
+    }
+
+    .ad {
+      height: 50px;
+      width: 300px;
+      background-color: grey;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // utils
+    async function onLoad() {
+      if (document.readyState !== 'loading') {
+        return
+      }
+
+      return new Promise(resolve => {
+        function handleChange() {
+          document.removeEventListener(handleChange)
+
+          resolve()
+        }
+
+        document.addEventListener('readystatechange', handleChange)
+      })
+    }
+
+    // tests
+    async function testReplace0() {
+      await onLoad()
+
+      const root = document.querySelector('#replace0')
+
+      if (
+        getComputedStyle(
+          root.querySelector('div.ad')
+        )
+          .display === 'none'
+      ) {
+        root.querySelector('p.status').textContent = 'blocked'
+      }
+    }
+
+    void testReplace0()
+  </script>
+
+  <section id="replace0">
+    <h1>replace0</h1>
+    <div class="ad"></div>
+    <p class="status">pass</p>
+  </section>
+</body>
+</html>
