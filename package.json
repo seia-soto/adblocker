@@ -54,6 +54,7 @@
     "url": "git+ssh://git@github.com/ghostery/adblocker.git"
   },
   "workspaces": [
+    "packages/adblocker-e2e",
     "packages/*"
   ],
   "scripts": {
