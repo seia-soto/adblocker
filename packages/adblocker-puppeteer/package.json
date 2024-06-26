@@ -43,10 +43,10 @@
   "dependencies": {
     "@cliqz/adblocker": "^1.27.11",
     "@cliqz/adblocker-content": "^1.27.11",
-    "@cliqz/adblocker-e2e": "workspace:^",
     "tldts-experimental": "^6.0.14"
   },
   "devDependencies": {
+    "@cliqz/adblocker-e2e": "workspace:^",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/chai": "^4.3.6",
