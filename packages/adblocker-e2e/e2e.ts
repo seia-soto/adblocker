@@ -2,7 +2,7 @@ import { Stats, createReadStream, existsSync, readFileSync, statSync } from 'nod
 import * as http from 'node:http';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
-import { default as ts } from 'typescript';
+import ts from 'typescript';
 
 // Shared types
 export type EnvironmentalFactors = {

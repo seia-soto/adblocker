@@ -12,23 +12,6 @@ import terser from '@rollup/plugin-terser';
 export default [
   {
     input: './dist/src/e2e.js',
-    output: {
-      file: './dist/e2e.umd.min.js',
-      format: 'umd',
-      name: 'e2e',
-      sourcemap: true,
-    },
-    plugins: [
-      resolve(),
-      terser({
-        output: {
-          comments: false,
-        },
-      }),
-    ],
-  },
-  {
-    input: './dist/src/e2e.js',
     output: [
       {
         dir: './dist/esm',

@@ -5,8 +5,9 @@
     "outDir": "dist/src/",
     "declarationDir": "dist/types"
   },
-  "files": [
-    "e2e.ts",
-    "dev.ts"
+  "include": [
+    "./test/**/*.ts",
+    "./e2e.ts",
+    "./dev.ts",
   ]
 }
