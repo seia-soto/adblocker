@@ -8,7 +8,8 @@
     { "path": "../adblocker/tsconfig.json" },
     { "path": "../adblocker-content/tsconfig.json" }
   ],
-  "files": [
-    "./adblocker.ts"
+  "include": [
+    "./test/**/*.ts",
+    "./adblocker.ts",
   ]
 }

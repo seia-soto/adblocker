@@ -2,8 +2,13 @@ import { expect } from 'chai';
 import 'mocha';
 
 import * as pw from 'playwright';
+import * as e2e from '@cliqz/adblocker-e2e';
 
-import { fromPlaywrightDetails, getHostnameHashesFromLabelsBackward } from '../adblocker';
+import {
+  PlaywrightBlocker,
+  fromPlaywrightDetails,
+  getHostnameHashesFromLabelsBackward,
+} from '../adblocker';
 
 describe('#fromPlaywrightDetails', () => {
   const baseFrame: Partial<pw.Frame> = {
@@ -34,5 +39,63 @@ describe('#fromPlaywrightDetails', () => {
       hostname: 'sub.url.com',
       url: 'https://sub.url.com',
     });
+  });
+});
+
+describe('e2e', () => {
+  let result: e2e.Result;
+
+  before(async () => {
+    const server = e2e.createServer();
+    const address = await new Promise<string>((resolve, reject) => {
+      server.listen(0, '127.0.0.1', () => {
+        const addressInfo = server.address();
+
+        if (typeof addressInfo === 'string') {
+          resolve(addressInfo);
+        } else if (addressInfo !== null) {
+          resolve(`http://${addressInfo.address}:${addressInfo.port}/`);
+        } else {
+          reject(new Error('Failed to initialise the test server!'));
+        }
+      });
+    });
+    console.log('Test server listening at', address);
+    const browser = await pw.firefox.launch();
+    console.log('Playwright browser launched.');
+    const page = await browser.newPage();
+    console.log('Playwright page opened.');
+
+    const blocker = PlaywrightBlocker.parse(e2e.filters);
+    console.log('Filters parsed.');
+    await blocker.enableBlockingInPage(page);
+    await page.goto(address, { waitUntil: 'networkidle' });
+    console.log('Loaded the test page.');
+
+    const el = await page.waitForSelector('#report > pre');
+    if (!el) {
+      throw new Error('Test page was not reached!');
+    }
+
+    result = JSON.parse(await el.evaluate((el) => el.textContent || 'null'));
+    if (result === null) {
+      throw new Error('Test page crashed!');
+    }
+
+    await page.close();
+    console.log('Playwright page closed.');
+    await browser.close();
+    console.log('Playwright browser closed.');
+    await new Promise<void>((resolve) => {
+      server.close(() => {
+        resolve();
+      });
+    });
+    console.log('Test server closed.');
+  });
+
+  it('does basic filtering', () => {
+    expect(result.environment.coverage.networkFiltering).to.be.true;
+    expect(result.environment.coverage.cosmeticFiltering).to.be.true;
   });
 });

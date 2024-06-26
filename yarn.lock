@@ -529,6 +529,7 @@ __metadata:
   dependencies:
     "@cliqz/adblocker": "npm:^1.27.11"
     "@cliqz/adblocker-content": "npm:^1.27.11"
+    "@cliqz/adblocker-e2e": "workspace:^"
     "@rollup/plugin-node-resolve": "npm:^15.2.3"
     "@rollup/plugin-terser": "npm:^0.4.4"
     "@types/chai": "npm:^4.3.6"
