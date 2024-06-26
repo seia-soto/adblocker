@@ -29,7 +29,7 @@
   "scripts": {
     "dev": "node --loader ts-node/esm dev.ts",
     "clean": "rimraf dist coverage",
-    "lint": "eslint adblocker.ts",
+    "lint": "eslint e2e.ts dev.ts ./test/**/*.ts",
     "build": "tsc --build ./tsconfig.json && rollup --config ./rollup.config.ts --configPlugin typescript",
     "test": "nyc mocha --config ../../.mocharc.json"
   },
