@@ -16,8 +16,14 @@ export type EnvironmentalFactors = {
 export type Result = {
   environment: EnvironmentalFactors;
   capabilities: {
-    network: {};
-    cosmetic: {};
+    network: {
+      modifiers: {
+        replace: boolean;
+      };
+    };
+    cosmetic: {
+      scriptlet: boolean;
+    };
   };
 };
 
@@ -169,6 +175,20 @@ export function createServer(): http.Server {
 export const filters = String.raw`! A set of filters required for testing e2e page
 ! network filtering
 /generate_200/block
+127.0.0.1$replace=/data-test="network1" class="is">failed/data-test="network1" class="is positive">worked/
 
 ! cosmetic filtering
-##div.test > div.block`;
+127.0.0.1##div.test > div.block
+127.0.0.1##+js(test)`;
+
+export const resources = String.raw`
+test.js application/javascript
+(function () {
+  console.log('Hello from test scriptlet');
+
+  const el = document.querySelector('#cosmetic1 span');
+
+  el.textContent = 'worked';
+  el.classList.add('positive');
+})();
+`;

@@ -84,3 +84,15 @@ div.test > div.block {
     height: 40px;
     background-color: var(--ghostery-red0);
 }
+
+span.is {
+    font-weight: 600;
+}
+
+span.is:not(.positive) {
+    color: var(--ghostery-red0);
+}
+
+span.is.positive {
+    color: var(--ghostery-blue0);
+}
