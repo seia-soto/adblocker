@@ -1,0 +1,49 @@
+/*!
+ * Copyright (c) 2017-present Cliqz GmbH. All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+import resolve from '@rollup/plugin-node-resolve';
+import terser from '@rollup/plugin-terser';
+
+export default [
+  {
+    input: './dist/src/e2e.js',
+    output: {
+      file: './dist/e2e.umd.min.js',
+      format: 'umd',
+      name: 'e2e',
+      sourcemap: true,
+    },
+    plugins: [
+      resolve(),
+      terser({
+        output: {
+          comments: false,
+        },
+      }),
+    ],
+  },
+  {
+    input: './dist/src/e2e.js',
+    output: [
+      {
+        dir: './dist/esm',
+        format: 'esm',
+        preserveModules: true,
+        entryFileNames: '[name].js',
+        sourcemap: true,
+      },
+      {
+        dir: './dist/cjs',
+        format: 'cjs',
+        preserveModules: true,
+        entryFileNames: '[name].cjs',
+        sourcemap: true,
+      },
+    ],
+  },
+];

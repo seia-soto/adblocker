@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist/src/",
+    "declarationDir": "dist/types"
+  },
+  "files": [
+    "e2e.ts",
+    "dev.ts"
+  ]
+}

@@ -3,8 +3,7 @@ import 'mocha';
 
 import * as puppeteer from 'puppeteer';
 import * as http from 'http';
-import * as path from 'path';
-import { createReadStream, existsSync, statSync } from 'fs';
+import * as e2e from '@cliqz/adblocker-e2e';
 
 import {
   fromPuppeteerDetails,
@@ -98,102 +97,60 @@ describe('#stylesInjection', () => {
   });
 });
 
-describe.only('e2e', () => {
-  let server: http.Server;
-  let port: number;
-  let browser: puppeteer.Browser;
-  let page: puppeteer.Page;
+describe('e2e', () => {
+  let result: e2e.Result;
 
   before(async () => {
-    const basePath = './test/website';
+    const server = e2e.createServer();
+    const address = await new Promise<string>((resolve, reject) => {
+      server.listen(0, '127.0.0.1', () => {
+        const addressInfo = server.address();
 
-    const assumeContentType = (ext: string) => {
-      switch (ext) {
-        case '.js':
-          return 'text/javascript';
-        case '.css':
-          return 'text/css';
-        case '.html':
-          return 'text/html';
-        default:
-          return 'text/plain';
-      }
-    };
-
-    // Open a simple file-server to serve the testing website
-    server = http
-      .createServer((req, res) => {
-        if (req.method !== 'GET') {
-          res.writeHead(400, { 'Content-Type': 'text/plain' });
-          res.end('This server do not handle requests rather than with a method of GET.');
-          return;
+        if (typeof addressInfo === 'string') {
+          resolve(addressInfo);
+        } else if (addressInfo !== null) {
+          resolve(`http://${addressInfo.address}:${addressInfo.port}/`);
+        } else {
+          reject(new Error('Failed to initialise the test server!'));
         }
-
-        if (typeof req.url === 'undefined' || req.url === '/') {
-          req.url = '/index.html';
-        }
-
-        const reqPath = path.join(basePath, req.url);
-
-        if (!existsSync(reqPath) || !statSync(reqPath).isFile()) {
-          res.writeHead(404, { 'Content-Type': 'text/plain' });
-          res.end('Not found');
-          return;
-        }
-
-        res.writeHead(200, { 'Content-Type': assumeContentType(path.extname(reqPath)) });
-
-        const source = createReadStream(reqPath);
-        source.once('open', () => {
-          source.pipe(res);
-        });
-        source.once('end', () => {
-          res.end();
-        });
-      })
-      .listen(0, () => {
-        const addressInfo = server.address() as AddressInfo;
-        port = addressInfo.port;
-        console.log('Test server listening on port', port);
       });
-    browser = await puppeteer.launch();
-    console.log('Puppeteer browser launched.');
-    page = await browser.newPage();
-    console.log('Puppeteer page opened.');
-  });
-
-  describe('replace modifier', () => {
-    it('replaces inline script', async () => {
-      const url = `http://localhost:${port}`;
-
-      const blocker = PuppeteerBlocker.parse(`###replace0 > .ad
-localhost:${port}$replace=/.display === 'none'/.display === 'never'/`);
-
-      await blocker.enableBlockingInPage(page);
-      await page.goto(url, { waitUntil: 'domcontentloaded' });
-
-      const value = await page.evaluate(
-        (statusEl) => {
-          if (statusEl === null) {
-            return 'null';
-          }
-
-          return statusEl.textContent;
-        },
-        await page.$('#replace0 > .status'),
-      );
-
-      expect(value).to.be.eql('pass');
     });
-  });
+    console.log('Test server listening at', address);
+    const browser = await puppeteer.launch();
+    console.log('Puppeteer browser launched.');
+    const page = await browser.newPage();
+    console.log('Puppeteer page opened.');
 
-  after(async () => {
+    const blocker = PuppeteerBlocker.parse(e2e.filters);
+    console.log('Filters parsed.');
+    await blocker.enableBlockingInPage(page);
+    await page.goto(address, { waitUntil: 'networkidle2' });
+    console.log('Loaded the test page.');
+
+    const el = await page.waitForSelector('#report > pre');
+    if (!el) {
+      throw new Error('Test page was not reached!');
+    }
+
+    result = JSON.parse(await el.evaluate((el) => el.textContent || 'null'));
+    if (result === null) {
+      throw new Error('Test page crashed!');
+    }
+
     await page.close();
     console.log('Puppeteer page closed.');
     await browser.close();
     console.log('Puppeteer browser closed.');
-    server.close(() => {
-      console.log('Test server closed.');
+    await new Promise<void>((resolve) => {
+      server.close(() => {
+        resolve();
+      });
     });
+    console.log('Test server closed.');
+  });
+
+  it('does basic filtering', () => {
+    expect(result.environment.coverage.networkFiltering).to.be.true;
+    expect(result.environment.coverage.cosmeticFiltering).to.be.true;
   });
 });
