@@ -17,7 +17,7 @@
         <article class="container">
             <section id="report">
                 <h3>Result</h3>
-                <pre></pre>
+                <pre>null</pre>
             </section>
         </article>
         <article class="container">
@@ -26,6 +26,14 @@
                 <p>Check if network filtering capability is working properly on this environment.</p>
 
                 <h4>Basic blocking</h4>
+                <div id="network0">
+                    <p>Blocking <code>/generate_200/block</code> <span class="is">failed</span></p>
+                </div>
+
+                <h4>HTML filtering</h4>
+                <div id="network1">
+                    <p>Replace modifier <span data-test="network1" class="is">failed</span></p>
+                </div>
             </section>
             <section id="cosmetic">
                 <h3>Cosmetic filtering</h3>
@@ -42,7 +50,7 @@
 
                 <h4>Scriptlet</h4>
                 <div id="cosmetic1">
-                    <p id="cosmetic1-set"><code>##+js(set, btoa, trueFunc)</code> failed</p>
+                    <p><code>##+js(test)</code> <span class="is">failed</span></p>
                 </div>
             </section>
         </article>

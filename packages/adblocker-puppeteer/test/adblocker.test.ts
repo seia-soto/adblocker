@@ -120,8 +120,8 @@ describe('e2e', () => {
     console.log('Puppeteer browser launched.');
     const page = await browser.newPage();
     console.log('Puppeteer page opened.');
-
     const blocker = PuppeteerBlocker.parse(e2e.filters);
+    blocker.updateResources(await e2e.getResources(), 'test');
     console.log('Filters parsed.');
     await blocker.enableBlockingInPage(page);
     await page.goto(address, { waitUntil: 'networkidle2' });
@@ -149,8 +149,12 @@ describe('e2e', () => {
     console.log('Test server closed.');
   });
 
-  it('does basic filtering', () => {
+  it('supports network and cosmetic filtering', () => {
     expect(result.environment.coverage.networkFiltering).to.be.true;
     expect(result.environment.coverage.cosmeticFiltering).to.be.true;
+  });
+
+  it('injects scriptlets', () => {
+    expect(result.capabilities.cosmetic.scriptlet).to.be.true;
   });
 });

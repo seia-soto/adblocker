@@ -27,6 +27,17 @@ async function get(
   return [responseOrError instanceof Response, responseOrError];
 }
 
+function syncLabel(selector: string, status: boolean) {
+  if (status === true) {
+    const el = document.querySelector(selector);
+
+    el.textContent = 'worked';
+    el.classList.add('positive');
+  }
+
+  return status;
+}
+
 function isElementVisible(element: HTMLElement) {
   if (element.offsetWidth > 0) {
     return true;
@@ -67,6 +78,17 @@ async function collectEnvironmentalFactors(): Promise<EnvironmentalFactors> {
   return factors;
 }
 
+// Tests
+// network.modifiers.replace
+function testNetworkFilteringReplaceModifier(): boolean {
+  return document.querySelector('#network1 span').classList.contains('positive');
+}
+
+// cosmetic.scriptlets.set
+function testCosmeticFilteringScriptlet(): boolean {
+  return document.querySelector('#cosmetic1 span').classList.contains('positive');
+}
+
 async function e2e() {
   await afterDomLoad();
 
@@ -74,10 +96,27 @@ async function e2e() {
   const result: Result = {
     environment,
     capabilities: {
-      network: {},
-      cosmetic: {},
+      network: {
+        modifiers: {
+          replace: false,
+        },
+      },
+      cosmetic: {
+        scriptlet: false,
+      },
     },
   };
+
+  if (environment.coverage.networkFiltering) {
+    result.capabilities.network.modifiers.replace = testNetworkFilteringReplaceModifier();
+  }
+
+  if (environment.coverage.cosmeticFiltering) {
+    result.capabilities.cosmetic.scriptlet = syncLabel(
+      '#cosmetic1',
+      testCosmeticFilteringScriptlet(),
+    );
+  }
 
   return result;
 }
