@@ -67,6 +67,7 @@ describe('e2e', () => {
     console.log('Playwright page opened.');
 
     const blocker = PlaywrightBlocker.parse(e2e.filters);
+    blocker.updateResources(await e2e.getResources(), 'test');
     console.log('Filters parsed.');
     await blocker.enableBlockingInPage(page);
     await page.goto(address, { waitUntil: 'networkidle' });
@@ -97,5 +98,9 @@ describe('e2e', () => {
   it('does basic filtering', () => {
     expect(result.environment.coverage.networkFiltering).to.be.true;
     expect(result.environment.coverage.cosmeticFiltering).to.be.true;
+  });
+
+  it('injects scriptlets', () => {
+    expect(result.capabilities.cosmetic.scriptlet).to.be.true;
   });
 });

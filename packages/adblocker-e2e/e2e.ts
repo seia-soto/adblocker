@@ -3,6 +3,7 @@ import * as http from 'node:http';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import ts from 'typescript';
+import { minify } from 'terser';
 
 // Shared types
 export type EnvironmentalFactors = {
@@ -181,8 +182,8 @@ export const filters = String.raw`! A set of filters required for testing e2e pa
 127.0.0.1##div.test > div.block
 127.0.0.1##+js(test)`;
 
-export const resources = String.raw`
-test.js application/javascript
+export async function getResources() {
+  const scriptlet = await minify(String.raw`
 (function () {
   console.log('Hello from test scriptlet');
 
@@ -191,4 +192,11 @@ test.js application/javascript
   el.textContent = 'worked';
   el.classList.add('positive');
 })();
+`);
+  const resources = String.raw`
+test.js application/javascript
+${scriptlet.code}
 `;
+
+  return resources;
+}
