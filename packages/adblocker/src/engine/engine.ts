@@ -758,16 +758,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       hostname,
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
+    const exceptions = new Map(unhides.map((unhide) => [unhide.getSelector(), unhide]));
 
     for (const filter of filters) {
       const extended = filter.getExtendedSelector();
       if (extended === undefined) {
         continue;
       }
-      let exception: CosmeticFilter | undefined;
-      if (unhides.length !== 0) {
-        exception = unhides.find((unhide) => unhide.getSelector() === filter.getSelector());
-      }
+      const exception = exceptions.get(filter.getSelector());
       if (exception !== undefined) {
         htmlSelectors.push(extended);
       }
