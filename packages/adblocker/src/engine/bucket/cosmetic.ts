@@ -351,15 +351,15 @@ export default class CosmeticFilterBucket {
     hostname: string;
 
     isFilterExcluded?: (filter: CosmeticFilter) => boolean;
-  }): [CosmeticFilter[], CosmeticFilter[]] {
-    const fitlers: CosmeticFilter[] = [];
+  }): { filters: CosmeticFilter[]; unhides: CosmeticFilter[] } {
+    const filters: CosmeticFilter[] = [];
 
     // Tokens from `hostname` and `domain` which will be used to lookup filters
     // from the reverse index. The same tokens are re-used for multiple indices.
     const hostnameTokens = createLookupTokens(hostname, domain);
     this.htmlIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
       if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
-        fitlers.push(rule);
+        filters.push(rule);
       }
       return true;
     });
@@ -367,7 +367,7 @@ export default class CosmeticFilterBucket {
     const unhides: CosmeticFilter[] = [];
 
     // If we found at least one candidate, check if we have unhidden rules.
-    if (fitlers.length !== 0) {
+    if (filters.length !== 0) {
       this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
         if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
           unhides.push(rule);
@@ -377,7 +377,7 @@ export default class CosmeticFilterBucket {
       });
     }
 
-    return [fitlers, unhides];
+    return { filters, unhides };
   }
 
   /**

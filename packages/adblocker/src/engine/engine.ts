@@ -753,7 +753,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     domain ||= '';
 
-    const [filters, unhides] = this.cosmetics.getHtmlFilters({
+    const { filters, unhides } = this.cosmetics.getHtmlFilters({
       domain,
       hostname,
       isFilterExcluded: this.isFilterExcluded.bind(this),
