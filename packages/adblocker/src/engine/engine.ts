@@ -890,14 +890,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       allowSpecificHides = shouldApplyHideException(specificHides) === false;
     }
 
-    // Lookup injections as well as stylesheets
-    const {
-      injections,
-      stylesheet,
-      extended,
-      candidates,
-      exceptions: exceptionMatches,
-    } = this.cosmetics.getCosmeticsFilters({
+    const argumentBase = {
       domain,
       hostname,
 
@@ -913,6 +906,17 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       getExtendedRules,
       getRulesFromDOM,
       getRulesFromHostname,
+    };
+
+    // Lookup injections as well as stylesheets
+    const {
+      injections,
+      stylesheet,
+      extended,
+      candidates,
+      exceptions: exceptionMatches,
+    } = this.cosmetics.getCosmeticsFilters({
+      ...argumentBase,
 
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
@@ -920,21 +924,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     if (this.hasListeners('filter-matched')) {
       const context: CosmeticFilterMatchingContext = {
         url,
-        domain,
-        hostname,
 
-        classes,
-        hrefs,
-        ids,
-
-        allowGenericHides,
-        allowSpecificHides,
-
-        getBaseRules,
-        getInjectionRules,
-        getExtendedRules,
-        getRulesFromDOM,
-        getRulesFromHostname,
+        ...argumentBase,
 
         filterType: FilterType.COSMETIC,
         callerContext,
