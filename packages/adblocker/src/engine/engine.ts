@@ -133,7 +133,7 @@ export type EngineEventHandlers = {
   'style-injected': CosmeticInjectionEvent;
   'filter-matched': (
     match: {
-      filter: CosmeticFilter | NetworkFilter;
+      filter?: CosmeticFilter | NetworkFilter | undefined;
       exception?: CosmeticFilter | NetworkFilter | undefined;
     },
     context: MatchingContext,
@@ -1028,7 +1028,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
           // All CSP directives are disabled for this site
           this.emit(
             'filter-matched',
-            { filter, exception: filter },
+            { exception: filter },
             { request, filterType: FilterType.NETWORK },
           );
           return undefined;
@@ -1082,12 +1082,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       return result;
     }
 
-    const context: NetworkFilterMatchingContext = {
-      request,
-
-      filterType: FilterType.NETWORK,
-    };
-
     if (request.isSupported) {
       // Check the filters in the following order:
       // 1. $important (not subject to exceptions)
@@ -1138,14 +1132,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         // If we found either a redirection rule or a normal match, then check
         // for exceptions which could apply on the request and un-block it.
         if (result.filter !== undefined) {
-          // Emit if a filter matched
-          this.emit('filter-matched', result.filter, context);
-
           result.exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
         }
-      } else {
-        // Emit if an important flagged filter matched
-        this.emit('filter-matched', result.filter, context);
       }
 
       // If there was a redirect match and no exception was found, then we
@@ -1168,17 +1156,22 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     result.match = result.exception === undefined && result.filter !== undefined;
 
-    if (this.hasListeners()) {
-      if (result.exception !== undefined) {
-        this.emit('filter-matched', result.exception, context); // Emit if an exception matched
-        this.emit('request-whitelisted', request, result);
-      } else if (result.redirect !== undefined) {
-        this.emit('request-redirected', request, result);
-      } else if (result.filter !== undefined) {
-        this.emit('request-blocked', request, result);
-      } else {
-        this.emit('request-allowed', request, result);
-      }
+    if (result.match) {
+      this.emit(
+        'filter-matched',
+        { filter: result.filter, exception: result.exception },
+        { request, filterType: FilterType.NETWORK },
+      );
+    }
+
+    if (result.exception !== undefined) {
+      this.emit('request-whitelisted', request, result);
+    } else if (result.redirect !== undefined) {
+      this.emit('request-redirected', request, result);
+    } else if (result.filter !== undefined) {
+      this.emit('request-blocked', request, result);
+    } else {
+      this.emit('request-allowed', request, result);
     }
 
     if (withMetadata === true && result.filter !== undefined && this.metadata) {
