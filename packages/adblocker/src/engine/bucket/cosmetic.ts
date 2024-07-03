@@ -341,7 +341,7 @@ export default class CosmeticFilterBucket {
     this.unhideIndex.serialize(buffer);
   }
 
-  public getHtmlRules({
+  public getHtmlFilters({
     domain,
     hostname,
 
@@ -351,77 +351,33 @@ export default class CosmeticFilterBucket {
     hostname: string;
 
     isFilterExcluded?: (filter: CosmeticFilter) => boolean;
-  }): {
-    // "rules" is an array of the final result.
-    // If filter has an exception, the filter will not be here.
-    rules: CosmeticFilter[];
-    // "candidates" is the results in the initial stage of matching process before exceptions are applied.
-    // This array contains all filters even there's an exception to help debugging the filtering process in the adblocker library.
-    candidates: CosmeticFilter[];
-    // "exceptions" is the mapping of a filter and an exception.
-    // This data structure allows easy finding of an exception for a filter candidate.
-    // This allows an efficient sequential event emission of a filter and its exception.
-    exceptions: Map<CosmeticFilter, CosmeticFilter>;
-  } {
+  }): [CosmeticFilter[], CosmeticFilter[]] {
+    const fitlers: CosmeticFilter[] = [];
+
     // Tokens from `hostname` and `domain` which will be used to lookup filters
     // from the reverse index. The same tokens are re-used for multiple indices.
     const hostnameTokens = createLookupTokens(hostname, domain);
-    const candidates: CosmeticFilter[] = [];
     this.htmlIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
       if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
-        candidates.push(rule);
+        fitlers.push(rule);
       }
       return true;
     });
 
-    const exceptions: Map<CosmeticFilter, CosmeticFilter> = new Map();
-
-    if (candidates.length === 0) {
-      return {
-        rules: [],
-        candidates: [],
-        exceptions,
-      };
-    }
+    const unhides: CosmeticFilter[] = [];
 
     // If we found at least one candidate, check if we have unhidden rules.
-    const disabledRules: Map<string, CosmeticFilter> = new Map();
-    this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
-      if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
-        disabledRules.set(rule.getSelector(), rule);
-      }
+    if (fitlers.length !== 0) {
+      this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
+        if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
+          unhides.push(rule);
+        }
 
-      return true;
-    });
-
-    if (disabledRules.size === 0) {
-      return {
-        rules: candidates,
-        candidates,
-        exceptions,
-      };
+        return true;
+      });
     }
 
-    const rules: CosmeticFilter[] = [];
-    for (
-      let i = 0, exception: CosmeticFilter | undefined = undefined;
-      i < candidates.length;
-      i++
-    ) {
-      exception = disabledRules.get(candidates[i].getSelector());
-
-      if (exception !== undefined) {
-        exceptions.set(candidates[i], exception);
-      } else {
-        rules.push(candidates[i]);
-      }
-    }
-
-    return {
-      rules,
-      candidates,
-      exceptions,
-    };
+    return [fitlers, unhides];
   }
 
   /**

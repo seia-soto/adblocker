@@ -131,13 +131,13 @@ export type EngineEventHandlers = {
   'csp-injected': (csps: string, request: Request) => void;
   'script-injected': CosmeticInjectionEvent;
   'style-injected': CosmeticInjectionEvent;
-
-  // 'filter-matched' event is fired on the match of both cosmetic and network filter.
-  // This event aims to demonstrate the matching process rather the final behavior.
-  // Therefore, using the above events would be helpful if you want to know the final action.
-  // An exception filter event will be always fired right after a corresponding filter.
-  // However, exceptions without a corresponding filter will not handled by this event.
-  'filter-matched': (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => any;
+  'filter-matched': (
+    match: {
+      filter: CosmeticFilter | NetworkFilter;
+      exception?: CosmeticFilter | NetworkFilter | undefined;
+    },
+    context: MatchingContext,
+  ) => any;
 };
 
 export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
@@ -753,41 +753,47 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     domain ||= '';
 
-    const { rules, candidates, exceptions } = this.cosmetics.getHtmlRules({
+    const [filters, unhides] = this.cosmetics.getHtmlFilters({
       domain,
       hostname,
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    for (const rule of rules) {
-      const extended = rule.getExtendedSelector();
-      if (extended !== undefined) {
+    for (const filter of filters) {
+      const extended = filter.getExtendedSelector();
+      if (extended === undefined) {
+        continue;
+      }
+      let exception: CosmeticFilter | undefined;
+      if (unhides.length !== 0) {
+        exception = unhides.find((unhide) => unhide.getSelector() === filter.getSelector());
+      }
+      if (exception !== undefined) {
         htmlSelectors.push(extended);
       }
+      this.emit(
+        'filter-matched',
+        { filter, exception },
+        {
+          url,
+          hostname,
+          domain,
+
+          callerContext,
+          filterType: FilterType.COSMETIC,
+        },
+      );
     }
 
-    if (this.hasListeners('filter-matched') || this.hasListeners('html-filtered')) {
-      const context: CosmeticFilterMatchingContext = {
+    if (htmlSelectors.length !== 0) {
+      this.emit('html-filtered', htmlSelectors, url, {
         url,
         hostname,
         domain,
 
-        filterType: FilterType.COSMETIC,
         callerContext,
-      };
-
-      for (const match of candidates) {
-        this.emit('filter-matched', match, context);
-
-        const exception = exceptions.get(match);
-        if (exception !== undefined) {
-          this.emit('filter-matched', exception, context);
-        }
-      }
-
-      if (htmlSelectors.length !== 0) {
-        this.emit('html-filtered', htmlSelectors, url, context);
-      }
+        filterType: FilterType.COSMETIC,
+      });
     }
 
     return htmlSelectors;

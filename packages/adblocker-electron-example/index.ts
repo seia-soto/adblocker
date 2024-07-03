@@ -76,12 +76,7 @@ async function createWindow() {
     console.log('style', style.length, url);
   });
 
-  blocker.on(
-    'filter-matched',
-    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
-      console.log('filter-matched', filter, context);
-    },
-  );
+  blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));
 
   mainWindow.loadURL(getUrlToLoad());
   mainWindow.webContents.openDevTools();

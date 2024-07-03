@@ -45,12 +45,7 @@ import * as pw from 'playwright';
     console.log('style', url, style.length);
   });
 
-  blocker.on(
-    'filter-matched',
-    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
-      console.log('filter-matched', filter, context);
-    },
-  );
+  blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));
 
   await page.goto('https://www.mangareader.net/');
   await page.screenshot({ path: 'output.png' });

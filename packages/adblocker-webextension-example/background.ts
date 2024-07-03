@@ -101,12 +101,7 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
     console.log('style', url, style.length);
   });
 
-  blocker.on(
-    'filter-matched',
-    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
-      console.log('filter-matched', filter, context);
-    },
-  );
+  blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));
 
   console.log('Ready to roll!');
 });
