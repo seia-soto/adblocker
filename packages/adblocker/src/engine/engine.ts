@@ -888,7 +888,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       allowSpecificHides = shouldApplyHideException(specificHides) === false;
     }
 
-    const argumentBase = {
+    // Lookup injections as well as stylesheets
+    const { filters, unhides } = this.cosmetics.getCosmeticsFilters({
       domain,
       hostname,
 
@@ -899,42 +900,72 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       allowGenericHides,
       allowSpecificHides,
 
-      getBaseRules,
-      getInjectionRules,
-      getExtendedRules,
       getRulesFromDOM,
       getRulesFromHostname,
-    };
-
-    // Lookup injections as well as stylesheets
-    const {
-      injections,
-      stylesheet,
-      extended,
-      candidates,
-      exceptions: exceptionMatches,
-    } = this.cosmetics.getCosmeticsFilters({
-      ...argumentBase,
-
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    if (this.hasListeners('filter-matched')) {
-      const context: CosmeticFilterMatchingContext = {
-        url,
+    let injectionsDisabled = false;
+    const unhideExceptions: Map<string, CosmeticFilter> = new Map();
 
-        ...argumentBase,
+    for (const unhide of unhides) {
+      if (
+        unhide.isScriptInject() === true &&
+        unhide.isUnhide() === true &&
+        unhide.getSelector().length === 0
+      ) {
+        injectionsDisabled = true;
+      }
+      unhideExceptions.set(unhide.getSelector(), unhide);
+    }
 
-        filterType: FilterType.COSMETIC,
-        callerContext,
-      };
+    const injections: CosmeticFilter[] = [];
+    const styleFilters: CosmeticFilter[] = [];
+    const extendedFilters: CosmeticFilter[] = [];
 
-      for (const match of candidates) {
-        this.emit('filter-matched', match, context);
+    if (filters.length !== 0) {
+      // Apply unhide rules + dispatch
+      for (const filter of filters) {
+        // Make sure `rule` is not un-hidden by a #@# filter
+        const exception = unhideExceptions.get(filter.getSelector());
 
-        const exception = exceptionMatches.get(match);
         if (exception !== undefined) {
-          this.emit('filter-matched', exception, context);
+          continue;
+        }
+
+        let applied = false;
+
+        // Dispatch filters in `injections` or `styles` depending on type
+        if (filter.isScriptInject() === true) {
+          if (getInjectionRules === true && injectionsDisabled === false) {
+            injections.push(filter);
+            applied = true;
+          }
+        } else if (filter.isExtended()) {
+          if (getExtendedRules === true) {
+            extendedFilters.push(filter);
+            applied = true;
+          }
+        } else {
+          styleFilters.push(filter);
+          applied = true;
+        }
+
+        if (applied) {
+          this.emit(
+            'filter-matched',
+            {
+              filter,
+              exception,
+            },
+            {
+              url,
+              hostname,
+              domain,
+              filterType: FilterType.COSMETIC,
+              callerContext,
+            },
+          );
         }
       }
     }
@@ -948,6 +979,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         scripts.push(script);
       }
     }
+
+    const { stylesheet, extended } = this.cosmetics.filtersToStylesheet(
+      {
+        filters: styleFilters,
+        extendedFilters,
+      },
+      { getBaseRules, allowGenericHides },
+    );
 
     // Emit events
     if (stylesheet.length !== 0) {
@@ -1048,7 +1087,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     // Combine all CSPs (except the black-listed ones)
     for (const filter of filters.values()) {
       const exception = exceptions.get(filter.csp);
-      if (exception !== undefined) {
+      if (exception === undefined) {
         enabledCsp.add(filter.csp);
       }
       this.emit(
@@ -1156,7 +1195,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     result.match = result.exception === undefined && result.filter !== undefined;
 
-    if (result.match) {
+    if (result.filter) {
       this.emit(
         'filter-matched',
         { filter: result.filter, exception: result.exception },
