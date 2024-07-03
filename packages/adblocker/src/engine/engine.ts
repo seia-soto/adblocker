@@ -1029,35 +1029,48 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     }
 
     // Collect all CSP directives and keep track of exceptions
-    const disabledCsp = new Set();
-    const enabledCsp = new Set();
-    for (const filter of matches) {
-      this.emit('filter-matched', filter, {
-        request,
+    const exceptions: Map<string | undefined, NetworkFilter> = new Map();
+    const filters: NetworkFilter[] = [];
 
-        filterType: FilterType.NETWORK,
-      });
+    for (const filter of matches) {
       if (filter.isException()) {
         if (filter.csp === undefined) {
           // All CSP directives are disabled for this site
+          this.emit(
+            'filter-matched',
+            { filter, exception: filter },
+            { request, filterType: FilterType.NETWORK },
+          );
           return undefined;
         }
-        disabledCsp.add(filter.csp);
+        exceptions.set(filter.csp, filter);
       } else {
-        enabledCsp.add(filter.csp);
+        filters.push(filter);
       }
     }
 
-    // Combine all CSPs (except the black-listed ones)
-    const csps: string | undefined =
-      Array.from(enabledCsp)
-        .filter((csp) => !disabledCsp.has(csp))
-        .join('; ') || undefined;
-
-    // Emit event
-    if (csps !== undefined) {
-      this.emit('csp-injected', csps, request);
+    if (filters.length === 0) {
+      return undefined;
     }
+
+    const enabledCsp = new Set();
+
+    // Combine all CSPs (except the black-listed ones)
+    for (const filter of filters.values()) {
+      const exception = exceptions.get(filter.csp);
+      if (exception !== undefined) {
+        enabledCsp.add(filter.csp);
+      }
+      this.emit(
+        'filter-matched',
+        { filter, exception },
+        { request, filterType: FilterType.NETWORK },
+      );
+    }
+
+    const csps = Array.from(enabledCsp).join('; ');
+
+    this.emit('csp-injected', csps, request);
 
     return csps;
   }
