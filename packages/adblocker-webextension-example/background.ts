@@ -10,14 +10,11 @@ import { browser } from 'webextension-polyfill-ts';
 
 import {
   BlockingResponse,
-  CosmeticFilter,
   fullLists,
   HTMLSelector,
-  NetworkFilter,
   Request,
   WebExtensionBlocker,
 } from '@cliqz/adblocker-webextension';
-import { MatchingContext } from '@cliqz/adblocker';
 
 /**
  * Keep track of number of network requests altered for each tab

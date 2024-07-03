@@ -524,7 +524,7 @@ export default class CosmeticFilterBucket {
     };
   }
 
-  public filtersToStylesheet(
+  public getStylesheetsFromFilters(
     {
       filters,
       extendedFilters,

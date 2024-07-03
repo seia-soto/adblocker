@@ -980,7 +980,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       }
     }
 
-    const { stylesheet, extended } = this.cosmetics.filtersToStylesheet(
+    const { stylesheet, extended } = this.cosmetics.getStylesheetsFromFilters(
       {
         filters: styleFilters,
         extendedFilters,
