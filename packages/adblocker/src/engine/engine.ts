@@ -995,16 +995,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       );
     }
 
-    if (this.hasListeners('filter-matched')) {
-      for (const filter of filters) {
-        this.emit('filter-matched', filter, {
-          request,
-
-          filterType: FilterType.NETWORK,
-        });
-      }
-    }
-
     return new Set(filters);
   }
 
