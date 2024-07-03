@@ -508,7 +508,6 @@ export default class CosmeticFilterBucket {
       // =======================================================================
       // Collect unhidden selectors. They will be used to filter-out canceled
       // rules from other indices.
-      // let injectionsDisabled = false;
       this.unhideIndex.iterMatchingFilters(hostnameTokens, (filter: CosmeticFilter) => {
         if (filter.match(hostname, domain) && !isFilterExcluded?.(filter)) {
           unhides.push(filter);
