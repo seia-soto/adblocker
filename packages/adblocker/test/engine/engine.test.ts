@@ -1409,17 +1409,22 @@ describe('events', () => {
     Arguments extends Parameters<Handler>,
   >(engine: Engine, name: Name, limit = 1) {
     return new Promise<Arguments[]>((resolve, reject) => {
-      const timeout: NodeJS.Timeout = setTimeout(() => {
+      const callbacks: Arguments[] = [];
+
+      const timeout = setTimeout(() => {
         engine.unsubscribe(name, handler);
 
         if (callbacks.length === 0) {
-          reject(`Timeout reached before catching an event type of "${name}" within a second!`);
+          reject(
+            new Error(
+              `Timeout reached before catching an event type of "${name}" within a second!`,
+            ),
+          );
         }
 
         resolve(callbacks);
       }, 1000);
 
-      const callbacks: Arguments[] = [];
       const handler = (...args: any) => {
         callbacks.push(args as Arguments);
 
@@ -1435,11 +1440,8 @@ describe('events', () => {
     });
   }
 
-  const engine = createEngine(`||foo.com
-||bar.com
-@@||bar.com`);
-
   it('emits filter-matched', async () => {
+    const engine = createEngine('||foo.com');
     const awaiter = createEventAwaiter(engine, 'filter-matched');
 
     engine.match(
@@ -1448,12 +1450,17 @@ describe('events', () => {
       }),
     );
 
-    const [[{ filter }]] = await awaiter;
+    const [[{ filter, exception }]] = await awaiter;
 
     expect(filter!.toString()).to.be.equal('||foo.com');
+    expect(exception).to.be.equal(undefined);
   });
 
   it('emits exception in filter-matched', async () => {
+    const engine = createEngine(`
+      ||bar.com
+      @@||bar.com
+    `);
     const awaiter = createEventAwaiter(engine, 'filter-matched');
 
     engine.match(
@@ -1465,6 +1472,6 @@ describe('events', () => {
     const [[{ filter, exception }]] = await awaiter;
 
     expect(filter!.toString()).to.be.equal('||bar.com');
-    expect(exception!.toString()).to.be.equal('@@||bar.com'); // The exception filter is always emitted later
+    expect(exception!.toString()).to.be.equal('@@||bar.com');
   });
 });
