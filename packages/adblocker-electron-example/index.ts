@@ -2,14 +2,7 @@ import fetch from 'cross-fetch';
 import { app, BrowserWindow } from 'electron';
 import { readFileSync, writeFileSync } from 'fs';
 
-import {
-  CosmeticFilter,
-  ElectronBlocker,
-  fullLists,
-  NetworkFilter,
-  Request,
-} from '@cliqz/adblocker-electron';
-import { MatchingContext } from '@cliqz/adblocker';
+import { ElectronBlocker, fullLists, Request } from '@cliqz/adblocker-electron';
 
 function getUrlToLoad(): string {
   let url = 'https://google.com';
@@ -76,12 +69,7 @@ async function createWindow() {
     console.log('style', style.length, url);
   });
 
-  blocker.on(
-    'filter-matched',
-    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
-      console.log('filter-matched', filter, context);
-    },
-  );
+  blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));
 
   mainWindow.loadURL(getUrlToLoad());
   mainWindow.webContents.openDevTools();

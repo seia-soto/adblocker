@@ -10,14 +10,11 @@ import { browser } from 'webextension-polyfill-ts';
 
 import {
   BlockingResponse,
-  CosmeticFilter,
   fullLists,
   HTMLSelector,
-  NetworkFilter,
   Request,
   WebExtensionBlocker,
 } from '@cliqz/adblocker-webextension';
-import { MatchingContext } from '@cliqz/adblocker';
 
 /**
  * Keep track of number of network requests altered for each tab
@@ -101,12 +98,7 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
     console.log('style', url, style.length);
   });
 
-  blocker.on(
-    'filter-matched',
-    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
-      console.log('filter-matched', filter, context);
-    },
-  );
+  blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));
 
   console.log('Ready to roll!');
 });

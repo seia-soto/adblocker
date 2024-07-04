@@ -131,13 +131,13 @@ export type EngineEventHandlers = {
   'csp-injected': (csps: string, request: Request) => void;
   'script-injected': CosmeticInjectionEvent;
   'style-injected': CosmeticInjectionEvent;
-
-  // 'filter-matched' event is fired on the match of both cosmetic and network filter.
-  // This event aims to demonstrate the matching process rather the final behavior.
-  // Therefore, using the above events would be helpful if you want to know the final action.
-  // An exception filter event will be always fired right after a corresponding filter.
-  // However, exceptions without a corresponding filter will not handled by this event.
-  'filter-matched': (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => any;
+  'filter-matched': (
+    match: {
+      filter?: CosmeticFilter | NetworkFilter | undefined;
+      exception?: CosmeticFilter | NetworkFilter | undefined;
+    },
+    context: MatchingContext,
+  ) => any;
 };
 
 export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
@@ -753,41 +753,45 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     domain ||= '';
 
-    const { rules, candidates, exceptions } = this.cosmetics.getHtmlRules({
+    const { filters, unhides } = this.cosmetics.getHtmlFilters({
       domain,
       hostname,
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
+    const exceptions = new Map(unhides.map((unhide) => [unhide.getSelector(), unhide]));
 
-    for (const rule of rules) {
-      const extended = rule.getExtendedSelector();
-      if (extended !== undefined) {
+    for (const filter of filters) {
+      const extended = filter.getExtendedSelector();
+      if (extended === undefined) {
+        continue;
+      }
+      const exception = exceptions.get(filter.getSelector());
+      if (exception !== undefined) {
         htmlSelectors.push(extended);
       }
+      this.emit(
+        'filter-matched',
+        { filter, exception },
+        {
+          url,
+          hostname,
+          domain,
+
+          callerContext,
+          filterType: FilterType.COSMETIC,
+        },
+      );
     }
 
-    const context: CosmeticFilterMatchingContext = {
-      url,
-      hostname,
-      domain,
+    if (htmlSelectors.length !== 0) {
+      this.emit('html-filtered', htmlSelectors, url, {
+        url,
+        hostname,
+        domain,
 
-      filterType: FilterType.COSMETIC,
-      callerContext,
-    };
-
-    if (this.hasListeners('filter-matched')) {
-      for (const match of candidates) {
-        this.emit('filter-matched', match, context);
-
-        const exception = exceptions.get(match);
-        if (exception !== undefined) {
-          this.emit('filter-matched', exception, context);
-        }
-      }
-    }
-
-    if (htmlSelectors.length !== 0 && this.hasListeners('html-filtered')) {
-      this.emit('html-filtered', htmlSelectors, url, context);
+        callerContext,
+        filterType: FilterType.COSMETIC,
+      });
     }
 
     return htmlSelectors;
@@ -884,7 +888,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       allowSpecificHides = shouldApplyHideException(specificHides) === false;
     }
 
-    const argumentBase = {
+    // Lookup injections as well as stylesheets
+    const { filters, unhides } = this.cosmetics.getCosmeticsFilters({
       domain,
       hostname,
 
@@ -895,42 +900,72 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       allowGenericHides,
       allowSpecificHides,
 
-      getBaseRules,
-      getInjectionRules,
-      getExtendedRules,
       getRulesFromDOM,
       getRulesFromHostname,
-    };
-
-    // Lookup injections as well as stylesheets
-    const {
-      injections,
-      stylesheet,
-      extended,
-      candidates,
-      exceptions: exceptionMatches,
-    } = this.cosmetics.getCosmeticsFilters({
-      ...argumentBase,
-
       isFilterExcluded: this.isFilterExcluded.bind(this),
     });
 
-    if (this.hasListeners('filter-matched')) {
-      const context: CosmeticFilterMatchingContext = {
-        url,
+    let injectionsDisabled = false;
+    const unhideExceptions: Map<string, CosmeticFilter> = new Map();
 
-        ...argumentBase,
+    for (const unhide of unhides) {
+      if (
+        unhide.isScriptInject() === true &&
+        unhide.isUnhide() === true &&
+        unhide.getSelector().length === 0
+      ) {
+        injectionsDisabled = true;
+      }
+      unhideExceptions.set(unhide.getSelector(), unhide);
+    }
 
-        filterType: FilterType.COSMETIC,
-        callerContext,
-      };
+    const injections: CosmeticFilter[] = [];
+    const styleFilters: CosmeticFilter[] = [];
+    const extendedFilters: CosmeticFilter[] = [];
 
-      for (const match of candidates) {
-        this.emit('filter-matched', match, context);
+    if (filters.length !== 0) {
+      // Apply unhide rules + dispatch
+      for (const filter of filters) {
+        // Make sure `rule` is not un-hidden by a #@# filter
+        const exception = unhideExceptions.get(filter.getSelector());
 
-        const exception = exceptionMatches.get(match);
         if (exception !== undefined) {
-          this.emit('filter-matched', exception, context);
+          continue;
+        }
+
+        let applied = false;
+
+        // Dispatch filters in `injections` or `styles` depending on type
+        if (filter.isScriptInject() === true) {
+          if (getInjectionRules === true && injectionsDisabled === false) {
+            injections.push(filter);
+            applied = true;
+          }
+        } else if (filter.isExtended()) {
+          if (getExtendedRules === true) {
+            extendedFilters.push(filter);
+            applied = true;
+          }
+        } else {
+          styleFilters.push(filter);
+          applied = true;
+        }
+
+        if (applied) {
+          this.emit(
+            'filter-matched',
+            {
+              filter,
+              exception,
+            },
+            {
+              url,
+              hostname,
+              domain,
+              filterType: FilterType.COSMETIC,
+              callerContext,
+            },
+          );
         }
       }
     }
@@ -944,6 +979,14 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         scripts.push(script);
       }
     }
+
+    const { stylesheet, extended } = this.cosmetics.getStylesheetsFromFilters(
+      {
+        filters: styleFilters,
+        extendedFilters,
+      },
+      { getBaseRules, allowGenericHides },
+    );
 
     // Emit events
     if (stylesheet.length !== 0) {
@@ -991,16 +1034,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       );
     }
 
-    if (this.hasListeners('filter-matched')) {
-      for (const filter of filters) {
-        this.emit('filter-matched', filter, {
-          request,
-
-          filterType: FilterType.NETWORK,
-        });
-      }
-    }
-
     return new Set(filters);
   }
 
@@ -1025,35 +1058,48 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     }
 
     // Collect all CSP directives and keep track of exceptions
-    const disabledCsp = new Set();
-    const enabledCsp = new Set();
-    for (const filter of matches) {
-      this.emit('filter-matched', filter, {
-        request,
+    const exceptions: Map<string | undefined, NetworkFilter> = new Map();
+    const filters: NetworkFilter[] = [];
 
-        filterType: FilterType.NETWORK,
-      });
+    for (const filter of matches) {
       if (filter.isException()) {
         if (filter.csp === undefined) {
           // All CSP directives are disabled for this site
+          this.emit(
+            'filter-matched',
+            { exception: filter },
+            { request, filterType: FilterType.NETWORK },
+          );
           return undefined;
         }
-        disabledCsp.add(filter.csp);
+        exceptions.set(filter.csp, filter);
       } else {
-        enabledCsp.add(filter.csp);
+        filters.push(filter);
       }
     }
 
-    // Combine all CSPs (except the black-listed ones)
-    const csps: string | undefined =
-      Array.from(enabledCsp)
-        .filter((csp) => !disabledCsp.has(csp))
-        .join('; ') || undefined;
-
-    // Emit event
-    if (csps !== undefined) {
-      this.emit('csp-injected', csps, request);
+    if (filters.length === 0) {
+      return undefined;
     }
+
+    const enabledCsp = new Set();
+
+    // Combine all CSPs (except the black-listed ones)
+    for (const filter of filters.values()) {
+      const exception = exceptions.get(filter.csp);
+      if (exception === undefined) {
+        enabledCsp.add(filter.csp);
+      }
+      this.emit(
+        'filter-matched',
+        { filter, exception },
+        { request, filterType: FilterType.NETWORK },
+      );
+    }
+
+    const csps = Array.from(enabledCsp).join('; ');
+
+    this.emit('csp-injected', csps, request);
 
     return csps;
   }
@@ -1074,12 +1120,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     if (!this.config.loadNetworkFilters) {
       return result;
     }
-
-    const context: NetworkFilterMatchingContext = {
-      request,
-
-      filterType: FilterType.NETWORK,
-    };
 
     if (request.isSupported) {
       // Check the filters in the following order:
@@ -1131,14 +1171,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         // If we found either a redirection rule or a normal match, then check
         // for exceptions which could apply on the request and un-block it.
         if (result.filter !== undefined) {
-          // Emit if a filter matched
-          this.emit('filter-matched', result.filter, context);
-
           result.exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
         }
-      } else {
-        // Emit if an important flagged filter matched
-        this.emit('filter-matched', result.filter, context);
       }
 
       // If there was a redirect match and no exception was found, then we
@@ -1161,17 +1195,22 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     result.match = result.exception === undefined && result.filter !== undefined;
 
-    if (this.hasListeners()) {
-      if (result.exception !== undefined) {
-        this.emit('filter-matched', result.exception, context); // Emit if an exception matched
-        this.emit('request-whitelisted', request, result);
-      } else if (result.redirect !== undefined) {
-        this.emit('request-redirected', request, result);
-      } else if (result.filter !== undefined) {
-        this.emit('request-blocked', request, result);
-      } else {
-        this.emit('request-allowed', request, result);
-      }
+    if (result.filter) {
+      this.emit(
+        'filter-matched',
+        { filter: result.filter, exception: result.exception },
+        { request, filterType: FilterType.NETWORK },
+      );
+    }
+
+    if (result.exception !== undefined) {
+      this.emit('request-whitelisted', request, result);
+    } else if (result.redirect !== undefined) {
+      this.emit('request-redirected', request, result);
+    } else if (result.filter !== undefined) {
+      this.emit('request-blocked', request, result);
+    } else {
+      this.emit('request-allowed', request, result);
     }
 
     if (withMetadata === true && result.filter !== undefined && this.metadata) {

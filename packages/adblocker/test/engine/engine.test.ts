@@ -196,7 +196,7 @@ describe('#FiltersEngine', () => {
     });
   });
 
-  describe('cps policies', () => {
+  describe('csp policies', () => {
     it('no policy in engine', () => {
       expect(
         createEngine('this is not a csp').getCSPDirectives(
@@ -1448,13 +1448,13 @@ describe('events', () => {
       }),
     );
 
-    const [[filter]] = await awaiter;
+    const [[{ filter }]] = await awaiter;
 
-    expect(filter.toString()).to.be.equal('||foo.com');
+    expect(filter!.toString()).to.be.equal('||foo.com');
   });
 
   it('emits exception in filter-matched', async () => {
-    const awaiter = createEventAwaiter(engine, 'filter-matched', 2);
+    const awaiter = createEventAwaiter(engine, 'filter-matched');
 
     engine.match(
       Request.fromRawDetails({
@@ -1462,9 +1462,9 @@ describe('events', () => {
       }),
     );
 
-    const [[filter], [exception]] = await awaiter;
+    const [[{ filter, exception }]] = await awaiter;
 
-    expect(filter.toString()).to.be.equal('||bar.com');
-    expect(exception.toString()).to.be.equal('@@||bar.com'); // The exception filter is always emitted later
+    expect(filter!.toString()).to.be.equal('||bar.com');
+    expect(exception!.toString()).to.be.equal('@@||bar.com'); // The exception filter is always emitted later
   });
 });
