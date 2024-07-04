@@ -17,10 +17,6 @@ import * as pw from 'playwright';
 
   await blocker.enableBlockingInPage(page);
 
-  blocker.on('request-allowed', (request: Request) => {
-    console.log('allow', request.url);
-  });
-
   blocker.on('request-blocked', (request: Request) => {
     console.log('blocked', request.url);
   });
@@ -33,7 +29,7 @@ import * as pw from 'playwright';
     console.log('whitelisted', request.url);
   });
 
-  blocker.on('csp-injected', (csps: string, request: Request) => {
+  blocker.on('csp-injected', (request: Request, csps: string) => {
     console.log('csp', request.url, csps);
   });
 

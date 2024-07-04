@@ -86,57 +86,34 @@ export interface Caching {
   write: (path: string, buffer: Uint8Array) => Promise<void>;
 }
 
-// We do have a full context in case of the network filter matching.
-// It's because network filter matching does rely on an argument of the request.
 type NetworkFilterMatchingContext = {
   request: Request;
-
   filterType: FilterType.NETWORK;
 };
 
-// Cosmetic rule is commonly used word in the project,
-// but cosmetic filter is used for better documentation.
-type CosmeticFilterMatchingContextBase = {
+type CosmeticFilterMatchingContext = {
   url: string;
-  domain: string;
-  hostname: string | undefined;
-
+  callerContext: any; // Additional context given from user
   filterType: FilterType.COSMETIC;
-
-  // Additional context given from user
-  callerContext: any;
 };
 
-export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
-  Partial<
-    Parameters<FilterEngine['getCosmeticsFilters']>[0] &
-      Omit<Parameters<CosmeticFilterBucket['getCosmeticsFilters']>[0], 'isFilterExcluded'>
-  >;
-
-export type MatchingContext = CosmeticFilterMatchingContext | NetworkFilterMatchingContext;
-
 type NetworkFilterMatchEvent = (request: Request, result: BlockingResponse) => void;
-type CosmeticInjectionEvent = (script: string, url: string) => void;
 
 export type EngineEventHandlers = {
   'request-allowed': NetworkFilterMatchEvent;
   'request-blocked': NetworkFilterMatchEvent;
   'request-redirected': NetworkFilterMatchEvent;
   'request-whitelisted': NetworkFilterMatchEvent;
-  'html-filtered': (
-    htmlSelectors: HTMLSelector[],
-    url: string,
-    context: CosmeticFilterMatchingContext,
-  ) => void;
-  'csp-injected': (csps: string, request: Request) => void;
-  'script-injected': CosmeticInjectionEvent;
-  'style-injected': CosmeticInjectionEvent;
+  'csp-injected': (request: Request, csps: string) => void;
+  'html-filtered': (htmlSelectors: HTMLSelector[], url: string) => void;
+  'script-injected': (script: string, url: string) => void;
+  'style-injected': (style: string, url: string) => void;
   'filter-matched': (
     match: {
       filter?: CosmeticFilter | NetworkFilter | undefined;
       exception?: CosmeticFilter | NetworkFilter | undefined;
     },
-    context: MatchingContext,
+    context: CosmeticFilterMatchingContext | NetworkFilterMatchingContext,
   ) => any;
 };
 
@@ -774,9 +751,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         { filter, exception },
         {
           url,
-          hostname,
-          domain,
-
           callerContext,
           filterType: FilterType.COSMETIC,
         },
@@ -784,14 +758,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     }
 
     if (htmlSelectors.length !== 0) {
-      this.emit('html-filtered', htmlSelectors, url, {
-        url,
-        hostname,
-        domain,
-
-        callerContext,
-        filterType: FilterType.COSMETIC,
-      });
+      this.emit('html-filtered', htmlSelectors, url);
     }
 
     return htmlSelectors;
@@ -960,10 +927,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
             },
             {
               url,
-              hostname,
-              domain,
-              filterType: FilterType.COSMETIC,
               callerContext,
+              filterType: FilterType.COSMETIC,
             },
           );
         }
@@ -1099,7 +1064,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
     const csps = Array.from(enabledCsp).join('; ');
 
-    this.emit('csp-injected', csps, request);
+    this.emit('csp-injected', request, csps);
 
     return csps;
   }

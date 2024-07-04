@@ -41,10 +41,6 @@ async function createWindow() {
 
   blocker.enableBlockingInSession(mainWindow.webContents.session);
 
-  blocker.on('request-allowed', (request: Request) => {
-    console.log('allow', request.tabId, request.url);
-  });
-
   blocker.on('request-blocked', (request: Request) => {
     console.log('blocked', request.tabId, request.url);
   });
@@ -57,8 +53,8 @@ async function createWindow() {
     console.log('whitelisted', request.tabId, request.url);
   });
 
-  blocker.on('csp-injected', (csps: string, request: Request) => {
-    console.log('csp', csps, request.url);
+  blocker.on('csp-injected', (request: Request, csps: string) => {
+    console.log('csp', request.url, csps);
   });
 
   blocker.on('script-injected', (script: string, url: string) => {

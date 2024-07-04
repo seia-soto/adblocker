@@ -62,11 +62,6 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
 }).then((blocker: WebExtensionBlocker) => {
   blocker.enableBlockingInBrowser(browser);
 
-  blocker.on('request-allowed', (request: Request, result: BlockingResponse) => {
-    incrementBlockedCounter(request, result);
-    console.log('allow', request.url);
-  });
-
   blocker.on('request-blocked', (request: Request, result: BlockingResponse) => {
     incrementBlockedCounter(request, result);
     console.log('block', request.url);
@@ -77,17 +72,8 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
     console.log('redirect', request.url, result);
   });
 
-  blocker.on('request-whitelisted', (request: Request, result: BlockingResponse) => {
-    incrementBlockedCounter(request, result);
-    console.log('whitelist', request.url, result);
-  });
-
-  blocker.on('html-filtered', (htmlSelectors: HTMLSelector[], url: string) => {
-    console.log('html selectors', url, htmlSelectors);
-  });
-
-  blocker.on('csp-injected', (csps: string, request: Request) => {
-    console.log('csp', request.url, csps.length);
+  blocker.on('csp-injected', (request: Request, csps: string) => {
+    console.log('csp', request.url, csps);
   });
 
   blocker.on('script-injected', (script: string, url: string) => {
@@ -95,7 +81,11 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
   });
 
   blocker.on('style-injected', (style: string, url: string) => {
-    console.log('style', style.length, url);
+    console.log('style', url, style.length);
+  });
+
+  blocker.on('html-filtered', (htmlSelectors: HTMLSelector[], url: string) => {
+    console.log('html selectors', htmlSelectors, url);
   });
 
   blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));

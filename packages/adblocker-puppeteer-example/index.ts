@@ -4,7 +4,7 @@ import * as puppeteer from 'puppeteer';
 import { promises as fs } from 'fs';
 
 function getUrlToLoad(): string {
-  let url = 'https://www.mangareader.to/';
+  let url = 'https://www.mangareader.net/';
   if (process.argv[process.argv.length - 1].endsWith('.ts') === false) {
     url = process.argv[process.argv.length - 1];
   }
@@ -35,10 +35,6 @@ function getUrlToLoad(): string {
   const page = await browser.newPage();
   await blocker.enableBlockingInPage(page);
 
-  blocker.on('request-allowed', (request: Request) => {
-    console.log('allow', request.url);
-  });
-
   blocker.on('request-blocked', (request: Request) => {
     console.log('blocked', request.url);
   });
@@ -51,8 +47,8 @@ function getUrlToLoad(): string {
     console.log('whitelisted', request.url);
   });
 
-  blocker.on('csp-injected', (csps: string, request: Request) => {
-    console.log('csp', csps.length, request.url);
+  blocker.on('csp-injected', (request: Request, csps: string) => {
+    console.log('csp', request.url, csps);
   });
 
   blocker.on('script-injected', (script: string, url: string) => {
