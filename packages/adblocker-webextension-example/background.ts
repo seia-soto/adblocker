@@ -91,11 +91,11 @@ WebExtensionBlocker.fromLists(fetch, fullLists, {
   });
 
   blocker.on('script-injected', (script: string, url: string) => {
-    console.log('script', url, script.length);
+    console.log('script', script.length, url);
   });
 
   blocker.on('style-injected', (style: string, url: string) => {
-    console.log('style', url, style.length);
+    console.log('style', style.length, url);
   });
 
   blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));

@@ -1,7 +1,7 @@
 import { fullLists, PuppeteerBlocker, Request } from '@cliqz/adblocker-puppeteer';
 import fetch from 'cross-fetch';
-import fs from 'fs/promises';
 import * as puppeteer from 'puppeteer';
+import { promises as fs } from 'fs';
 
 function getUrlToLoad(): string {
   let url = 'https://www.mangareader.to/';
@@ -52,23 +52,18 @@ function getUrlToLoad(): string {
   });
 
   blocker.on('csp-injected', (csps: string, request: Request) => {
-    console.log('csp', request.url, csps.length);
+    console.log('csp', csps.length, request.url);
   });
 
   blocker.on('script-injected', (script: string, url: string) => {
-    console.log('script', url, script.length);
+    console.log('script', script.length, url);
   });
 
   blocker.on('style-injected', (style: string, url: string) => {
-    console.log('style', url, style.length);
+    console.log('style', style.length, url);
   });
 
-  blocker.on(
-    'filter-matched',
-    (filter: CosmeticFilter | NetworkFilter, context: MatchingContext) => {
-      console.log('filter-matched', filter, context);
-    },
-  );
+  blocker.on('filter-matched', console.log.bind(console, 'filter-matched'));
 
   await page.goto(getUrlToLoad());
 })();

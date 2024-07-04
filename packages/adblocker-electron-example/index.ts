@@ -1,5 +1,5 @@
-import fetch from 'cross-fetch';
 import { app, BrowserWindow } from 'electron';
+import fetch from 'cross-fetch';
 import { readFileSync, writeFileSync } from 'fs';
 
 import { ElectronBlocker, fullLists, Request } from '@cliqz/adblocker-electron';

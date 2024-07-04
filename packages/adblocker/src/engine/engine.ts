@@ -88,7 +88,7 @@ export interface Caching {
 
 // We do have a full context in case of the network filter matching.
 // It's because network filter matching does rely on an argument of the request.
-export type NetworkFilterMatchingContext = {
+type NetworkFilterMatchingContext = {
   request: Request;
 
   filterType: FilterType.NETWORK;
@@ -109,7 +109,7 @@ type CosmeticFilterMatchingContextBase = {
 
 export type CosmeticFilterMatchingContext = CosmeticFilterMatchingContextBase &
   Partial<
-    Omit<Parameters<FilterEngine['getCosmeticsFilters']>[0], 'callerContext'> &
+    Parameters<FilterEngine['getCosmeticsFilters']>[0] &
       Omit<Parameters<CosmeticFilterBucket['getCosmeticsFilters']>[0], 'isFilterExcluded'>
   >;
 
