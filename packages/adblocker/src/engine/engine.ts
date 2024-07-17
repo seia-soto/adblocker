@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2017-present Cliqz GmbH. All rights reserved.
+ * Copyright (c) 2017-present Ghostery GmbH. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,9 +8,9 @@
 
 import type { IMessageFromBackground } from '@cliqz/adblocker-content';
 
-import Config from '../config';
-import { StaticDataView, sizeOfASCII, sizeOfByte, sizeOfBool } from '../data-view';
-import { EventEmitter } from '../events';
+import Config from '../config.js';
+import { StaticDataView, sizeOfASCII, sizeOfByte, sizeOfBool } from '../data-view.js';
+import { EventEmitter } from '../events.js';
 import {
   adsAndTrackingLists,
   adsLists,
@@ -18,22 +18,22 @@ import {
   fetchLists,
   fetchResources,
   fullLists,
-} from '../fetch';
-import { HTMLSelector } from '../html-filtering';
-import CosmeticFilter from '../filters/cosmetic';
-import NetworkFilter from '../filters/network';
-import { block } from '../filters/dsl';
-import { FilterType, IListDiff, IPartialRawDiff, parseFilters } from '../lists';
-import Request from '../request';
-import Resources from '../resources';
-import CosmeticFilterBucket from './bucket/cosmetic';
-import NetworkFilterBucket from './bucket/network';
-import { Metadata, IPatternLookupResult } from './metadata';
-import Preprocessor, { Env } from '../preprocessor';
-import PreprocessorBucket from './bucket/preprocessor';
-import IFilter from '../filters/interface';
+} from '../fetch.js';
+import { HTMLSelector } from '../html-filtering.js';
+import CosmeticFilter from '../filters/cosmetic.js';
+import NetworkFilter from '../filters/network.js';
+import { block } from '../filters/dsl.js';
+import { FilterType, IListDiff, IPartialRawDiff, parseFilters } from '../lists.js';
+import Request from '../request.js';
+import Resources from '../resources.js';
+import CosmeticFilterBucket from './bucket/cosmetic.js';
+import NetworkFilterBucket from './bucket/network.js';
+import { Metadata, IPatternLookupResult } from './metadata.js';
+import Preprocessor, { Env } from '../preprocessor.js';
+import PreprocessorBucket from './bucket/preprocessor.js';
+import IFilter from '../filters/interface.js';
 
-export const ENGINE_VERSION = 654;
+export const ENGINE_VERSION = 657;
 
 function shouldApplyHideException(filters: NetworkFilter[]): boolean {
   if (filters.length === 0) {
@@ -174,7 +174,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
    * Initialize blocker of *ads only*.
    *
    * Attempt to initialize a blocking engine using a pre-built version served
-   * from Cliqz's CDN. If this fails (e.g.: if no pre-built engine is available
+   * from Ghostery's CDN. If this fails (e.g.: if no pre-built engine is available
    * for this version of the library), then falls-back to using `fromLists(...)`
    * method with the same subscriptions.
    */
