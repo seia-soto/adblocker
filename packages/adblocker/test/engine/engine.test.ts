@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2017-present Cliqz GmbH. All rights reserved.
+ * Copyright (c) 2017-present Ghostery GmbH. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,13 +11,13 @@ import 'mocha';
 
 import { getDomain } from 'tldts-experimental';
 
-import Engine, { EngineEventHandlers } from '../../src/engine/engine';
-import NetworkFilter from '../../src/filters/network';
-import Request, { RequestType } from '../../src/request';
-import Resources from '../../src/resources';
+import Engine from '../../src/engine/engine.js';
+import NetworkFilter from '../../src/filters/network.js';
+import Request, { RequestType } from '../../src/request.js';
+import Resources from '../../src/resources.js';
 
-import requests from '../data/requests';
-import { loadEasyListFilters, typedArrayEqual } from '../utils';
+import requests from '../data/requests.js';
+import { loadEasyListFilters, typedArrayEqual } from '../utils.js';
 
 /**
  * Helper function used in the Engine tests. All the assertions are performed by

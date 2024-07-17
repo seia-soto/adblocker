@@ -1,12 +1,12 @@
 /*!
- * Copyright (c) 2017-present Cliqz GmbH. All rights reserved.
+ * Copyright (c) 2017-present Ghostery GmbH. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { queueMicrotask } from './queue-microtask';
+import { queueMicrotask } from './queue-microtask.js';
 
 /**
  * Type of an event listener (i.e.: callback). It accepts arbitrary arguments

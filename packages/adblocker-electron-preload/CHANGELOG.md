@@ -1,3 +1,30 @@
+# v1.28.1 (Mon Jul 15 2024)
+
+#### :bug: Bug Fix
+
+- Simplify build with tshy [#4079](https://github.com/ghostery/adblocker/pull/4079) ([@chrmod](https://github.com/chrmod) [@seia-soto](https://github.com/seia-soto))
+
+#### Authors: 2
+
+- HoJeong Go ([@seia-soto](https://github.com/seia-soto))
+- Krzysztof Modras ([@chrmod](https://github.com/chrmod))
+
+---
+
+# v1.28.0 (Tue Jul 09 2024)
+
+#### :nut_and_bolt: Dependencies
+
+- Update typescript [#4053](https://github.com/ghostery/adblocker/pull/4053) ([@chrmod](https://github.com/chrmod))
+- Build(deps): Bump electron from 30.1.0 to 31.0.0 [#4019](https://github.com/ghostery/adblocker/pull/4019) ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
+#### Authors: 2
+
+- [@dependabot[bot]](https://github.com/dependabot[bot])
+- Krzysztof Modras ([@chrmod](https://github.com/chrmod))
+
+---
+
 # v1.27.11 (Mon Jun 10 2024)
 
 #### :nut_and_bolt: Dependencies

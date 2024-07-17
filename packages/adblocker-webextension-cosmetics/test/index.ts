@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2017-present Cliqz GmbH. All rights reserved.
+ * Copyright (c) 2017-present Ghostery GmbH. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,7 +10,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import 'mocha';
 import { JSDOM, ResourceLoader } from 'jsdom';
-import { injectCosmetics } from '../adblocker';
+import { injectCosmetics } from '../src/index.js';
 
 async function tick(timeout = 0) {
   await new Promise((resolve) => setTimeout(resolve, timeout));
@@ -112,7 +112,7 @@ describe('#injectCosmetics', () => {
     div.appendChild(a);
 
     document.body.appendChild(div);
-    await tick();
+    await tick(30);
 
     sinon.assert.calledThrice(getCosmeticsFilters);
     sinon.assert.calledWith(getCosmeticsFilters.thirdCall, {
@@ -129,7 +129,7 @@ describe('#injectCosmetics', () => {
     a.href = 'https://baz.com/';
     a.classList.add('class1');
 
-    await tick();
+    await tick(30);
     dom.window.close();
 
     expect(getCosmeticsFilters.callCount).to.eql(4);
@@ -177,7 +177,7 @@ describe('#injectCosmetics', () => {
 
   it('injects scriptlet in Firefox', async () => {
     const loader = new ResourceLoader({
-      userAgent: "Firefox"
+      userAgent: 'Firefox',
     });
     const dom = new JSDOM(
       `

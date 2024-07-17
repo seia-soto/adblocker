@@ -1,18 +1,15 @@
 /*!
- * Copyright (c) 2017-present Cliqz GmbH. All rights reserved.
+ * Copyright (c) 2017-present Ghostery GmbH. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Type definition
-import * as puppeteer from 'puppeteer';
-
+import * as pw from 'playwright';
 import { parse } from 'tldts-experimental';
 
-import { FiltersEngine, Request, RequestType } from '@cliqz/adblocker';
-
+import { FiltersEngine, PlaywrightRequestType, Request, RequestType } from '@cliqz/adblocker';
 import { autoRemoveScript, extractFeaturesFromDOM, DOMMonitor } from '@cliqz/adblocker-content';
 
 function sleep(milliseconds: number): Promise<void> {
@@ -21,7 +18,7 @@ function sleep(milliseconds: number): Promise<void> {
   });
 }
 
-function getTopLevelUrl(frame: puppeteer.Frame | null): string {
+function getTopLevelUrl(frame: pw.Frame | null): string {
   let sourceUrl = '';
   while (frame !== null) {
     sourceUrl = frame.url();
@@ -34,12 +31,12 @@ function getTopLevelUrl(frame: puppeteer.Frame | null): string {
 }
 
 /**
- * Create an instance of `Request` from `puppeteer.Request`.
+ * Create an instance of `Request` from `pw.Request`.
  */
-export function fromPuppeteerDetails(details: puppeteer.HTTPRequest): Request {
+export function fromPlaywrightDetails(details: pw.Request): Request {
   const sourceUrl = getTopLevelUrl(details.frame());
   const url = details.url();
-  const type: RequestType = details.resourceType();
+  const type: RequestType = details.resourceType() as PlaywrightRequestType;
 
   return Request.fromRawDetails({
     _originalRequestDetails: details,
@@ -51,71 +48,65 @@ export function fromPuppeteerDetails(details: puppeteer.HTTPRequest): Request {
 }
 
 /**
- * Wrap `FiltersEngine` into a Puppeteer-friendly helper class.
+ * Wrap `FiltersEngine` into a Playwright-friendly helper class.
  */
 export class BlockingContext {
-  private readonly onFrameNavigated: (frame: puppeteer.Frame) => Promise<void>;
-  private readonly onDomContentLoaded: () => Promise<void>;
-  private readonly onRequest: (details: puppeteer.HTTPRequest) => void;
+  private readonly onFrameNavigated: (frame: pw.Frame) => Promise<void>;
+  private readonly onRequest: (route: pw.Route) => void;
 
   constructor(
-    private readonly page: puppeteer.Page,
-    private readonly blocker: PuppeteerBlocker,
+    private readonly page: pw.Page,
+    private readonly blocker: PlaywrightBlocker,
   ) {
     this.onFrameNavigated = (frame) => blocker.onFrameNavigated(frame);
-    this.onDomContentLoaded = () => blocker.onFrameNavigated(this.page.mainFrame());
-    this.onRequest = (request) => blocker.onRequest(request);
+    this.onRequest = (route: pw.Route) => blocker.onRequest(route);
   }
 
   public async enable(): Promise<void> {
-    if (this.blocker.config.loadCosmeticFilters) {
-      // Register callbacks to cosmetics injection (CSS + scriptlets)
-      this.page.on('frameattached', this.onFrameNavigated);
-      this.page.on('domcontentloaded', this.onDomContentLoaded);
+    if (this.blocker.config.loadCosmeticFilters === true) {
+      // Register callback to cosmetics injection (CSS + scriptlets)
+      this.page.on('framenavigated', this.onFrameNavigated);
+      this.page.once('domcontentloaded', () => {
+        this.onFrameNavigated(this.page.mainFrame());
+      });
     }
 
-    if (this.blocker.config.loadNetworkFilters) {
-      // Make sure request interception is enabled for `page` before proceeding
-      await this.page.setRequestInterception(true);
+    if (this.blocker.config.loadNetworkFilters === true) {
       // NOTES:
       //  - page.setBypassCSP(enabled) might be needed to perform
       //  injections on some pages.
       //  - we currently do not perform CSP headers injection as there is
-      //  currently no way to modify responses in puppeteer. This feature could
-      //  easily be added if puppeteer implements the required capability.
+      //  currently no way to modify responses in Playwright. This feature could
+      //  easily be added if Playwright implements the required capability.
       //
       // Register callback for network requests filtering.
-      this.page.on('request', this.onRequest);
+      await this.page.route('**/*', this.onRequest);
     }
   }
 
   public async disable(): Promise<void> {
-    if (this.blocker.config.loadNetworkFilters) {
-      this.page.off('request', this.onRequest);
-      await this.page.setRequestInterception(false);
+    if (this.blocker.config.loadNetworkFilters === true) {
+      await this.page.unroute('**/*', this.onRequest);
     }
 
-    if (this.blocker.config.loadCosmeticFilters) {
-      this.page.off('frameattached', this.onFrameNavigated);
-      this.page.off('domcontentloaded', this.onDomContentLoaded);
+    if (this.blocker.config.loadCosmeticFilters === true) {
+      this.page.off('framenavigated', this.onFrameNavigated);
     }
   }
 }
 
 /**
- * Wrap `FiltersEngine` into a Puppeteer-friendly helper class. It exposes
- * methods to interface with Puppeteer APIs needed to block ads.
+ * Wrap `FiltersEngine` into a Playwright-friendly helper class. It exposes
+ * methods to interface with Playwright APIs needed to block ads.
  */
-export class PuppeteerBlocker extends FiltersEngine {
-  private readonly contexts: WeakMap<puppeteer.Page, BlockingContext> = new WeakMap();
-  // Defaults to undefined which preserves Legacy Mode behavior
-  private priority: number | undefined = undefined;
+export class PlaywrightBlocker extends FiltersEngine {
+  private readonly contexts: WeakMap<pw.Page, BlockingContext> = new WeakMap();
 
   // ----------------------------------------------------------------------- //
   // Helpers to enable and disable blocking for 'browser'
   // ----------------------------------------------------------------------- //
 
-  public async enableBlockingInPage(page: puppeteer.Page): Promise<BlockingContext> {
+  public async enableBlockingInPage(page: pw.Page): Promise<BlockingContext> {
     let context: undefined | BlockingContext = this.contexts.get(page);
     if (context !== undefined) {
       return context;
@@ -127,7 +118,7 @@ export class PuppeteerBlocker extends FiltersEngine {
     return context;
   }
 
-  public async disableBlockingInPage(page: puppeteer.Page): Promise<void> {
+  public async disableBlockingInPage(page: pw.Page): Promise<void> {
     const context: undefined | BlockingContext = this.contexts.get(page);
     if (context === undefined) {
       throw new Error('Trying to disable blocking which was not enabled');
@@ -137,15 +128,15 @@ export class PuppeteerBlocker extends FiltersEngine {
     await context.disable();
   }
 
-  public isBlockingEnabled(page: puppeteer.Page): boolean {
+  public isBlockingEnabled(page: pw.Page): boolean {
     return this.contexts.has(page);
   }
 
   // ----------------------------------------------------------------------- //
-  // PuppeteerBlocker-specific additions to FiltersEngine
+  // PlaywrightBlocker-specific additions to FiltersEngine
   // ----------------------------------------------------------------------- //
 
-  public onFrameNavigated = async (frame: puppeteer.Frame) => {
+  public onFrameNavigated = async (frame: pw.Frame) => {
     try {
       await this.onFrame(frame);
     } catch (ex) {
@@ -153,7 +144,7 @@ export class PuppeteerBlocker extends FiltersEngine {
     }
   };
 
-  private onFrame = async (frame: puppeteer.Frame): Promise<void> => {
+  private onFrame = async (frame: pw.Frame): Promise<void> => {
     const url = frame.url();
 
     if (url === 'chrome-error://chromewebdata/') {
@@ -175,8 +166,7 @@ export class PuppeteerBlocker extends FiltersEngine {
     // based on the hostname of this frame. We need to get these as fast as
     // possible to reduce blinking when page loads.
     {
-      // TODO - implement extended filters for Puppeteer
-      const { active, styles, scripts /* , extended */ } = this.getCosmeticsFilters({
+      const { active, styles, scripts } = this.getCosmeticsFilters({
         domain,
         hostname,
         url,
@@ -283,16 +273,9 @@ export class PuppeteerBlocker extends FiltersEngine {
     } while (true);
   };
 
-  public setRequestInterceptionPriority = (defaultPriority = 0) =>
-    (this.priority = defaultPriority);
-
-  public onRequest = (details: puppeteer.HTTPRequest): void => {
-    if (details.isInterceptResolutionHandled?.()) {
-      return;
-    }
-
-    const request = fromPuppeteerDetails(details);
-
+  public onRequest = async (route: pw.Route): Promise<void> => {
+    const details = route.request();
+    const request = fromPlaywrightDetails(details);
     if (this.config.guessRequestTypeFromUrl === true && request.type === 'other') {
       request.guessTypeOfRequest();
     }
@@ -303,7 +286,7 @@ export class PuppeteerBlocker extends FiltersEngine {
       request.isMainFrame() ||
       (request.type === 'document' && frame !== null && frame.parentFrame() === null)
     ) {
-      details.continue(details.continueRequestOverrides?.(), 0);
+      route.continue();
       return;
     }
 
@@ -311,34 +294,24 @@ export class PuppeteerBlocker extends FiltersEngine {
 
     if (redirect !== undefined) {
       if (redirect.contentType.endsWith(';base64')) {
-        details.respond(
-          {
-            status: 200,
-            headers: {},
-            body: Buffer.from(redirect.body, 'base64'),
-            contentType: redirect.contentType.slice(0, -7),
-          },
-          this.priority,
-        );
+        route.fulfill({
+          body: Buffer.from(redirect.body, 'base64'),
+          contentType: redirect.contentType.slice(0, -7),
+        });
       } else {
-        details.respond(
-          {
-            status: 200,
-            headers: {},
-            body: redirect.body,
-            contentType: redirect.contentType,
-          },
-          this.priority,
-        );
+        route.fulfill({
+          body: redirect.body,
+          contentType: redirect.contentType,
+        });
       }
     } else if (match === true) {
-      details.abort('blockedbyclient', this.priority);
+      route.abort('blockedbyclient');
     } else {
-      details.continue(details.continueRequestOverrides?.(), 0);
+      route.continue();
     }
   };
 
-  private async injectStylesIntoFrame(frame: puppeteer.Frame, styles: string): Promise<void> {
+  private async injectStylesIntoFrame(frame: pw.Frame, styles: string): Promise<void> {
     if (styles.length !== 0) {
       await frame.addStyleTag({
         content: styles,
@@ -346,22 +319,15 @@ export class PuppeteerBlocker extends FiltersEngine {
     }
   }
 
-  private async injectScriptletsIntoFrame(
-    frame: puppeteer.Frame,
-    scripts: string[],
-  ): Promise<void> {
-    const promises: Promise<void>[] = [];
+  private async injectScriptletsIntoFrame(frame: pw.Frame, scripts: string[]): Promise<void> {
+    const promises: Promise<any>[] = [];
 
     if (scripts.length !== 0) {
-      for (let i = 0; i < scripts.length; i += 1) {
+      for (const script of scripts) {
         promises.push(
-          frame
-            .addScriptTag({
-              content: autoRemoveScript(scripts[i]),
-            })
-            .then(() => {
-              /* Ignore result */
-            }),
+          frame.addScriptTag({
+            content: autoRemoveScript(script),
+          }),
         );
       }
     }
@@ -373,7 +339,7 @@ export class PuppeteerBlocker extends FiltersEngine {
    * Look for sub-frames in `frame`, check if their `src` or `href` would be
    * blocked, and then proceed to removing them from the DOM completely.
    */
-  private async removeBlockedFrames(frame: puppeteer.Frame): Promise<void> {
+  private async removeBlockedFrames(frame: pw.Frame): Promise<void> {
     const promises: Promise<void>[] = [];
     const sourceUrl = getTopLevelUrl(frame);
 

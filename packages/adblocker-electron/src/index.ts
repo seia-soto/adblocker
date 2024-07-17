@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2017-present Cliqz GmbH. All rights reserved.
+ * Copyright (c) 2017-present Ghostery GmbH. All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,7 +8,6 @@
 
 import * as electron from 'electron';
 import { parse } from 'tldts-experimental';
-import { createRequire } from 'node:module';
 
 import { ElectronRequestType, FiltersEngine, Request } from '@cliqz/adblocker';
 import type {
@@ -16,9 +15,9 @@ import type {
   IMessageFromBackground,
 } from '@cliqz/adblocker-electron-preload';
 
-const { ipcMain } = electron;
+import { PRELOAD_PATH } from './preload_path.js';
 
-const PRELOAD_PATH = createRequire(import.meta.url).resolve('@cliqz/adblocker-electron-preload');
+const { ipcMain } = electron;
 
 // https://stackoverflow.com/questions/48854265/why-do-i-see-an-electron-security-warning-after-updating-my-electron-project-t
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
