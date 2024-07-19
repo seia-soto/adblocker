@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Check directory
+        run: tree . -L 2
+
       - name: Build
         run: yarn build
 
