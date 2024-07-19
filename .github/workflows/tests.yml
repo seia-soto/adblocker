@@ -26,10 +26,10 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install
 
-      - name: Check directory
-        run: tree . -L 2
+      - run: pwd
+      - run: tree . -L 2
 
       - name: Build
         run: yarn build
