@@ -19,17 +19,18 @@ jobs:
         run: corepack enable
 
       - name: Use node ${{ matrix.node }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           cache: yarn
           node-version: ${{ matrix.node }}
           registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
 
       - run: pwd
       - run: tree . -L 2
+      - run: yarn --version
 
       - name: Build
         run: yarn build
