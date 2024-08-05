@@ -19,7 +19,7 @@ import {
   fetchResources,
   fullLists,
 } from '../fetch.js';
-import { HTMLModifier, HTMLSelector } from '../html-filtering.js';
+import { HTMLSelector } from '../html-filtering.js';
 import CosmeticFilter from '../filters/cosmetic.js';
 import NetworkFilter from '../filters/network.js';
 import { block } from '../filters/dsl.js';
