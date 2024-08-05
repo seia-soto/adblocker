@@ -889,7 +889,6 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         const modifier = filter.getHtmlModifier();
 
         if (modifier !== null) {
-
           if (!exception) {
             htmlSelectors.push(['replace', modifier]);
           }
