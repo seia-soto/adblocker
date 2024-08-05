@@ -883,24 +883,26 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         this.isFilterExcluded.bind(this),
       );
 
-      const exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
+      if (replaceFilters.length !== 0) {
+        const exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
 
-      for (const filter of replaceFilters) {
-        const modifier = filter.getHtmlModifier();
+        for (const filter of replaceFilters) {
+          const modifier = filter.getHtmlModifier();
 
-        if (modifier !== null) {
-          if (!exception) {
-            htmlSelectors.push(['replace', modifier]);
+          if (modifier !== null) {
+            if (!exception) {
+              htmlSelectors.push(['replace', modifier]);
+            }
+
+            this.emit(
+              'filter-matched',
+              { filter, exception },
+              {
+                request,
+                filterType: FilterType.COSMETIC,
+              },
+            );
           }
-
-          this.emit(
-            'filter-matched',
-            { filter, exception },
-            {
-              request,
-              filterType: FilterType.COSMETIC,
-            },
-          );
         }
       }
     }
