@@ -883,13 +883,20 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         this.isFilterExcluded.bind(this),
       );
 
+      const exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
+
       for (const filter of replaceFilters) {
         const modifier = filter.getHtmlModifier();
+
         if (modifier !== null) {
-          htmlSelectors.push(['replace', modifier]);
+
+          if (!exception) {
+            htmlSelectors.push(['replace', modifier]);
+          }
+
           this.emit(
             'filter-matched',
-            { filter, exception: undefined },
+            { filter, exception },
             {
               request,
               filterType: FilterType.COSMETIC,
