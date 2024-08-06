@@ -15,7 +15,7 @@ import {
   extractSelectorsFromRules,
   extractTagsFromHtml,
 } from '../src/html-filtering.js';
-import { loadRequestSample } from './utils.js';
+import { getRequestSamplePath, loadRequestSample } from './utils.js';
 import { replaceOptionValueToRegexp } from '../src/filters/network.js';
 
 // NOTE: `doc` is defined at the end of this file.
@@ -302,12 +302,12 @@ describe('html-filtering', () => {
       ] as const;
 
       for (const { url, filters } of urls) {
-        it(`fitlers: ${filters.join(',')}`, () => {
+        it(`filters: ${filters.join(',')}`, () => {
           const modified = filter(
-            loadRequestSample(url),
+            loadRequestSample(getRequestSamplePath(url)),
             filters.map((filter) => ['replace', replaceOptionValueToRegexp(filter)!]),
           );
-          expect(modified).to.be.eql(loadRequestSample(url + '.modified'));
+          expect(modified).to.be.eql(loadRequestSample(getRequestSamplePath(url + '.modified')));
         });
       }
     });

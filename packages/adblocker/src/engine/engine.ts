@@ -37,7 +37,7 @@ import { IOrganization } from './metadata/organizations.js';
 import { IPattern } from './metadata/patterns.js';
 import { fastHash } from '../utils.js';
 
-export const ENGINE_VERSION = 662;
+export const ENGINE_VERSION = 664;
 
 function shouldApplyHideException(filters: NetworkFilter[]): boolean {
   if (filters.length === 0) {
@@ -885,13 +885,13 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
 
       if (replaceFilters.length !== 0) {
         const exception = this.exceptions.match(request, this.isFilterExcluded.bind(this));
-
+        let modifiers = [];
         for (const filter of replaceFilters) {
           const modifier = filter.getHtmlModifier();
 
           if (modifier !== null) {
             if (!exception) {
-              htmlSelectors.push(['replace', modifier]);
+              modifiers.push(['replace', modifier]);
             }
 
             this.emit(
@@ -902,8 +902,16 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
                 filterType: FilterType.COSMETIC,
               },
             );
+          } else {
+            // Disable all replace modifiers if empty replace modifier found
+            modifiers = [];
+            break;
           }
         }
+      }
+      
+      if (modifiers.length !== 0) {
+        htmlSelectors.push(...modifiers.map((modifier) => ['replace', modifier]));
       }
     }
 
