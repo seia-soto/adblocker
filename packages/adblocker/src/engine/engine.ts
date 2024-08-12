@@ -28,6 +28,7 @@ import Request from '../request.js';
 import Resources, { Resource } from '../resources.js';
 import CosmeticFilterBucket from './bucket/cosmetic.js';
 import NetworkFilterBucket from './bucket/network.js';
+import HTMLBucket from './bucket/html.js';
 import { Metadata, IPatternLookupResult } from './metadata.js';
 import Preprocessor, { Env } from '../preprocessor.js';
 import PreprocessorBucket from './bucket/preprocessor.js';
@@ -441,6 +442,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     engine.cosmetics = CosmeticFilterBucket.deserialize(buffer, config);
     engine.hideExceptions = NetworkFilterBucket.deserialize(buffer, config);
 
+    engine.htmlFilters = HTMLBucket.deserialize(buffer, config);
+
     // Optionally deserialize metadata
     const hasMetadata = buffer.getBool();
     if (hasMetadata) {
@@ -463,6 +466,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
   public redirects: NetworkFilterBucket;
   public filters: NetworkFilterBucket;
   public cosmetics: CosmeticFilterBucket;
+  public htmlFilters: HTMLBucket;
 
   public metadata: Metadata | undefined;
   public resources: Resources;
@@ -509,6 +513,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     this.filters = new NetworkFilterBucket({ config: this.config });
     // Cosmetic filters
     this.cosmetics = new CosmeticFilterBucket({ config: this.config });
+    // HTML filters
+    this.htmlFilters = new HTMLBucket({ config: this.config });
 
     // Injections
     this.resources = new Resources();
@@ -555,6 +561,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       this.csp.getSerializedSize() +
       this.cosmetics.getSerializedSize() +
       this.hideExceptions.getSerializedSize() +
+      this.htmlFilters.getSerializedSize() +
       4; // checksum
 
     // Estimate size of `this.lists` which stores information of checksum for each list.
@@ -608,6 +615,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     this.csp.serialize(buffer);
     this.cosmetics.serialize(buffer);
     this.hideExceptions.serialize(buffer);
+    this.htmlFilters.serialize(buffer);
 
     // Optionally serialize metadata
     buffer.pushBool(this.metadata !== undefined);
@@ -647,8 +655,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
   }
 
   public getFilters(): { networkFilters: NetworkFilter[]; cosmeticFilters: CosmeticFilter[] } {
-    const cosmeticFilters: CosmeticFilter[] = [];
-    const networkFilters: NetworkFilter[] = [];
+    const { networkFilters, cosmeticFilters } = this.htmlFilters.getFilters();
 
     return {
       cosmeticFilters: cosmeticFilters.concat(this.cosmetics.getFilters()),
@@ -694,14 +701,26 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       );
     }
 
+    const htmlFilters: (CosmeticFilter | NetworkFilter)[] = [];
+
     // Update cosmetic filters
     if (
       this.config.loadCosmeticFilters &&
       (newCosmeticFilters.length !== 0 || removedCosmeticFilters.length !== 0)
     ) {
       updated = true;
+      const cosmeticFitlers: CosmeticFilter[] = [];
+
+      for (const filter of newCosmeticFilters) {
+        if (filter.isHtmlFiltering()) {
+          htmlFilters.push(filter);
+        } else {
+          cosmeticFitlers.push(filter);
+        }
+      }
+
       this.cosmetics.update(
-        newCosmeticFilters,
+        cosmeticFitlers,
         removedCosmeticFilters.length === 0 ? undefined : new Set(removedCosmeticFilters),
         this.config,
       );
@@ -727,6 +746,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
         // done at match-time directly.
         if (filter.isCSP()) {
           csp.push(filter);
+        } else if (filter.isHtmlFilteringRule()) {
+          htmlFilters.push(filter);
         } else if (filter.isGenericHide() || filter.isSpecificHide()) {
           hideExceptions.push(filter);
         } else if (filter.isException()) {
@@ -757,6 +778,16 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       }
 
       this.hideExceptions.update(hideExceptions, removedNetworkFiltersSet);
+    }
+
+    if (
+      this.config.enableHtmlFiltering &&
+      (htmlFilters.length !== 0 ||
+        removedNetworkFilters.length !== 0 ||
+        removedCosmeticFilters.length !== 0)
+    ) {
+      const removeFilters = new Set([...removedNetworkFilters, ...removedCosmeticFilters]);
+      this.htmlFilters.update(htmlFilters, removeFilters);
     }
 
     return updated;
@@ -850,17 +881,16 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       return htmlSelectors;
     }
 
-    if (this.config.loadCosmeticFilters === true && selectors.includes('script')) {
-      const domain = request.domain || '';
+    // TODO: this is suboptimal - we shoudl query for given types only when enabled and requested
+    const { networkFilters, exceptions, cosmeticFilters, unhides } = this.htmlFilters.matchAll(
+      request,
+      this.isFilterExcluded.bind(this),
+    );
 
-      const { filters, unhides } = this.cosmetics.getHtmlFilters({
-        domain,
-        hostname: request.hostname,
-        isFilterExcluded: this.isFilterExcluded.bind(this),
-      });
+    if (this.config.loadCosmeticFilters === true && selectors.includes('script')) {
       const exceptions = new Map(unhides.map((unhide) => [unhide.getSelector(), unhide]));
 
-      for (const filter of filters) {
+      for (const filter of cosmeticFilters) {
         const extended = filter.getExtendedSelector();
         if (extended === undefined) {
           continue;
@@ -881,16 +911,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
     }
 
     if (this.config.loadNetworkFilters === true && selectors.includes('replace')) {
-      const replaceFilters = this.filters.getHTMLFilters(
-        request,
-        this.isFilterExcluded.bind(this),
-      );
-
-      if (replaceFilters.length !== 0) {
-        const exceptions = this.exceptions.getHTMLFilters(
-          request,
-          this.isFilterExcluded.bind(this),
-        );
+      if (networkFilters.length !== 0) {
         const exceptionsMap = new Map();
         let replaceDisabledException;
         for (const exception of exceptions) {
@@ -902,7 +923,7 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
           exceptionsMap.set(optionValue, exception);
         }
 
-        for (const filter of replaceFilters) {
+        for (const filter of networkFilters) {
           const modifier = filter.getHtmlModifier();
 
           if (modifier === null) {
