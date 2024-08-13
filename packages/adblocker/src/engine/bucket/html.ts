@@ -13,7 +13,6 @@ import Request from '../../request.js';
 import { noopOptimizeNetwork, optimizeNetwork, noopOptimizeCosmetic } from '../optimizer.js';
 import ReverseIndex from '../reverse-index.js';
 import { createLookupTokens } from './cosmetic.js';
-import { HTMLSelector } from '../../html-filtering.js';
 
 export default class HTMLBucket {
   public static deserialize(buffer: StaticDataView, config: Config): HTMLBucket {
@@ -144,7 +143,7 @@ export default class HTMLBucket {
     );
   }
 
-  public matchAll(
+  public getHTMLFilters(
     request: Request,
     isFilterExcluded?: (filter: NetworkFilter | CosmeticFilter) => boolean,
   ): {
@@ -202,18 +201,13 @@ export default class HTMLBucket {
     };
   }
 
-  public getFilters(): { networkFilters: NetworkFilter[]; cosmeticFilters: CosmeticFilter[] } {
-    const networkFilters: NetworkFilter[] = [];
-    const cosmeticFilters: CosmeticFilter[] = [];
-    return {
-      networkFilters: networkFilters.concat(
-        this.networkIndex.getFilters(),
-        this.exceptionsIndex.getFilters(),
-      ),
-      cosmeticFilters: cosmeticFilters.concat(
-        this.cosmeticIndex.getFilters(),
-        this.unhideIndex.getFilters(),
-      ),
-    };
+  public getFilters(): (NetworkFilter | CosmeticFilter)[] {
+    const filters: (NetworkFilter | CosmeticFilter)[] = [];
+    return filters.concat(
+      this.networkIndex.getFilters(),
+      this.exceptionsIndex.getFilters(),
+      this.cosmeticIndex.getFilters(),
+      this.unhideIndex.getFilters(),
+    );
   }
 }

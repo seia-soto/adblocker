@@ -655,18 +655,28 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
   }
 
   public getFilters(): { networkFilters: NetworkFilter[]; cosmeticFilters: CosmeticFilter[] } {
-    const { networkFilters, cosmeticFilters } = this.htmlFilters.getFilters();
+    const cosmeticFilters: CosmeticFilter[] = this.cosmetics.getFilters();
+    const networkFilters: NetworkFilter[] = [
+      ...this.filters.getFilters(),
+      ...this.exceptions.getFilters(),
+      ...this.importants.getFilters(),
+      ...this.redirects.getFilters(),
+      ...this.csp.getFilters(),
+      ...this.hideExceptions.getFilters(),
+    ];
+
+    for (const filter of this.htmlFilters.getFilters()) {
+      if (filter.isNetworkFilter()) {
+        networkFilters.push(filter as NetworkFilter);
+      }
+      if (filter.isCosmeticFilter()) {
+        cosmeticFilters.push(filter as CosmeticFilter);
+      }
+    }
 
     return {
-      cosmeticFilters: cosmeticFilters.concat(this.cosmetics.getFilters()),
-      networkFilters: networkFilters.concat(
-        this.filters.getFilters(),
-        this.exceptions.getFilters(),
-        this.importants.getFilters(),
-        this.redirects.getFilters(),
-        this.csp.getFilters(),
-        this.hideExceptions.getFilters(),
-      ),
+      cosmeticFilters,
+      networkFilters,
     };
   }
 
@@ -878,10 +888,8 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       return htmlSelectors;
     }
 
-    const { networkFilters, exceptions, cosmeticFilters, unhides } = this.htmlFilters.matchAll(
-      request,
-      this.isFilterExcluded.bind(this),
-    );
+    const { networkFilters, exceptions, cosmeticFilters, unhides } =
+      this.htmlFilters.getHTMLFilters(request, this.isFilterExcluded.bind(this));
 
     if (cosmeticFilters.length !== 0) {
       const unhideMap = new Map(unhides.map((unhide) => [unhide.getSelector(), unhide]));
