@@ -13,6 +13,7 @@ import Request from '../../request.js';
 import { noopOptimizeNetwork, optimizeNetwork, noopOptimizeCosmetic } from '../optimizer.js';
 import ReverseIndex from '../reverse-index.js';
 import { createLookupTokens } from './cosmetic.js';
+import { HTMLSelector } from '../../html-filtering.js';
 
 export default class HTMLBucket {
   public static deserialize(buffer: StaticDataView, config: Config): HTMLBucket {
@@ -171,24 +172,26 @@ export default class HTMLBucket {
       return true;
     });
 
-    const { hostname, domain = '' } = request;
-    const hostnameTokens = createLookupTokens(hostname, domain);
-    this.cosmeticIndex.iterMatchingFilters(hostnameTokens, (filter: CosmeticFilter) => {
-      if (filter.match(hostname, domain) && !isFilterExcluded?.(filter)) {
-        cosmeticFilters.push(filter);
-      }
-      return true;
-    });
-
-    // If we found at least one candidate, check if we have unhidden rules.
-    if (cosmeticFilters.length !== 0) {
-      this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
-        if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
-          unhides.push(rule);
+    if (request.isMainFrame()) {
+      const { hostname, domain = '' } = request;
+      const hostnameTokens = createLookupTokens(hostname, domain);
+      this.cosmeticIndex.iterMatchingFilters(hostnameTokens, (filter: CosmeticFilter) => {
+        if (filter.match(hostname, domain) && !isFilterExcluded?.(filter)) {
+          cosmeticFilters.push(filter);
         }
-
         return true;
       });
+
+      // If we found at least one candidate, check if we have unhidden rules.
+      if (cosmeticFilters.length !== 0) {
+        this.unhideIndex.iterMatchingFilters(hostnameTokens, (rule: CosmeticFilter) => {
+          if (rule.match(hostname, domain) && !isFilterExcluded?.(rule)) {
+            unhides.push(rule);
+          }
+
+          return true;
+        });
+      }
     }
 
     return {

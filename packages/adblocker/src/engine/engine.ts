@@ -871,37 +871,33 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
   /**
    * Return a list of HTML filtering rules.
    */
-  public getHtmlFilters(
-    request: Request,
-    { selectors = ['script'] }: { selectors?: HTMLSelector[0][] | undefined } = {},
-  ): HTMLSelector[] {
+  public getHtmlFilters(request: Request): HTMLSelector[] {
     const htmlSelectors: HTMLSelector[] = [];
 
     if (this.config.enableHtmlFiltering === false) {
       return htmlSelectors;
     }
 
-    // TODO: this is suboptimal - we shoudl query for given types only when enabled and requested
     const { networkFilters, exceptions, cosmeticFilters, unhides } = this.htmlFilters.matchAll(
       request,
       this.isFilterExcluded.bind(this),
     );
 
-    if (this.config.loadCosmeticFilters === true && selectors.includes('script')) {
-      const exceptions = new Map(unhides.map((unhide) => [unhide.getSelector(), unhide]));
+    if (cosmeticFilters.length !== 0) {
+      const unhideMap = new Map(unhides.map((unhide) => [unhide.getSelector(), unhide]));
 
       for (const filter of cosmeticFilters) {
         const extended = filter.getExtendedSelector();
         if (extended === undefined) {
           continue;
         }
-        const exception = exceptions.get(filter.getSelector());
-        if (exception === undefined) {
+        const unhide = unhideMap.get(filter.getSelector());
+        if (unhide === undefined) {
           htmlSelectors.push(extended);
         }
         this.emit(
           'filter-matched',
-          { filter, exception },
+          { filter, exception: unhide },
           {
             request,
             filterType: FilterType.COSMETIC,
@@ -910,40 +906,38 @@ export default class FilterEngine extends EventEmitter<EngineEventHandlers> {
       }
     }
 
-    if (this.config.loadNetworkFilters === true && selectors.includes('replace')) {
-      if (networkFilters.length !== 0) {
-        const exceptionsMap = new Map();
-        let replaceDisabledException;
-        for (const exception of exceptions) {
-          const optionValue = exception.optionValue;
-          if (optionValue === '') {
-            replaceDisabledException = exception;
-            break;
-          }
-          exceptionsMap.set(optionValue, exception);
+    if (networkFilters.length !== 0) {
+      const exceptionsMap = new Map();
+      let replaceDisabledException;
+      for (const exception of exceptions) {
+        const optionValue = exception.optionValue;
+        if (optionValue === '') {
+          replaceDisabledException = exception;
+          break;
+        }
+        exceptionsMap.set(optionValue, exception);
+      }
+
+      for (const filter of networkFilters) {
+        const modifier = filter.getHtmlModifier();
+
+        if (modifier === null) {
+          continue;
         }
 
-        for (const filter of networkFilters) {
-          const modifier = filter.getHtmlModifier();
+        const exception = replaceDisabledException || exceptionsMap.get(filter.optionValue);
 
-          if (modifier === null) {
-            continue;
-          }
+        this.emit(
+          'filter-matched',
+          { filter, exception },
+          {
+            request,
+            filterType: FilterType.NETWORK,
+          },
+        );
 
-          const exception = replaceDisabledException || exceptionsMap.get(filter.optionValue);
-
-          this.emit(
-            'filter-matched',
-            { filter, exception },
-            {
-              request,
-              filterType: FilterType.NETWORK,
-            },
-          );
-
-          if (exception === undefined) {
-            htmlSelectors.push(['replace', modifier]);
-          }
+        if (exception === undefined) {
+          htmlSelectors.push(['replace', modifier]);
         }
       }
     }
