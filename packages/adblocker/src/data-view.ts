@@ -8,7 +8,6 @@
 
 import Compression from './compression.js';
 import crc32 from './crc32.js';
-import { decode, encode } from './punycode.js';
 
 interface IDataViewOptions {
   enableCompression: boolean;
@@ -33,6 +32,18 @@ let getCompressionSingleton: () => Compression = () => {
 function align4(pos: number): number {
   // From: https://stackoverflow.com/a/2022194
   return (pos + 3) & ~0x03;
+}
+
+/**
+ * Return stringified UTF8 buffer.
+ */
+function flatten(raw: string): string {
+  let data = '';
+  for (let i = 0; i < raw.length; i += 1_000) {
+    // @ts-expect-error `Uint8Array` has an indexable signature.
+    data += String.fromCharCode.apply(null, TEXT_ENCODER.encode(raw.slice(i, i + 1_000)));
+  }
+  return data;
 }
 
 /**
@@ -149,7 +160,7 @@ export function sizeOfCosmeticSelector(str: string, compression: boolean): numbe
 export function sizeOfRawNetwork(str: string, compression: boolean): number {
   return compression === true
     ? sizeOfBytesWithLength(
-        getCompressionSingleton().networkRaw.getCompressedSize(encode(str)),
+        getCompressionSingleton().networkRaw.getCompressedSize(flatten(str)),
         false, // align
       )
     : sizeOfUTF8(str);
@@ -158,7 +169,7 @@ export function sizeOfRawNetwork(str: string, compression: boolean): number {
 export function sizeOfRawCosmetic(str: string, compression: boolean): number {
   return compression === true
     ? sizeOfBytesWithLength(
-        getCompressionSingleton().cosmeticRaw.getCompressedSize(encode(str)),
+        getCompressionSingleton().cosmeticRaw.getCompressedSize(flatten(str)),
         false, // align
       )
     : sizeOfUTF8(str);
@@ -511,7 +522,7 @@ export class StaticDataView {
 
   public pushRawCosmetic(str: string): void {
     if (this.compression !== undefined) {
-      this.pushBytes(this.compression.cosmeticRaw.compress(encode(str)));
+      this.pushBytes(this.compression.cosmeticRaw.compress(flatten(str)));
     } else {
       this.pushUTF8(str);
     }
@@ -519,14 +530,16 @@ export class StaticDataView {
 
   public getRawCosmetic(): string {
     if (this.compression !== undefined) {
-      return decode(this.compression.cosmeticRaw.decompress(this.getBytes()));
+      return new TextDecoder('utf8').decode(
+        Uint8Array.from(this.compression.cosmeticRaw.decompress(this.getBytes())),
+      );
     }
     return this.getUTF8();
   }
 
   public pushRawNetwork(str: string): void {
     if (this.compression !== undefined) {
-      this.pushBytes(this.compression.networkRaw.compress(encode(str)));
+      this.pushBytes(this.compression.networkRaw.compress(flatten(str)));
     } else {
       this.pushUTF8(str);
     }
@@ -534,7 +547,9 @@ export class StaticDataView {
 
   public getRawNetwork(): string {
     if (this.compression !== undefined) {
-      return decode(this.compression.networkRaw.decompress(this.getBytes()));
+      return new TextDecoder('utf8').decode(
+        Uint8Array.from(this.compression.networkRaw.decompress(this.getBytes())),
+      );
     }
     return this.getUTF8();
   }
