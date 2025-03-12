@@ -15,7 +15,23 @@ import { StaticDataView } from '../src/data-view.js';
 
 // Higher `numRuns` value can take a lot of time depending on the runner performance.
 // Tests defined here are set with the timeout of zero to avoid mocha timeout error.
-fc.configureGlobal({ numRuns: 1_000_000 });
+function getNumRuns() {
+  const env = process.env['FUZZ_RUNS'];
+  if (!env) {
+    return 100;
+  }
+  const runs = parseInt(env.replace(/_/g, ''), 10);
+  if (isNaN(runs)) {
+    console.warn(`Invalid "FUZZ_RUNS" env was set: FUZZ_RUNS=${env}`);
+    return 100;
+  }
+  if (runs === -1) {
+    return Number.POSITIVE_INFINITY;
+  }
+  return runs;
+}
+
+fc.configureGlobal({ numRuns: getNumRuns() });
 
 describe('#StaticDataView', () => {
   [false, true].map(function (enableCompression) {
@@ -58,7 +74,7 @@ describe('#StaticDataView', () => {
               expect(view.getRawNetwork()).to.be.eql(str);
             }),
           );
-        });
+        }).timeout(0);
 
         // Test only with UTF8 serialization
         it(`#pushUTF8 unit=${unit}`, () => {
@@ -71,7 +87,7 @@ describe('#StaticDataView', () => {
               expect(view.getUTF8()).to.be.eql(str);
             }),
           );
-        });
+        }).timeout(0);
       });
     });
   });

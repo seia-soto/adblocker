@@ -48,6 +48,7 @@
     "lint": "eslint src test tools",
     "build": "tshy && rollup --config ./rollup.config.js",
     "test": "nyc mocha",
+    "test:fuzz": "FUZZ_RUNS=1_000_000 mocha",
     "dev": "mocha --watch",
     "bench-metadata": "tsx ./tools/bench-metadata.ts",
     "bump-internal-engine-version": "tsx ./tools/auto-bump-engine-version.ts",
