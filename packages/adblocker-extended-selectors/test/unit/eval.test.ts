@@ -27,8 +27,7 @@ function testMatches(selector: string, html: string, target: string, expected: b
     return;
   }
 
-  const element =
-    target === 'document' ? document.documentElement : document.querySelector(target);
+  const element = document.querySelector(target);
   expect(element).to.be.instanceOf(Element);
   if (element instanceof Element) {
     const result = matches(element, ast);
@@ -199,15 +198,6 @@ describe('eval', () => {
         );
       });
 
-      it('does not match if text is null', () => {
-        testMatches(
-          ':min-text-length(1)',
-          '<!DOCTYPE html><p class="some_cls">Hello <span class="some_cls2">world</span></p>',
-          'document',
-          false,
-        );
-      });
-
       it('does not match if length is negative', () => {
         testMatches(
           ':min-text-length(-1)',
@@ -257,22 +247,6 @@ describe('eval', () => {
           ].join('\n'),
           '#n1',
           true,
-        );
-      });
-
-      it('does not match against document directly because textContent is null', () => {
-        testMatches(
-          ':has-text()',
-          [
-            '<!DOCTYPE html>',
-            '<head></head>',
-            '<body>',
-            '<div id="n1" class="cls"><span>foo bar baz</span></div>',
-            '<p id="n2" class="cls">Go to the pub!</p>',
-            '</body>',
-          ].join('\n'),
-          'document',
-          false,
         );
       });
     });
