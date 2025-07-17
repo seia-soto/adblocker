@@ -18,7 +18,7 @@ import { parse } from '../../src/parse.js';
 
 function testMatches(selector: string, html: string, target: string, expected: boolean): void {
   const {
-    window: { document },
+    window: { document, Element },
   } = new JSDOM(html);
 
   const ast = parse(selector);
@@ -27,7 +27,8 @@ function testMatches(selector: string, html: string, target: string, expected: b
     return;
   }
 
-  const element = target === 'document' ? document : document.querySelector(target);
+  const element =
+    target === 'document' ? document.documentElement : document.querySelector(target);
   expect(element).to.be.instanceOf(Element);
   if (element instanceof Element) {
     const result = matches(element, ast);
