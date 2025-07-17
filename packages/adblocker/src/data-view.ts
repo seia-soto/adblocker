@@ -429,8 +429,10 @@ export class StaticDataView {
     const byteLength = this.getLength();
     this.pos += byteLength;
 
-    // @ts-expect-error `Uint8Array<ArrayBufferLike>` is indexable with `number`
-    return String.fromCharCode.apply(null, this.buffer.subarray(this.pos - byteLength, this.pos));
+    return String.fromCharCode.apply(
+      null,
+      Array.from(this.buffer.subarray(this.pos - byteLength, this.pos)),
+    );
   }
 
   public pushNetworkRedirect(str: string): void {

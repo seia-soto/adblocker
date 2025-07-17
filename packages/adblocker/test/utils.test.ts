@@ -124,9 +124,7 @@ describe('utils.ts', () => {
       expect(fastHash('')).to.equal(HASH_SEED);
       expect(fastHashBetween('', 0, 0)).to.equal(HASH_SEED);
 
-      // @ts-expect-error `fastHash` expect `string` as its argument but edge case is handled
-      // TODO: Investigate if this is actually effective
-      expect(fastHash([])).to.equal(HASH_SEED);
+      expect(fastHash([] as any)).to.equal(HASH_SEED);
     });
   });
 
