@@ -431,7 +431,7 @@ export class StaticDataView {
 
     return String.fromCharCode.apply(
       null,
-      Array.from(this.buffer.subarray(this.pos - byteLength, this.pos)),
+      this.buffer.subarray(this.pos - byteLength, this.pos) as unknown as number[],
     );
   }
 
