@@ -479,6 +479,72 @@ wildcard
                   expect(index.getTokens()).to.eql(new Uint32Array(0));
                 });
 
+                it('keeps distinct filters whose serialized bytes hash to the same key', () => {
+                  const config = new Config();
+                  const indexA = new ReverseIndex({
+                    deserialize: NetworkFilter.deserialize,
+                    filters: parseFilters('/alpha-one^', { debug: false }).networkFilters,
+                    optimize: noopOptimizeNetwork,
+                    config,
+                  });
+                  const indexB = new ReverseIndex({
+                    deserialize: NetworkFilter.deserialize,
+                    filters: parseFilters('/beta-two^', { debug: false }).networkFilters,
+                    optimize: noopOptimizeNetwork,
+                    config,
+                  });
+
+                  const colliding = (): bigint => 0n;
+                  const merged = (ReverseIndex<NetworkFilter>).merge([indexA, indexB], {
+                    hashFunc: colliding,
+                  });
+
+                  expect(merged.getFilters()).to.have.length(2);
+                });
+
+                it('handles sources whose backing buffer overestimates filter bytes', () => {
+                  // `ReverseIndex.update` allocates an upper-bound buffer based on
+                  // `getSerializedSize`. When the estimate overshoots, the source
+                  // `view.buffer.byteLength` includes slack bytes after the last
+                  // filter, which must not corrupt the merged index.
+                  class OverestimatingNetworkFilter extends NetworkFilter {
+                    public getSerializedSize(compression: boolean): number {
+                      return super.getSerializedSize(compression) + 8;
+                    }
+                  }
+
+                  const config = new Config();
+                  const filtersA = parseFilters('/alpha-one^', { debug: false })
+                    .networkFilters.map(
+                      (f) => Object.setPrototypeOf(f, OverestimatingNetworkFilter.prototype) as NetworkFilter,
+                    );
+                  const filtersB = parseFilters('/beta-two^', { debug: false })
+                    .networkFilters.map(
+                      (f) => Object.setPrototypeOf(f, OverestimatingNetworkFilter.prototype) as NetworkFilter,
+                    );
+
+                  const indexA = new ReverseIndex({
+                    deserialize: NetworkFilter.deserialize,
+                    filters: filtersA,
+                    optimize: noopOptimizeNetwork,
+                    config,
+                  });
+                  const indexB = new ReverseIndex({
+                    deserialize: NetworkFilter.deserialize,
+                    filters: filtersB,
+                    optimize: noopOptimizeNetwork,
+                    config,
+                  });
+
+                  const merged = (ReverseIndex<NetworkFilter>).merge([indexA, indexB], {
+                    hashFunc,
+                  });
+
+                  const expected = parseFilters('/alpha-one^\n/beta-two^', { debug: false })
+                    .networkFilters;
+                  expect(merged.getFilters()).to.eql(expected);
+                });
+
                 it('serializes and deserializes a merged index', () => {
                   const config = new Config();
                   const indexA = new ReverseIndex({
