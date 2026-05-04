@@ -92,13 +92,22 @@ const EMPTY_BUCKET: number = Number.MAX_SAFE_INTEGER >>> 0;
  *   2. Compute a histogram of frequency of each token (globally)
  *   3. Select the best token for each filter (lowest frequency)
  */
+type MergeEntry = {
+  tokens: number[];
+  bytes: Uint8Array;
+};
+
+function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
+  const len = a.length;
+  if (len !== b.length) return false;
+  for (let i = 0; i < len; i += 1) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 export default class ReverseIndex<T extends IFilter> {
-  public static merge<T extends IFilter>(
-    sources: ReverseIndex<T>[],
-    opts?: {
-      hashFunc?: (arr: Uint8Array, beg: number, end: number) => number | string | bigint;
-    },
-  ): ReverseIndex<T> {
+  public static merge<T extends IFilter>(sources: ReverseIndex<T>[]): ReverseIndex<T> {
     if (sources.length < 2) {
       throw new Error('ReverseIndex.merge requires at least two source indexes.');
     }
@@ -131,27 +140,11 @@ export default class ReverseIndex<T extends IFilter> {
       });
     }
 
-    // `crc32` is used as a built-in hash function as they're already embedded
-    // in the library. As 32bit hash functions will have a lot of collision
-    // after ~130k of inputs, so they're not really recommended. Always
-    // implement the hash function in the below priority table. Do allocate the
-    // function before going to heavy loop.
-    // a) a function returns BigInt (low memory pressure and collision)
-    // b) a function returns number (in case of <130k input)
-    // c) a function returns string (high memory pressure)
-    // Hash-collision resistance is delegated to the caller-provided `hashFunc`.
-    // Use a collision-resistant string or bigint hash when merging large
-    // indexes; the built-in crc32 fallback is intended for convenience, not
-    // strict collision-proof deduplication.
-    const hashFunc = typeof opts?.hashFunc === 'function' ? opts.hashFunc : crc32;
-
-    const filtersByHash: Map<
-      number | bigint | string,
-      {
-        tokens: number[];
-        bytes: Uint8Array;
-      }
-    > = new Map();
+    // crc32 acts as an accelerator for the dedup map. On hash collision we
+    // fall back to byte equality, so collision quality of the hash never
+    // affects correctness — only the (negligible) byte-compare branch rate.
+    const filtersByHash: Map<number, MergeEntry[]> = new Map();
+    let uniqueCount = 0;
 
     // Recover serialized filter ranges from bucket pointers. The bucket index
     // stores absolute offsets into `source.view.buffer`; sorting unique offsets
@@ -187,43 +180,41 @@ export default class ReverseIndex<T extends IFilter> {
       });
       aligned.push(source.view.buffer.byteLength);
 
-      // Hash each serialized filter range and keep one representative per hash.
-      // This contributes to the memory pressure rather saving the full buffer
-      // with other data types.
-      for (
-        let i = 1,
-          hash: number | bigint | string,
-          tokens: number[],
-          filter:
-            | {
-                tokens: number[];
-                bytes: Uint8Array;
-              }
-            | undefined;
-        i < aligned.length;
-        i++
-      ) {
-        hash = hashFunc(source.view.buffer, aligned[i - 1], aligned[i]);
-        tokens = tokensByOffset.get(aligned[i - 1])!;
-        filter = filtersByHash.get(hash);
-        // Token policy for duplicated serialized filters:
-        // - Keep the fast compact merge path as the default.
-        // - Preserve one complete source-selected token association; do not
-        //   union tokens or recompute global best tokens here.
-        // - Exact `getTokens()` / bucket layout is not canonical merge output;
-        //   tests should assert filters and matching behavior instead.
-        // - Hash-collision handling is a separate dedupe concern and should not
-        //   change this token-choice policy.
-        //
-        // The same serialized filter can be indexed under different tokens in
-        // different sources because each source has its own histogram. Prefer
-        // the representative with the most selected token groups to keep the
-        // runtime index compact while preserving matching correctness.
-        if (typeof filter === 'undefined' || filter.tokens.length < tokens.length) {
-          filtersByHash.set(hash, {
-            tokens: tokensByOffset.get(aligned[i - 1])!,
-            bytes: source.view.buffer.subarray(aligned[i - 1], aligned[i]),
-          });
+      // Token policy for duplicated serialized filters:
+      // - Keep the fast compact merge path as the default.
+      // - Preserve one complete source-selected token association; do not
+      //   union tokens or recompute global best tokens here.
+      // - Exact `getTokens()` / bucket layout is not canonical merge output;
+      //   tests should assert filters and matching behavior instead.
+      //
+      // The same serialized filter can be indexed under different tokens in
+      // different sources because each source has its own histogram. Prefer
+      // the representative with the most selected token groups to keep the
+      // runtime index compact while preserving matching correctness.
+      for (let i = 1; i < aligned.length; i += 1) {
+        const beg = aligned[i - 1];
+        const end = aligned[i];
+        const slice = source.view.buffer.subarray(beg, end);
+        const tokens = tokensByOffset.get(beg)!;
+        const hash = crc32(source.view.buffer, beg, end);
+        const bucket = filtersByHash.get(hash);
+        if (bucket === undefined) {
+          filtersByHash.set(hash, [{ tokens, bytes: slice }]);
+          uniqueCount += 1;
+          continue;
+        }
+        let matched = -1;
+        for (let j = 0; j < bucket.length; j += 1) {
+          if (bytesEqual(bucket[j].bytes, slice)) {
+            matched = j;
+            break;
+          }
+        }
+        if (matched === -1) {
+          bucket.push({ tokens, bytes: slice });
+          uniqueCount += 1;
+        } else if (bucket[matched].tokens.length < tokens.length) {
+          bucket[matched] = { tokens, bytes: slice };
         }
       }
     }
@@ -231,9 +222,11 @@ export default class ReverseIndex<T extends IFilter> {
     // Rebuild a compact reverse-index from the deduplicated serialized filters.
     let totalNumberOfIndexedTokens = 0;
     let filtersIndexSize = 0;
-    for (const filter of filtersByHash.values()) {
-      totalNumberOfIndexedTokens += filter.tokens.length;
-      filtersIndexSize += filter.bytes.byteLength;
+    for (const bucket of filtersByHash.values()) {
+      for (let j = 0; j < bucket.length; j += 1) {
+        totalNumberOfIndexedTokens += bucket[j].tokens.length;
+        filtersIndexSize += bucket[j].bytes.byteLength;
+      }
     }
     const bucketsIndexSize = totalNumberOfIndexedTokens * 2;
     const tokensLookupIndexSize = Math.max(2, nextPow2(totalNumberOfIndexedTokens));
@@ -252,13 +245,16 @@ export default class ReverseIndex<T extends IFilter> {
       suffixes.push([]);
     }
 
-    for (const filter of filtersByHash.values()) {
-      const filterIndex = view.getPos();
-      view.buffer.set(filter.bytes, filterIndex);
-      view.setPos(filterIndex + filter.bytes.byteLength);
+    for (const bucket of filtersByHash.values()) {
+      for (let j = 0; j < bucket.length; j += 1) {
+        const filter = bucket[j];
+        const filterIndex = view.getPos();
+        view.buffer.set(filter.bytes, filterIndex);
+        view.setPos(filterIndex + filter.bytes.byteLength);
 
-      for (const token of filter.tokens) {
-        suffixes[token & mask].push([token, filterIndex]);
+        for (const token of filter.tokens) {
+          suffixes[token & mask].push([token, filterIndex]);
+        }
       }
     }
 
@@ -282,7 +278,7 @@ export default class ReverseIndex<T extends IFilter> {
     }).updateInternals({
       bucketsIndex,
       filtersIndexStart,
-      numberOfFilters: filtersByHash.size,
+      numberOfFilters: uniqueCount,
       tokensLookupIndex,
       view: view,
     });

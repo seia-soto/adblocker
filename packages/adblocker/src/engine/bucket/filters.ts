@@ -25,12 +25,18 @@ import IFilter from '../../filters/interface.js';
  * lists of filters (which is useful for things like generic cosmetic filters
  * or $badfilter).
  */
+function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
+  const len = a.length;
+  if (len !== b.length) return false;
+  for (let i = 0; i < len; i += 1) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 export default class FiltersContainer<T extends IFilter> {
   public static merge<T extends IFilter>(
     sources: FiltersContainer<T>[],
-    opts?: {
-      hashFunc?: (arr: Uint8Array, beg: number, end: number) => number | string | bigint;
-    },
   ): FiltersContainer<T> {
     if (sources.length < 2) {
       throw new Error('FiltersContainer.merge requires at least two source containers.');
@@ -65,10 +71,12 @@ export default class FiltersContainer<T extends IFilter> {
       });
     }
 
-    // See reverse-index.ts for additional notes regarding hash function.
-    const hashFunc = typeof opts?.hashFunc === 'function' ? opts.hashFunc : crc32;
-
-    const filtersByHash: Map<number | bigint | string, Uint8Array> = new Map();
+    // crc32 acts as an accelerator for the dedup map. On hash collision we
+    // fall back to byte equality, so collision quality of the hash never
+    // affects correctness — only the (negligible) byte-compare branch rate.
+    const filtersByHash: Map<number, Uint8Array[]> = new Map();
+    let uniqueCount = 0;
+    let totalBytes = 0;
 
     // Recover serialized filter ranges from the offset table. The container
     // stores N + 1 offsets for N filters; two consecutive offsets give the byte
@@ -85,28 +93,43 @@ export default class FiltersContainer<T extends IFilter> {
       ) {
         filterIndex = source.offsets[i];
         filterIndexEnd = source.offsets[i + 1];
-        filtersByHash.set(
-          hashFunc(source.filters, filterIndex, filterIndexEnd),
-          source.filters.subarray(filterIndex, filterIndexEnd),
-        );
+        const slice = source.filters.subarray(filterIndex, filterIndexEnd);
+        const hash = crc32(source.filters, filterIndex, filterIndexEnd);
+        const bucket = filtersByHash.get(hash);
+        if (bucket === undefined) {
+          filtersByHash.set(hash, [slice]);
+          uniqueCount += 1;
+          totalBytes += slice.byteLength;
+        } else {
+          let duplicate = false;
+          for (let j = 0; j < bucket.length; j += 1) {
+            if (bytesEqual(bucket[j], slice)) {
+              duplicate = true;
+              break;
+            }
+          }
+          if (!duplicate) {
+            bucket.push(slice);
+            uniqueCount += 1;
+            totalBytes += slice.byteLength;
+          }
+        }
       }
     }
 
     // Rebuild a compact filters container from the deduplicated serialized
     // filters.
-    let filtersIndexSize = 0;
-    for (const filter of filtersByHash.values()) {
-      filtersIndexSize += filter.byteLength;
-    }
-
-    const view = StaticDataView.allocate(filtersIndexSize, firstSource.config);
-    const offsets = new Uint32Array(filtersByHash.size + 1);
+    const view = StaticDataView.allocate(totalBytes, firstSource.config);
+    const offsets = new Uint32Array(uniqueCount + 1);
 
     let index = 0;
-    for (const filter of filtersByHash.values()) {
-      offsets[index++] = view.pos;
-      view.buffer.set(filter, view.pos);
-      view.setPos(view.pos + filter.byteLength);
+    for (const bucket of filtersByHash.values()) {
+      for (let j = 0; j < bucket.length; j += 1) {
+        const filter = bucket[j];
+        offsets[index++] = view.pos;
+        view.buffer.set(filter, view.pos);
+        view.setPos(view.pos + filter.byteLength);
+      }
     }
     offsets[index] = view.getPos();
 
@@ -117,7 +140,7 @@ export default class FiltersContainer<T extends IFilter> {
     });
     container.filters = view.subarray();
     container.offsets = offsets;
-    container.numberOfFilters = filtersByHash.size;
+    container.numberOfFilters = uniqueCount;
     return container;
   }
 

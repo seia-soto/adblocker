@@ -8,7 +8,6 @@
 
 import { expect } from 'chai';
 import 'mocha';
-import xxhash from 'xxhash-wasm';
 
 import Config from '../src/config.js';
 import { StaticDataView } from '../src/data-view.js';
@@ -300,17 +299,6 @@ wildcard
               // We require debug=false explicitly for #merge.
               const filtersWithoutDebug = parseFilters(allLists, { debug: false });
 
-              // Having custom hash function is unavoidable in the real world scenario and
-              // it's nice to have an example in the test code.
-              let hashFunc: (arr: Uint8Array, beg: number, end: number) => bigint;
-
-              before(async () => {
-                const hasher = await xxhash();
-                hashFunc = (arr: Uint8Array, beg: number, end: number) => {
-                  return hasher.h64Raw(arr.subarray(beg, end));
-                };
-              });
-
               it('throws on less than 2 indexes were given as sources', () => {
                 const emptyIndex = new ReverseIndex({
                   deserialize: NetworkFilter.deserialize,
@@ -373,9 +361,7 @@ wildcard
                     config,
                   });
 
-                  const index = (ReverseIndex<NetworkFilter>).merge([indexA, indexB], {
-                    hashFunc,
-                  });
+                  const index = (ReverseIndex<NetworkFilter>).merge([indexA, indexB]);
                   const filters = index.getFilters();
 
                   // This expect line is not strictly required but helps fast exit.
@@ -415,9 +401,7 @@ wildcard
                     optimize: noopOptimizeNetwork,
                     config,
                   });
-                  const merged = (ReverseIndex<NetworkFilter>).merge([indexA, indexB], {
-                    hashFunc,
-                  });
+                  const merged = (ReverseIndex<NetworkFilter>).merge([indexA, indexB]);
                   expect(merged.getFilters()).to.be.eql(assumed.getFilters());
 
                   const alphaBetaGammaRequest = Request.fromRawDetails({
@@ -471,9 +455,7 @@ wildcard
                     optimize: noopOptimizeNetwork,
                     config,
                   });
-                  const index = (ReverseIndex<NetworkFilter>).merge([indexA, indexB], {
-                    hashFunc,
-                  });
+                  const index = (ReverseIndex<NetworkFilter>).merge([indexA, indexB]);
 
                   expect(index.getFilters()).to.eql([]);
                   expect(index.getTokens()).to.eql(new Uint32Array(0));
@@ -493,9 +475,7 @@ wildcard
                     optimize: noopOptimizeNetwork,
                     config,
                   });
-                  const index = (ReverseIndex<NetworkFilter>).merge([indexA, indexB], {
-                    hashFunc,
-                  });
+                  const index = (ReverseIndex<NetworkFilter>).merge([indexA, indexB]);
                   const buffer = StaticDataView.allocate(index.getSerializedSize(), config);
                   index.serialize(buffer);
                   expect(buffer.pos).to.equal(buffer.buffer.byteLength);
@@ -537,9 +517,7 @@ wildcard
                     config,
                   });
 
-                  const index = (ReverseIndex<CosmeticFilter>).merge([indexA, indexB], {
-                    hashFunc,
-                  });
+                  const index = (ReverseIndex<CosmeticFilter>).merge([indexA, indexB]);
                   const filters = index.getFilters();
 
                   // This expect line is not strictly required but helps fast exit.
@@ -566,9 +544,7 @@ wildcard
                     optimize: noopOptimizeCosmetic,
                     config,
                   });
-                  const index = (ReverseIndex<CosmeticFilter>).merge([indexA, indexB], {
-                    hashFunc,
-                  });
+                  const index = (ReverseIndex<CosmeticFilter>).merge([indexA, indexB]);
                   const expectedFilter = indexA.getFilters()[0].toString();
 
                   expect(index.getFilters().map((filter) => filter.toString())).to.eql([
