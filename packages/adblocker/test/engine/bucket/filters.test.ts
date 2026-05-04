@@ -8,7 +8,6 @@
 
 import { expect } from 'chai';
 import 'mocha';
-import xxhash from 'xxhash-wasm';
 
 import Config from '../../../src/config.js';
 import { StaticDataView } from '../../../src/data-view.js';
@@ -221,14 +220,6 @@ describe('#FiltersContainer', () => {
       });
 
       describe('#merge', () => {
-        let hashFunc: (arr: Uint8Array, beg: number, end: number) => bigint;
-
-        before(async () => {
-          const hasher = await xxhash();
-          hashFunc = (arr: Uint8Array, beg: number, end: number) =>
-            hasher.h64Raw(arr.subarray(beg, end));
-        });
-
         it('throws on fewer than two source containers', () => {
           const empty = new FiltersContainer({
             config,
@@ -282,7 +273,7 @@ describe('#FiltersContainer', () => {
             deserialize: NetworkFilter.deserialize,
             filters: [],
           });
-          const merged = FiltersContainer.merge([sourceA, sourceB], { hashFunc });
+          const merged = FiltersContainer.merge([sourceA, sourceB]);
           expect(merged.offsets.length).to.equal(0);
           expect(merged.filters.byteLength).to.equal(0);
           expect(merged.getSerializedSize()).to.equal(4);
@@ -301,9 +292,7 @@ describe('#FiltersContainer', () => {
             deserialize: NetworkFilter.deserialize,
             filters,
           });
-          expect(FiltersContainer.merge([empty, nonEmpty], { hashFunc }).getFilters()).to.eql(
-            filters,
-          );
+          expect(FiltersContainer.merge([empty, nonEmpty]).getFilters()).to.eql(filters);
         });
 
         it('deduplicates overlapping network filters in first-seen order', () => {
@@ -324,7 +313,7 @@ describe('#FiltersContainer', () => {
           const expected = parseFilters(
             '/alpha-one^\n/beta-two^\n/gamma-three^\n/delta-four^',
           ).networkFilters;
-          expect(FiltersContainer.merge([sourceA, sourceB], { hashFunc }).getFilters()).to.eql(
+          expect(FiltersContainer.merge([sourceA, sourceB]).getFilters()).to.eql(
             expected,
           );
         });
@@ -340,7 +329,7 @@ describe('#FiltersContainer', () => {
             deserialize: NetworkFilter.deserialize,
             filters: parseFilters('/beta-two^').networkFilters,
           });
-          const merged = FiltersContainer.merge([sourceA, sourceB], { hashFunc });
+          const merged = FiltersContainer.merge([sourceA, sourceB]);
           const buffer = StaticDataView.allocate(merged.getSerializedSize(), config);
           merged.serialize(buffer);
           expect(buffer.pos).to.equal(buffer.buffer.byteLength);
@@ -369,34 +358,7 @@ describe('#FiltersContainer', () => {
             deserialize: CosmeticFilter.deserialize,
             filters,
           });
-          expect(FiltersContainer.merge([sourceA, sourceB], { hashFunc }).getFilters()).to.eql(
-            filters,
-          );
-        });
-
-        it('passes valid serialized network filter ranges to the supplied hash function', () => {
-          const filters = parseFilters('/alpha-one^\n/beta-two^', { debug: false }).networkFilters;
-          const sourceA = new FiltersContainer({
-            config,
-            deserialize: NetworkFilter.deserialize,
-            filters,
-          });
-          const sourceB = new FiltersContainer({
-            config,
-            deserialize: NetworkFilter.deserialize,
-            filters: [],
-          });
-          const seen: NetworkFilter[] = [];
-          const recordingHashFunc = (arr: Uint8Array, beg: number, end: number): bigint => {
-            seen.push(
-              NetworkFilter.deserialize(
-                StaticDataView.fromUint8Array(arr.subarray(beg, end), config),
-              ),
-            );
-            return hashFunc(arr, beg, end);
-          };
-          FiltersContainer.merge([sourceA, sourceB], { hashFunc: recordingHashFunc });
-          expect(seen).to.eql(filters);
+          expect(FiltersContainer.merge([sourceA, sourceB]).getFilters()).to.eql(filters);
         });
       });
     });
