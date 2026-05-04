@@ -374,6 +374,26 @@ describe('#FiltersContainer', () => {
           );
         });
 
+        it('keeps distinct filters whose serialized bytes hash to the same key', () => {
+          const sourceAFilters = parseFilters('/alpha-one^', { debug: false }).networkFilters;
+          const sourceBFilters = parseFilters('/beta-two^', { debug: false }).networkFilters;
+          const sourceA = new FiltersContainer({
+            config,
+            deserialize: NetworkFilter.deserialize,
+            filters: sourceAFilters,
+          });
+          const sourceB = new FiltersContainer({
+            config,
+            deserialize: NetworkFilter.deserialize,
+            filters: sourceBFilters,
+          });
+
+          const colliding = (): bigint => 0n;
+          const merged = FiltersContainer.merge([sourceA, sourceB], { hashFunc: colliding });
+
+          expect(merged.getFilters()).to.have.length(2);
+        });
+
         it('passes valid serialized network filter ranges to the supplied hash function', () => {
           const filters = parseFilters('/alpha-one^\n/beta-two^', { debug: false }).networkFilters;
           const sourceA = new FiltersContainer({

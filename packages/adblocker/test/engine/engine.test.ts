@@ -22,6 +22,7 @@ import FilterEngine from '../../src/engine/engine.js';
 import { Metadata } from '../../src/engine/metadata.js';
 import { CosmeticFilter } from '../../src/index.js';
 import { Domains } from '../../src/engine/domains.js';
+import { Env } from '../../src/preprocessor.js';
 
 /**
  * Helper function used in the Engine tests. All the assertions are performed by
@@ -2340,6 +2341,75 @@ foo.com###selector
         expect(() => FilterEngine.merge([engine1, engine2])).to.throw(
           'resource checksum of all merged engines must match with the first one: "1" but got: "2"',
         );
+      });
+    });
+
+    context('useBinaryMerge', () => {
+      it('evaluates preprocessors against the default env', () => {
+        // A filter gated behind a condition that is false in the default `Env`
+        // must not match after merging — the legacy path enforces this through
+        // `update`, the binary path must produce the same exclusion set.
+        const conditional = `!#if env_undefined_in_default
+||preprocessed.com^
+!#endif`;
+        const opts = { loadPreprocessors: true };
+        const engineA = FilterEngine.parse(conditional, opts);
+        const engineB = FilterEngine.parse('||other.com^', opts);
+
+        const request = Request.fromRawDetails({ url: 'https://preprocessed.com/' });
+
+        const legacy = FilterEngine.merge([engineA, engineB]);
+        expect(legacy.match(request)).to.have.property('match', false);
+
+        const binary = FilterEngine.merge([engineA, engineB], { useBinaryMerge: true });
+        expect(binary.match(request)).to.have.property('match', false);
+      });
+
+      it('keeps preprocessor evaluation responsive to updateEnv', () => {
+        const conditional = `!#if ext_test_flag
+||preprocessed.com^
+!#endif`;
+        const opts = { loadPreprocessors: true };
+        const engineA = FilterEngine.parse(conditional, opts);
+        const engineB = FilterEngine.parse('||other.com^', opts);
+
+        const request = Request.fromRawDetails({ url: 'https://preprocessed.com/' });
+
+        const merged = FilterEngine.merge([engineA, engineB], { useBinaryMerge: true });
+
+        // Default env: condition is false → filter excluded.
+        expect(merged.match(request)).to.have.property('match', false);
+
+        // Flip the env: the filter should become active.
+        const env = new Env();
+        env.set('ext_test_flag', true);
+        merged.updateEnv(env);
+        expect(merged.match(request)).to.have.property('match', true);
+      });
+
+      it('produces an engine consistent with overrideConfig', () => {
+        // overrideConfig is honored at the top level but `binaryMerge` builds
+        // the merged buckets from `firstSource.config`. When override flips a
+        // layout-affecting setting like `enableCompression`, the engine's
+        // declared config and its serialized filter bytes diverge — round-trip
+        // through serialize/deserialize must still yield the same filters.
+        const engineA = FilterEngine.parse('||compression-flip.com^', {
+          enableCompression: false,
+        });
+        const engineB = FilterEngine.parse('||other.com^', {
+          enableCompression: false,
+        });
+
+        const merged = FilterEngine.merge([engineA, engineB], {
+          useBinaryMerge: true,
+          overrideConfig: { enableCompression: true },
+        });
+
+        const request = Request.fromRawDetails({ url: 'https://compression-flip.com/' });
+        expect(merged.match(request)).to.have.property('match', true);
+
+        const roundTripped = FilterEngine.deserialize(merged.serialize());
+        expect(roundTripped.match(request)).to.have.property('match', true);
       });
     });
   });
